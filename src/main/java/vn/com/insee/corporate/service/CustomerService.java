@@ -75,4 +75,13 @@ public class CustomerService {
         return pageData;
     }
 
+    public void v() {
+        List<CustomerEntity> all = customerRepository.findAll();
+        for (CustomerEntity entity: all) {
+            entity.setPhone(entity.getPhone().replace("+", ""));
+            customerRepository.saveAndFlush(entity);
+        }
+    }
+
+
 }

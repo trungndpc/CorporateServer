@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.repository.CustomerRepository;
+import vn.com.insee.corporate.service.CustomerService;
 
 import java.util.List;
 
@@ -13,13 +14,13 @@ import java.util.List;
 @RequestMapping("")
 public class PingController {
 
+
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerService customerService;
 
     @GetMapping("/ping")
     String all() {
-        List<CustomerEntity> all = customerRepository.findAll();
-        System.out.println(all.size());
+        customerService.v();
         return "OK";
     }
 }

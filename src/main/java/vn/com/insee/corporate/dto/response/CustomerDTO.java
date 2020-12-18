@@ -34,6 +34,9 @@ public class CustomerDTO {
     }
 
     public String getPhone() {
+        if(phone != null) {
+            phone = phone.replace("+", "");
+        }
         return phone;
     }
 
