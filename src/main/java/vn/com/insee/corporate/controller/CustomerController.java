@@ -98,4 +98,15 @@ public class CustomerController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/delete", produces = {"application/json"})
+    public ResponseEntity<BaseResponse> delete(@RequestParam(required = true) int id) {
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        try{
+            service.delete(id);
+        }catch (Exception e) {
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
 }

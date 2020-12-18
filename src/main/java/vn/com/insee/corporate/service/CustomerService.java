@@ -75,6 +75,10 @@ public class CustomerService {
         return pageData;
     }
 
+    public void delete(int id) {
+        customerRepository.deleteById(id);
+    }
+
     public void v() {
         List<CustomerEntity> all = customerRepository.findAll();
         for (CustomerEntity entity: all) {
