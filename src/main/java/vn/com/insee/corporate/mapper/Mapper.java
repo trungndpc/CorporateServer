@@ -1,8 +1,11 @@
 package vn.com.insee.corporate.mapper;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 import vn.com.insee.corporate.mapper.dto2entity.CustomerFormToCustomerEntity;
+import vn.com.insee.corporate.mapper.dto2entity.PostFormToPostEntity;
+import vn.com.insee.corporate.mapper.entity2dto.PostEntityToPostDTO;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -12,8 +15,12 @@ public class Mapper {
     private ModelMapper mapper;
 
     public Mapper() {
+
         this.mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         this.mapper.addMappings(new CustomerFormToCustomerEntity());
+        this.mapper.addMappings(new PostFormToPostEntity());
+        this.mapper.addMappings(new PostEntityToPostDTO());
     }
     public <S, D> void map(S source, D destination) {
         mapper.map(source, destination);
@@ -21,6 +28,10 @@ public class Mapper {
 
     public <S, D> List<D> mapToList(List<S> list, Type type) {
         return mapper.map(list, type);
+    }
+
+    public <S, D> D map(S source, Class<D> destinationClass) {
+        return mapper.map(source, destinationClass);
     }
 
 }
