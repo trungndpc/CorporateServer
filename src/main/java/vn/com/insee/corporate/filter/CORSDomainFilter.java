@@ -19,6 +19,8 @@ import java.net.URL;
 public class CORSDomainFilter extends CorsFilter {
     private static final String REFERER_HEADER = "Referer";
     private static final String DOMAIN_FORMAT = "%s://%s:%d";
+    private static final String DOMAIN_FORMAT_NO_PORT = "%s://%s";
+
 
     public CORSDomainFilter(CorsConfigurationSource configSource) {
         super(configSource);
@@ -30,7 +32,11 @@ public class CORSDomainFilter extends CorsFilter {
         String clientDomain = "*";
         try {
             URL url = new URL(referer);
-            clientDomain = String.format(DOMAIN_FORMAT, url.getProtocol(), url.getHost(), url.getPort());
+            if (url.getPort() == -1) {
+                clientDomain = String.format(DOMAIN_FORMAT_NO_PORT, url.getProtocol(), url.getHost());
+            }else{
+                clientDomain = String.format(DOMAIN_FORMAT, url.getProtocol(), url.getHost(), url.getPort());
+            }
         } catch (MalformedURLException ignored) {
         }
         response.setHeader("Access-Control-Allow-Origin", clientDomain);
