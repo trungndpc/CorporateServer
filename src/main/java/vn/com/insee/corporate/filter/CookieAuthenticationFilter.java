@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +17,8 @@ import vn.com.insee.corporate.exception.InseeException;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.security.InseeUserDetail;
 import vn.com.insee.corporate.security.InseeUserDetailService;
+import vn.com.insee.corporate.service.external.ZaloService;
+import vn.com.insee.corporate.service.external.ZaloUserEntity;
 import vn.com.insee.corporate.util.HttpUtil;
 import vn.com.insee.corporate.util.TokenUtil;
 
@@ -28,12 +31,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
+@Order(2)
 public class CookieAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private InseeUserDetailService userUserDetailsService;
 
+    @Autowired
+    private ZaloService zaloService;
+
     public static final String COOKIE_NAME = "_insee_ss";
+    public static final String ZALO_COOKIE_NAME = "_z_authen_insee";
 
 
     @Autowired
@@ -42,6 +50,7 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal(@NonNull HttpServletRequest req, @NonNull HttpServletResponse resp, @NonNull FilterChain chain) throws IOException, ServletException {
         try {
+            System.out.println("CookieAuthenticationFilter");
             String _inseeSS = HttpUtil.getCookie(COOKIE_NAME, req);
             if (_inseeSS != null && TokenUtil.isValid(_inseeSS)) {
                 Claims claims = TokenUtil.parse(_inseeSS);
@@ -85,8 +94,7 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        return !path.startsWith("/api/admin") || path.startsWith("/api/admin/users/login");
+        return false;
     }
 
 

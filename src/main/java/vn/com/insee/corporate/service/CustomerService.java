@@ -63,10 +63,6 @@ public class CustomerService {
         return customerRepository.findByPhone(phone) != null;
     }
 
-    public String verifySMSCode(String token, String smsCode) {
-        return "";
-    }
-
     public PageDTO<CustomerDTO> getList(int page, int pageSize) {
         Page<CustomerEntity> customerEntities = customerRepository.findAll(PageRequest.of(page, pageSize));
         List<CustomerDTO> customerDTOS = mapper.mapToList(customerEntities.toList(), new TypeToken<List<CustomerDTO>>() {

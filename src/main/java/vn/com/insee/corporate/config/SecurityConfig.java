@@ -36,15 +36,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.antMatcher("/api/customer/list")
+        http
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilterBefore(cookieAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling().authenticationEntryPoint(unauthenticatedEntryPoint)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/customer/list").authenticated()
-//                .anyRequest().permitAll()
+                .antMatchers("/ping").authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .csrf().disable()
                 .rememberMe().disable()

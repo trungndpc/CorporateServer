@@ -18,13 +18,18 @@ public class UserEntity {
     private Integer id;
     private String phone;
     private String password;
+    private Integer status;
+    private String zaloId;
+    private String avatar;
+    private Integer customerId;
+    private Integer roleId;
+    private String name;
     private boolean isEnable;
 
     @Type(type = "list-array")
     @Column(name = "lst_session",columnDefinition = "character varying[]")
     private List<String> lstSession;
-    private Integer customerId;
-    private Integer roleId;
+
 
     public Integer getId() {
         return id;
@@ -58,12 +63,28 @@ public class UserEntity {
         isEnable = enable;
     }
 
-    public List<String> getLstSession() {
-        return lstSession;
+    public Integer getStatus() {
+        return status;
     }
 
-    public void setLstSession(List<String> lstSession) {
-        this.lstSession = lstSession;
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getZaloId() {
+        return zaloId;
+    }
+
+    public void setZaloId(String zaloId) {
+        this.zaloId = zaloId;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public Integer getCustomerId() {
@@ -80,5 +101,21 @@ public class UserEntity {
 
     public void setRoleId(Integer roleId) {
         this.roleId = roleId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<String> getLstSession() {
+        return lstSession;
+    }
+
+    public void setLstSession(List<String> lstSession) {
+        this.lstSession = lstSession;
     }
 }

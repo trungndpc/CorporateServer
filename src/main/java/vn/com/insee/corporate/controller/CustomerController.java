@@ -2,6 +2,7 @@ package vn.com.insee.corporate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.RegisterForm;
@@ -11,6 +12,7 @@ import vn.com.insee.corporate.exception.CustomerExitException;
 import vn.com.insee.corporate.exception.FirebaseAuthenException;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.CustomerService;
+import vn.com.insee.corporate.service.UserService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,9 @@ public class CustomerController {
 
     @Autowired
     private CustomerService service;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping(path = "/", produces = {"application/json"})
     public ResponseEntity<BaseResponse> get(@RequestParam(required = true) int id) {
@@ -60,28 +65,13 @@ public class CustomerController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(value = "/verify-sms-code", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<BaseResponse> checkSMS(@RequestBody Map<String, String> dataMap) {
-        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
-        try {
-            String smsCode = dataMap.get("smsCode");
-            String token = dataMap.get("token");
-            String verifiedToken = service.verifySMSCode(token, smsCode);
-            Map<String, String> mapResponse = new HashMap<>();
-            mapResponse.put("verified_token", verifiedToken);
-            response.setData(mapResponse);
-        }catch (Exception e) {
-            response.setError(ErrorCode.VERIFY_FAILED);
-        }
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping(path = "/register", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<BaseResponse> register(@RequestBody RegisterForm form) {
+    public ResponseEntity<BaseResponse> register(@RequestBody RegisterForm form, Authentication authentication) {
         BaseResponse response = new BaseResponse();
         try{
             CustomerDTO customerDTO = service.register(form);
             if (customerDTO != null) {
+                authentication.getPrincipal();
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(customerDTO);
             }else{

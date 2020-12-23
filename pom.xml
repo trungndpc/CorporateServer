@@ -20,6 +20,14 @@
 
 	<dependencies>
 
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20201115</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -73,6 +81,9 @@
 			<artifactId>hibernate-types-52</artifactId>
 			<version>2.10.1</version>
 		</dependency>
+
+
+
 	</dependencies>
 
 	<build>
