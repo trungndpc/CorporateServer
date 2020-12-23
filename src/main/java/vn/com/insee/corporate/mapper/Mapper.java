@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import vn.com.insee.corporate.mapper.dto2entity.CustomerFormToCustomerEntity;
 import vn.com.insee.corporate.mapper.dto2entity.PostFormToPostEntity;
 import vn.com.insee.corporate.mapper.entity2dto.PostEntityToPostDTO;
+import vn.com.insee.corporate.mapper.entity2dto.UserEntityToUserDTO;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -21,6 +22,7 @@ public class Mapper {
         this.mapper.addMappings(new CustomerFormToCustomerEntity());
         this.mapper.addMappings(new PostFormToPostEntity());
         this.mapper.addMappings(new PostEntityToPostDTO());
+        this.mapper.addMappings(new UserEntityToUserDTO());
     }
     public <S, D> void map(S source, D destination) {
         mapper.map(source, destination);

@@ -8,11 +8,16 @@ import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
+import vn.com.insee.corporate.dto.response.UserDTO;
+import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.CustomerExitException;
 import vn.com.insee.corporate.exception.FirebaseAuthenException;
+import vn.com.insee.corporate.exception.InvalidSessionException;
 import vn.com.insee.corporate.response.BaseResponse;
+import vn.com.insee.corporate.security.InseeUserDetail;
 import vn.com.insee.corporate.service.CustomerService;
 import vn.com.insee.corporate.service.UserService;
+import vn.com.insee.corporate.util.AuthenUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,11 +62,22 @@ public class CustomerController {
     }
 
     @PostMapping(value = "/check-phone", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<BaseResponse> authenticate(@RequestBody Map<String, String> dataMap)  {
+    public ResponseEntity<BaseResponse> authenticate(@RequestBody Map<String, String> dataMap, Authentication authentication) throws InvalidSessionException {
+        UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+
         String phone = dataMap.get("phone");
         phone = phone.replace("+", "");
         boolean isPhoneExits = service.isPhoneExits(phone);
         BaseResponse response = new BaseResponse(isPhoneExits ? ErrorCode.PHONE_EXITS : ErrorCode.SUCCESS);
+
+        if (authUser != null) {
+            Integer userId = authUser.getId();
+            UserDTO userDTO = userService.findById(userId);
+            if (userDTO == null) {
+                throw new InvalidSessionException();
+            }
+            response.setData(userDTO);
+        }
         return ResponseEntity.ok(response);
     }
 
@@ -69,9 +85,16 @@ public class CustomerController {
     public ResponseEntity<BaseResponse> register(@RequestBody RegisterForm form, Authentication authentication) {
         BaseResponse response = new BaseResponse();
         try{
-            CustomerDTO customerDTO = service.register(form);
+            UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+
+
+            CustomerDTO customerDTO = service.register(form, authUser != null ? authUser.getId() : null);
             if (customerDTO != null) {
-                authentication.getPrincipal();
+                if (authUser != null) {
+                    userService.update(authUser.getId(), customerDTO);
+                }else {
+                    //Create user and gen session
+                }
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(customerDTO);
             }else{

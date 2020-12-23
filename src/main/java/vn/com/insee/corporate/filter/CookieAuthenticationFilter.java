@@ -41,7 +41,6 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
     private ZaloService zaloService;
 
     public static final String COOKIE_NAME = "_insee_ss";
-    public static final String ZALO_COOKIE_NAME = "_z_authen_insee";
 
 
     @Autowired

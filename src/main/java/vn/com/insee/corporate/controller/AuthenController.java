@@ -16,11 +16,13 @@ import vn.com.insee.corporate.util.HttpUtil;
 import vn.com.insee.corporate.util.TokenUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import static vn.com.insee.corporate.filter.CookieAuthenticationFilter.ZALO_COOKIE_NAME;
+import static vn.com.insee.corporate.filter.CookieAuthenticationFilter.COOKIE_NAME;
+
 
 @RestController
 @RequestMapping("/authen")
@@ -36,18 +38,19 @@ public class AuthenController {
     public RedirectView zalo(@RequestParam(required = false)
                                      String redirectUrl, HttpServletRequest request) throws UnsupportedEncodingException {
         String hookUrl = HttpUtil.getFullDomain(request) + "/authen/hook?c=" + URLEncoder.encode(redirectUrl, String.valueOf(StandardCharsets.UTF_8));
+        System.out.println(hookUrl);
         String urlZaloAuthen = ZaloService.REDIRECT_AUTHEN_ZALO + "&redirect_uri=" + URLEncoder.encode(hookUrl, String.valueOf(StandardCharsets.UTF_8));
         return new RedirectView(urlZaloAuthen);
     }
 
     @GetMapping(path = "/hook")
-    public RedirectView hook(@RequestParam(required = false) String c, @RequestParam(required = false) String code, HttpServletRequest req) {
+    public RedirectView hook(@RequestParam(required = false) String c, @RequestParam(required = false) String code, HttpServletResponse resp) {
         try {
             String accessToken = zaloService.getAccessToken(code);
             ZaloUserEntity zaloUserEntity = zaloService.getUserInfo(accessToken);
             UserEntity userEntity = userService.initUserFromZalo(zaloUserEntity);
             if (userEntity != null) {
-                genAndSetSession(userEntity.getId(), userEntity.getPhone(), req);
+                genAndSetSession(userEntity.getId(), userEntity.getPhone(), resp);
                 return new RedirectView(c);
             }
         } catch (Exception e) {
@@ -56,16 +59,16 @@ public class AuthenController {
         return new RedirectView("/failed");
     }
 
-    private void genAndSetSession(int id, String phone, HttpServletRequest req) throws NotExitException {
+    private void genAndSetSession(int id, String phone, HttpServletResponse resp) throws NotExitException {
         String session = TokenUtil.generate(id, phone, TokenUtil.MAX_AGE);
-        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(ZALO_COOKIE_NAME, session)
+        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(COOKIE_NAME, session)
                 .path("/")
                 .httpOnly(Boolean.TRUE)
                 .secure(Boolean.TRUE)
                 .sameSite("None")
                 .maxAge(10 * 60 * 1000);
         String strCookie = cookieBuilder.build().toString();
-        req.setAttribute(ZALO_COOKIE_NAME, strCookie);
+        resp.addHeader("Set-Cookie", strCookie);
         userService.updateSession(id, session);
     }
 }

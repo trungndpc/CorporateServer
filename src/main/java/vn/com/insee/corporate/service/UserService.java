@@ -6,11 +6,15 @@ import vn.com.insee.corporate.common.PermissionEnum;
 import vn.com.insee.corporate.common.StatusEnum;
 import vn.com.insee.corporate.common.UserStatusEnum;
 import vn.com.insee.corporate.dto.RegisterForm;
+import vn.com.insee.corporate.dto.response.CustomerDTO;
+import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.NotExitException;
+import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.service.external.ZaloUserEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,12 +22,26 @@ import java.util.Optional;
 public class UserService {
 
     @Autowired
+    private Mapper mapper;
+
+    @Autowired
     private UserRepository userRepository;
+
+    public UserDTO findById(Integer id) {
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
+        if (optionalUserEntity.isPresent()) {
+            UserDTO userDTO = new UserDTO();
+            mapper.map(optionalUserEntity.get(), userDTO);
+            return userDTO;
+        }
+        return null;
+    }
 
     public UserEntity initUserFromZalo(ZaloUserEntity zaloUserEntity) {
         UserEntity userEntity = userRepository.findByZaloId(zaloUserEntity.getId());
         if (userEntity == null) {
             userEntity = new UserEntity();
+            userEntity.setId(0);
             userEntity.setName(zaloUserEntity.getName());
             userEntity.setZaloId(zaloUserEntity.getId());
             userEntity.setPassword("");
@@ -36,14 +54,15 @@ public class UserService {
         return userEntity;
     }
 
-    public UserEntity update(int id, RegisterForm registerForm) throws NotExitException {
+    public UserEntity update(int id, CustomerDTO customerDTO) throws NotExitException {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
         if (!optionalUserEntity.isPresent()) {
             throw new NotExitException();
         }
         UserEntity userEntity = optionalUserEntity.get();
-        userEntity.setPhone(registerForm.getPhone());
-        userEntity.setName(registerForm.getFullName());
+        userEntity.setPhone(customerDTO.getPhone());
+        userEntity.setName(customerDTO.getFullName());
+        userEntity.setCustomerId(customerDTO.getId());
         userEntity = userRepository.saveAndFlush(userEntity);
         return userEntity;
     }
@@ -65,6 +84,9 @@ public class UserService {
         }
         UserEntity userEntity = optionalUserEntity.get();
         List<String> lstSession = userEntity.getLstSession();
+        if (lstSession == null) {
+            lstSession = new ArrayList<>();
+        }
         lstSession.add(session);
         userEntity.setLstSession(lstSession);
         userRepository.saveAndFlush(userEntity);

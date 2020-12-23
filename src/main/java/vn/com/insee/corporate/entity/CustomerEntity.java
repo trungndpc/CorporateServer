@@ -16,6 +16,7 @@ public class CustomerEntity {
     private String fullName;
     private String avatar;
     private Integer status;
+    private Integer userId;
 
     public Integer getId() {
         return id;
@@ -79,5 +80,13 @@ public class CustomerEntity {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }

@@ -37,7 +37,7 @@ public class CustomerService {
         return dto;
     }
 
-    public CustomerDTO register(RegisterForm form) throws CustomerExitException, FirebaseAuthenException {
+    public CustomerDTO register(RegisterForm form, Integer userId) throws CustomerExitException, FirebaseAuthenException {
         if (customerRepository.findByPhone(form.getPhone()) != null) {
             throw new CustomerExitException();
         }
@@ -53,6 +53,9 @@ public class CustomerService {
         CustomerEntity customerEntity = new CustomerEntity();
         mapper.map(form, customerEntity);
         customerEntity.setStatus(StatusEnum.INIT.getStatus());
+        if (userId != null) {
+            customerEntity.setUserId(userId);
+        }
         customerEntity = customerRepository.saveAndFlush(customerEntity);
         CustomerDTO resp = new CustomerDTO();
         mapper.map(customerEntity, resp);

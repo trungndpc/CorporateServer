@@ -26,8 +26,9 @@ public class HttpUtil {
             String host  = url.getHost();
             String scheme = url.getProtocol();
             int port = url.getPort();
-            URI uri = new URI(scheme,null,host,port,null,null,null);
-            return uri.toString().replace("http://localhost:8080", "https://4aa068a1729b.ngrok.io");
+            URI uri = new URI("https",null,host,port,null,null,null);
+            System.out.println(uri.toString());
+            return uri.toString().replace("https://localhost:8080", "https://b32835fb13d9.ngrok.io");
         }catch (Exception e) {
             e.printStackTrace();
         }
