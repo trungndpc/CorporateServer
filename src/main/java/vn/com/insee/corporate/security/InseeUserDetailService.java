@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.com.insee.corporate.common.PermissionEnum;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.InseeException;
 import vn.com.insee.corporate.repository.UserRepository;
@@ -20,15 +21,15 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class UserUserDetailsService implements UserDetailsService {
+public class InseeUserDetailService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
         try {
-            UserEntity user = userRepository.findByUsername(username);
+            UserEntity user = userRepository.findByPhone(phone);
             if (user == null) {
                 throw new UsernameNotFoundException("Incorrect credentials");
             }
@@ -38,12 +39,12 @@ public class UserUserDetailsService implements UserDetailsService {
         }
     }
 
-    private UserUserDetails buildUserDetails(UserEntity user) {
+    private InseeUserDetail buildUserDetails(UserEntity user) {
+        Integer roleId = user.getRoleId();
+        PermissionEnum per = PermissionEnum.findById(roleId);
         List<GrantedAuthority> authorityList = new ArrayList<>();
-//        for (UserPermission userPermission : user.getUserPermissions()) {
-//            authorityList.add(new SimpleGrantedAuthority(userPermission.getPermission().getPermissionName()));
-//        }
-        return new UserUserDetails(user, authorityList);
+        authorityList.add(new SimpleGrantedAuthority(per.getName()));
+        return new InseeUserDetail(user, authorityList);
     }
 
     public UserDetails loadUserById(Integer id) throws InseeException {

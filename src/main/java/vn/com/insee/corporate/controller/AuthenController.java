@@ -17,12 +17,6 @@ public class AuthenController {
     public ResponseEntity<BaseResponse> get(@RequestParam(required = true) String code, @RequestParam(required = false) String redirectUrl) {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try{
-            CustomerDTO customerDTO = service.get(id);
-            if (customerDTO == null) {
-                response.setError(ErrorCode.NOT_EXITS);
-            }else{
-                response.setData(customerDTO);
-            }
         }catch (Exception e) {
             response.setError(ErrorCode.FAILED);
         }

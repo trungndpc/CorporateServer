@@ -6,7 +6,7 @@ import vn.com.insee.corporate.entity.UserEntity;
 
 import java.util.Collection;
 
-public class UserUserDetails implements UserDetails {
+public class InseeUserDetail implements UserDetails {
     private final UserEntity user;
     private final Collection<? extends GrantedAuthority> grantedAuthorities;
 
@@ -14,14 +14,15 @@ public class UserUserDetails implements UserDetails {
         return user;
     }
 
-    public UserUserDetails(UserEntity user, Collection<? extends GrantedAuthority> grantedAuthorities) {
+    public InseeUserDetail(UserEntity user, Collection<? extends GrantedAuthority> grantedAuthorities) {
         this.user = user;
         this.grantedAuthorities = grantedAuthorities;
     }
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return grantedAuthorities;
+        return this.grantedAuthorities;
     }
 
     @Override
@@ -31,7 +32,7 @@ public class UserUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return user.getPhone();
     }
 
     @Override

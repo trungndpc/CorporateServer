@@ -1,26 +1,37 @@
 package vn.com.insee.corporate.entity;
 
+
+
+import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+@Table(name = "user", schema="insee_promotion")
+@TypeDef(name = "list-array",typeClass = ListArrayType.class)
 public class UserEntity {
-    private String username;
-    private String password;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String phone;
+    private String password;
     private boolean isEnable;
-    private String session;
 
-    public String getUsername() {
-        return username;
+    @Type(type = "list-array")
+    @Column(name = "lst_session",columnDefinition = "character varying[]")
+    private List<String> lstSession;
+    private Integer customerId;
+    private Integer roleId;
+
+    public Integer getId() {
+        return id;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getPhone() {
@@ -31,6 +42,14 @@ public class UserEntity {
         this.phone = phone;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public boolean isEnable() {
         return isEnable;
     }
@@ -39,11 +58,27 @@ public class UserEntity {
         isEnable = enable;
     }
 
-    public String getSession() {
-        return session;
+    public List<String> getLstSession() {
+        return lstSession;
     }
 
-    public void setSession(String session) {
-        this.session = session;
+    public void setLstSession(List<String> lstSession) {
+        this.lstSession = lstSession;
+    }
+
+    public Integer getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Integer customerId) {
+        this.customerId = customerId;
+    }
+
+    public Integer getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 }

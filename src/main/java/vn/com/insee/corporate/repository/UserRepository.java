@@ -5,5 +5,5 @@ import vn.com.insee.corporate.entity.PostEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, Integer> {
-    UserEntity findByUsername(String username);
+    UserEntity findByPhone(String phone);
 }

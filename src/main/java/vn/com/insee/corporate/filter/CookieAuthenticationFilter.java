@@ -14,26 +14,24 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import vn.com.insee.corporate.exception.InseeException;
 import vn.com.insee.corporate.response.BaseResponse;
-import vn.com.insee.corporate.security.UserUserDetails;
-import vn.com.insee.corporate.security.UserUserDetailsService;
+import vn.com.insee.corporate.security.InseeUserDetail;
+import vn.com.insee.corporate.security.InseeUserDetailService;
 import vn.com.insee.corporate.util.HttpUtil;
 import vn.com.insee.corporate.util.TokenUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.SignatureException;
-import java.util.Collections;
+import java.util.List;
 
 @Component
 public class CookieAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private UserUserDetailsService userUserDetailsService;
+    private InseeUserDetailService userUserDetailsService;
 
     public static final String COOKIE_NAME = "_insee_ss";
 
@@ -49,11 +47,15 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
                 Claims claims = TokenUtil.parse(_inseeSS);
                 int userId = Integer.parseInt(claims.getAudience());
 
-                UserUserDetails userDetails = (UserUserDetails) userUserDetailsService.loadUserById(userId);
+                InseeUserDetail userDetails = (InseeUserDetail) userUserDetailsService.loadUserById(userId);
                 if (!userDetails.getUser().isEnable()) {
                     throw new InseeException();
                 }
-                if (_inseeSS.equals(userDetails.getUser().getSession())) {
+                List<String> lstSession = userDetails.getUser().getLstSession();
+                if (lstSession == null) {
+                    throw new InseeException();
+                }
+                if (lstSession.contains(_inseeSS)) {
                     UsernamePasswordAuthenticationToken auth
                             = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
