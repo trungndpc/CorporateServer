@@ -3,8 +3,8 @@ package vn.com.insee.corporate.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "post", schema="insee_promotion")
-public class PostEntity {
+@Table(name = "promotion", schema="insee_promotion")
+public class PromotionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

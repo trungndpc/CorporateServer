@@ -12,7 +12,6 @@ public class CustomerEntity {
     private Integer birthday;
     private Integer mainAreaId;
     private String phone;
-    private String pass;
     private String fullName;
     private String avatar;
     private Integer status;
@@ -49,14 +48,6 @@ public class CustomerEntity {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getPass() {
-        return pass;
-    }
-
-    public void setPass(String pass) {
-        this.pass = pass;
     }
 
     public String getFullName() {
