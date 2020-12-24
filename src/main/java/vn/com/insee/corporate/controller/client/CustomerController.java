@@ -1,6 +1,7 @@
-package vn.com.insee.corporate.controller;
+package vn.com.insee.corporate.controller.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -12,15 +13,12 @@ import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.CustomerExitException;
 import vn.com.insee.corporate.exception.FirebaseAuthenException;
-import vn.com.insee.corporate.exception.InvalidSessionException;
 import vn.com.insee.corporate.response.BaseResponse;
-import vn.com.insee.corporate.security.InseeUserDetail;
 import vn.com.insee.corporate.service.CustomerService;
 import vn.com.insee.corporate.service.UserService;
 import vn.com.insee.corporate.util.AuthenUtil;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -48,53 +46,15 @@ public class CustomerController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/list", produces = {"application/json"})
-    public ResponseEntity<BaseResponse> list(@RequestParam (required = false, defaultValue = "0") int page,
-                                                       @RequestParam (required = false, defaultValue = "20") int pageSize) {
-        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
-        try{
-            PageDTO<CustomerDTO> list = service.getList(page, pageSize);
-            response.setData(list);
-        }catch (Exception e) {
-            response.setError(ErrorCode.FAILED);
-        }
-        return ResponseEntity.ok(response);
-    }
 
-    @PostMapping(value = "/check-phone", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<BaseResponse> authenticate(@RequestBody Map<String, String> dataMap, Authentication authentication) throws InvalidSessionException {
-        UserEntity authUser = AuthenUtil.getAuthUser(authentication);
 
-        String phone = dataMap.get("phone");
-        phone = phone.replace("+", "");
-        boolean isPhoneExits = service.isPhoneExits(phone);
-        BaseResponse response = new BaseResponse(isPhoneExits ? ErrorCode.PHONE_EXITS : ErrorCode.SUCCESS);
-
-        if (authUser != null) {
-            Integer userId = authUser.getId();
-            UserDTO userDTO = userService.findById(userId);
-            if (userDTO == null) {
-                throw new InvalidSessionException();
-            }
-            response.setData(userDTO);
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping(path = "/register", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<BaseResponse> register(@RequestBody RegisterForm form, Authentication authentication) {
+    @PostMapping(path = "/update", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<BaseResponse> post(@RequestBody RegisterForm form, Authentication authentication) {
         BaseResponse response = new BaseResponse();
         try{
             UserEntity authUser = AuthenUtil.getAuthUser(authentication);
-
-
-            CustomerDTO customerDTO = service.register(form, authUser != null ? authUser.getId() : null);
+            CustomerDTO customerDTO = service.createOrUpdate(form, authUser.getId());
             if (customerDTO != null) {
-                if (authUser != null) {
-                    userService.update(authUser.getId(), customerDTO);
-                }else {
-                    //Create user and gen session
-                }
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(customerDTO);
             }else{
@@ -118,6 +78,24 @@ public class CustomerController {
             service.delete(id);
         }catch (Exception e) {
             response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/profile")
+    public ResponseEntity<BaseResponse> getProfile(Authentication authentication) throws UnsupportedEncodingException {
+        UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        if (authUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UserDTO userDTO = userService.findById(authUser.getId());
+        Integer customerId = userDTO.getCustomerId();
+        if (customerId == null) {
+            response.setError(ErrorCode.USER_NOT_IS_CUSTOMER);
+        }else{
+            CustomerDTO customerDTO = service.get(customerId);
+            response.setData(customerDTO);
         }
         return ResponseEntity.ok(response);
     }

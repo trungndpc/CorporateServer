@@ -21,11 +21,9 @@ public class TokenUtil {
 
     public static String generate(int id, String phone, long expiredTime) {
         return Jwts.builder().setId(String.valueOf(id))
-                .setSubject(phone)
                 .setAudience(String.valueOf(id))
-                .setIssuedAt(Date.from(Instant.now()))
                 .setExpiration(Date.from(Instant.ofEpochMilli(System.currentTimeMillis() + expiredTime)))
-                .signWith(SignatureAlgorithm.HS512, ACCESS_TOKEN_KEY.getBytes()).compact();
+                .signWith(SignatureAlgorithm.HS256, ACCESS_TOKEN_KEY.getBytes()).compact();
     }
 
     public static boolean isValid(String token) {

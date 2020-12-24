@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.entity.CustomerEntity;
+import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.repository.CustomerRepository;
+import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.security.InseeUserDetail;
 import vn.com.insee.corporate.service.CustomerService;
 
@@ -20,11 +22,12 @@ public class PingController {
     @Autowired
     private CustomerService customerService;
 
+    @Autowired
+    private UserRepository repository;
+
     @GetMapping("/ping")
     String all(Authentication authentication) {
-        InseeUserDetail userDetails = (InseeUserDetail) authentication.getPrincipal();
-        System.out.println(userDetails.getUser().getName());
-        customerService.v();
+        List<UserEntity> all = repository.findAll();
         return "OK";
     }
 }

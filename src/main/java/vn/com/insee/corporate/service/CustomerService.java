@@ -5,18 +5,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import vn.com.insee.corporate.common.CustomerStatusEnum;
 import vn.com.insee.corporate.common.StatusEnum;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
+import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
+import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.CustomerExitException;
 import vn.com.insee.corporate.exception.FirebaseAuthenException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.CustomerRepository;
+import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.service.external.FirebaseService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerService {
@@ -25,8 +30,8 @@ public class CustomerService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private FirebaseService firebaseService;
-
+    private UserRepository userRepository;
+    
     @Autowired
     private Mapper mapper;
 
@@ -47,41 +52,61 @@ public class CustomerService {
         return null;
     }
 
+
+    //Client
     public void linkCustomerToUserId(Integer customerID, Integer userId) {
         CustomerEntity customerEntity = customerRepository.getOne(customerID);
         if (customerEntity != null) {
             customerEntity.setUserId(userId);
+            customerEntity.setLinkedUser(true);
             customerRepository.saveAndFlush(customerEntity);
         }
     }
 
-    public CustomerDTO register(RegisterForm form, Integer userId) throws CustomerExitException, FirebaseAuthenException {
-        if (customerRepository.findByPhone(form.getPhone()) != null) {
-            throw new CustomerExitException();
-        }
-
-        String idToken = form.getIdToken();
-        String firebaseUID = firebaseService.verifyTokenId(idToken);
-        String phoneToken = firebaseService.getUserPhoneNumberByUid(firebaseUID);
-        phoneToken = phoneToken.replace("+", "");
-        if (!form.getPhone().equals(phoneToken)) {
-            throw new FirebaseAuthenException(FirebaseAuthenException.FirebaseAuthenError.AUTH_ERROR);
-        }
-
-        CustomerEntity customerEntity = new CustomerEntity();
-        mapper.map(form, customerEntity);
-        customerEntity.setStatus(StatusEnum.INIT.getStatus());
-        if (userId != null) {
+    public CustomerDTO createOrUpdate(RegisterForm form, Integer userId) throws CustomerExitException, FirebaseAuthenException {
+        UserEntity userEntity = userRepository.getOne(userId);
+        Integer customerId = userEntity.getCustomerId();
+        if (customerId != null) {
+            Optional<CustomerEntity> optionalCustomerEntity = customerRepository.findById(customerId);
+            if (optionalCustomerEntity.isPresent()) {
+                CustomerEntity customerEntity = optionalCustomerEntity.get();
+                String phone = customerEntity.getPhone();
+                mapper.map(form, customerEntity);
+                customerEntity.setId(customerId);
+                customerEntity.setUserId(userId);
+                customerEntity.setPhone(phone);
+                customerEntity.setStatus(CustomerStatusEnum.REVIEWING.getStatus());
+                customerEntity.setLinkedUser(true);
+                customerRepository.saveAndFlush(customerEntity);
+                CustomerDTO customerDTO = new CustomerDTO();
+                mapper.map(customerEntity, customerDTO);
+                return customerDTO;
+            }
+        }else {
+            CustomerEntity customerEntity = new CustomerEntity();
+            mapper.map(form, customerEntity);
             customerEntity.setUserId(userId);
+            customerEntity.setStatus(CustomerStatusEnum.REVIEWING.getStatus());
+            customerEntity.setLinkedUser(true);
+            customerEntity = customerRepository.saveAndFlush(customerEntity);
+            CustomerDTO customerDTO = new CustomerDTO();
+            mapper.map(customerEntity, customerDTO);
+            return customerDTO;
         }
-        customerEntity = customerRepository.saveAndFlush(customerEntity);
-        CustomerDTO resp = new CustomerDTO();
-        mapper.map(customerEntity, resp);
-        return resp;
+        return null;
     }
 
-    public boolean isPhoneExits(String phone) {
-        return customerRepository.findByPhone(phone) != null;
+
+    //Admin
+    public CustomerDTO createByAdmin(RegisterForm form) {
+        CustomerEntity customerEntity = new CustomerEntity();
+        mapper.map(form, customerEntity);
+        customerEntity.setStatus(CustomerStatusEnum.APPROVED.getStatus());
+        customerEntity.setLinkedUser(false);
+        customerEntity = customerRepository.saveAndFlush(customerEntity);
+        CustomerDTO customerDTO = new CustomerDTO();
+        mapper.map(customerEntity, customerDTO);
+        return customerDTO;
     }
 
     public PageDTO<CustomerDTO> getList(int page, int pageSize) {
@@ -92,15 +117,20 @@ public class CustomerService {
         return pageData;
     }
 
+    public CustomerDTO updateStatus(int id, CustomerStatusEnum statusEnum) throws CustomerExitException {
+        Optional<CustomerEntity> optionalCustomerEntity = customerRepository.findById(id);
+        if (!optionalCustomerEntity.isPresent()) {
+            throw new CustomerExitException();
+        }
+        optionalCustomerEntity.get().setStatus(statusEnum.getStatus());
+        CustomerEntity customerEntity = customerRepository.saveAndFlush(optionalCustomerEntity.get());
+        CustomerDTO customerDTO = new CustomerDTO();
+        mapper.map(customerEntity, customerDTO);
+        return customerDTO;
+    }
+
     public void delete(int id) {
         customerRepository.deleteById(id);
     }
 
-    public void v() {
-        List<CustomerEntity> all = customerRepository.findAll();
-        for (CustomerEntity entity: all) {
-            entity.setPhone(entity.getPhone().replace("+", ""));
-            customerRepository.saveAndFlush(entity);
-        }
-    }
 }

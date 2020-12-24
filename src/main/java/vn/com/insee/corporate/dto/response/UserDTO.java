@@ -9,6 +9,7 @@ public class UserDTO {
     private Integer status;
     private String avatar;
     private String name;
+    private Integer customerId;
 
     public String getPhone() {
         return phone;
@@ -48,5 +49,13 @@ public class UserDTO {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Integer customerId) {
+        this.customerId = customerId;
     }
 }

@@ -67,11 +67,12 @@ public class UserService {
         return userEntity;
     }
 
-    public UserDTO create(RegisterForm registerForm) {
+    public UserDTO create(RegisterForm registerForm, PermissionEnum role) {
         UserEntity userEntity = new UserEntity();
         userEntity.setName(registerForm.getFullName());
         userEntity.setPhone(registerForm.getPhone());
         userEntity.setStatus(UserStatusEnum.INIT_FROM_WEB.getId());
+        userEntity.setRoleId(role.getId());
         userEntity.setEnable(true);
         userEntity = userRepository.saveAndFlush(userEntity);
         UserDTO userDTO = new UserDTO();
@@ -83,6 +84,7 @@ public class UserService {
         UserEntity userEntity = userRepository.getOne(userId);
         if (userEntity != null) {
             userEntity.setCustomerId(customerId);
+            userEntity.setRoleId(PermissionEnum.CUSTOMER.getId());
             userRepository.saveAndFlush(userEntity);
         }
     }
@@ -98,20 +100,35 @@ public class UserService {
         if (lstSession == null) {
             lstSession = new ArrayList<>();
         }
-        lstSession.add(session);
+        if(lstSession.size() >=5){
+            lstSession.remove(0);
+        }
+        lstSession.add(lstSession.size(), session);
         userEntity.setLstSession(lstSession);
         userRepository.saveAndFlush(userEntity);
         return true;
     }
 
-    public boolean updatePhone(int id, String phone) throws NotExitException {
+    public UserDTO updatePhone(int id, String phone) throws NotExitException {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
         if (!optionalUserEntity.isPresent()) {
             throw new NotExitException();
         }
         UserEntity userEntity = optionalUserEntity.get();
         userEntity.setPhone(phone);
-        userRepository.saveAndFlush(userEntity);
-        return true;
+        userEntity = userRepository.saveAndFlush(userEntity);
+        UserDTO userDTO = new UserDTO();
+        mapper.map(userEntity, userDTO);
+        return userDTO;
+    }
+
+    public UserDTO findByPhone(String phone) {
+        UserEntity userEntity = userRepository.findByPhone(phone);
+        if (userEntity != null) {
+            UserDTO userDTO = new UserDTO();
+            mapper.map(userEntity, userDTO);
+            return userDTO;
+        }
+        return null;
     }
 }

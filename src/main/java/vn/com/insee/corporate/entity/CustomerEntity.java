@@ -17,6 +17,7 @@ public class CustomerEntity {
     private String avatar;
     private Integer status;
     private Integer userId;
+    private Boolean isLinkedUser;
 
     public Integer getId() {
         return id;
@@ -88,5 +89,13 @@ public class CustomerEntity {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public Boolean getLinkedUser() {
+        return isLinkedUser;
+    }
+
+    public void setLinkedUser(Boolean linkedUser) {
+        isLinkedUser = linkedUser;
     }
 }

@@ -1,11 +1,13 @@
 package vn.com.insee.corporate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+import vn.com.insee.corporate.common.PermissionEnum;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
@@ -59,7 +61,6 @@ public class AuthenController {
     public RedirectView zalo(@RequestParam(required = false)
                                      String redirectUrl, HttpServletRequest request) throws UnsupportedEncodingException {
         String hookUrl = HttpUtil.getFullDomain(request) + "/authen/hook?c=" + URLEncoder.encode(redirectUrl, String.valueOf(StandardCharsets.UTF_8));
-        System.out.println(hookUrl);
         String urlZaloAuthen = ZaloService.REDIRECT_AUTHEN_ZALO + "&redirect_uri=" + URLEncoder.encode(hookUrl, String.valueOf(StandardCharsets.UTF_8));
         return new RedirectView(urlZaloAuthen);
     }
@@ -80,6 +81,28 @@ public class AuthenController {
         return new RedirectView("/failed");
     }
 
+    @PostMapping(value = "/check-phone", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<BaseResponse> authenticate(@RequestBody Map<String, String> dataMap, Authentication authentication) throws InvalidSessionException {
+        UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+
+        String phone = dataMap.get("phone");
+        phone = phone.replace("+", "");
+        UserDTO userDTO = userService.findByPhone(phone);
+        BaseResponse response = new BaseResponse(userDTO != null ? ErrorCode.PHONE_EXITS : ErrorCode.SUCCESS);
+
+        if (authUser != null && userDTO == null) {
+            CustomerDTO customerDTO = customerService.findByPhone(phone);
+            if (customerDTO != null) {
+                Integer userId = authUser.getId();
+                Integer customerUserID = customerDTO.getUserId();
+                if (customerUserID == null || userId == customerUserID) {
+                    response.setData(customerDTO);
+                }
+            }
+        }
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
     public ResponseEntity<BaseResponse> authenticate(@RequestBody Map<String, String> dataMap, Authentication authentication, HttpServletResponse resp)  {
         UserEntity authUser = AuthenUtil.getAuthUser(authentication);
@@ -87,41 +110,36 @@ public class AuthenController {
 
         try {
             String phone = dataMap.get("phone").replace("+", "");
-//            String idToken = dataMap.get("idToken");
-//
-//            String firebaseUID = firebaseService.verifyTokenId(idToken);
-//            String phoneToken = firebaseService.getUserPhoneNumberByUid(firebaseUID);
-//            phoneToken = phoneToken.replace("+", "");
-//            if (!phone.equals(phoneToken)) {
-//                throw new FirebaseAuthenException(FirebaseAuthenException.FirebaseAuthenError.AUTH_ERROR);
-//            }
+            String idToken = dataMap.get("idToken");
+            String firebaseUID = firebaseService.verifyTokenId(idToken);
+            String phoneToken = firebaseService.getUserPhoneNumberByUid(firebaseUID);
+            phoneToken = phoneToken.replace("+", "");
+            if (!phone.equals(phoneToken)) {
+                throw new FirebaseAuthenException(FirebaseAuthenException.FirebaseAuthenError.AUTH_ERROR);
+            }
 
             CustomerDTO customerDTO = customerService.findByPhone(phone);
-
-            UserDTO userDTO = new UserDTO();
             if (authUser != null) {
-                userDTO = userService.findById(authUser.getId());
-                userService.updatePhone(authUser.getId(), phone);
+                UserDTO userDTO = userService.updatePhone(authUser.getId(), phone);
                 if (customerDTO != null) {
                     userService.linkCustomerIdToUser(authUser.getId(), customerDTO.getId());
                     customerService.linkCustomerToUserId(customerDTO.getId(), authUser.getId());
                 }
+                response.setData(userDTO);
             }else {
                 RegisterForm registerForm = new RegisterForm();
                 if (customerDTO != null) {
                     mapper.map(customerDTO, registerForm);
                 }
                 registerForm.setPhone(phone);
-                userDTO = userService.create(registerForm);
+                UserDTO userDTO = userService.create(registerForm, PermissionEnum.CUSTOMER);
                 if (customerDTO != null && userDTO != null) {
                     userService.linkCustomerIdToUser(userDTO.getId(), customerDTO.getId());
                     customerService.linkCustomerToUserId(customerDTO.getId(), userDTO.getId());
-
                 }
-
                 genAndSetSession(userDTO.getId(), phone, resp);
+                response.setData(userDTO);
             }
-            response.setData(userDTO);
             return ResponseEntity.ok(response);
         }catch (Exception e) {
             response.setError(ErrorCode.FAILED);
@@ -129,6 +147,7 @@ public class AuthenController {
         }
         return ResponseEntity.ok(response);
     }
+
 
     private void genAndSetSession(int id, String phone, HttpServletResponse resp) throws NotExitException {
         String session = TokenUtil.generate(id, phone, TokenUtil.MAX_AGE);

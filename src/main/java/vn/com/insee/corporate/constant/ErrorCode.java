@@ -6,4 +6,5 @@ public class ErrorCode {
     public static int FAILED = -1;
     public static int VERIFY_FAILED = -2;
     public static int NOT_EXITS = -9;
+    public static int USER_NOT_IS_CUSTOMER = -10;
 }

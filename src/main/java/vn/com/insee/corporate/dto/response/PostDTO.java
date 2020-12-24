@@ -1,5 +1,8 @@
 package vn.com.insee.corporate.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PostDTO  {
     private Integer id;
     private String title;
