@@ -67,15 +67,26 @@ public class UserService {
         return userEntity;
     }
 
-    public UserEntity create(int id, RegisterForm registerForm) {
+    public UserDTO create(RegisterForm registerForm) {
         UserEntity userEntity = new UserEntity();
         userEntity.setName(registerForm.getFullName());
         userEntity.setPhone(registerForm.getPhone());
         userEntity.setStatus(UserStatusEnum.INIT_FROM_WEB.getId());
         userEntity.setEnable(true);
         userEntity = userRepository.saveAndFlush(userEntity);
-        return userEntity;
+        UserDTO userDTO = new UserDTO();
+        mapper.map(userEntity, userDTO);
+        return userDTO;
     }
+
+    public void linkCustomerIdToUser(Integer userId, Integer customerId) {
+        UserEntity userEntity = userRepository.getOne(userId);
+        if (userEntity != null) {
+            userEntity.setCustomerId(customerId);
+            userRepository.saveAndFlush(userEntity);
+        }
+    }
+
 
     public boolean updateSession(int id, String session) throws NotExitException {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
@@ -89,6 +100,17 @@ public class UserService {
         }
         lstSession.add(session);
         userEntity.setLstSession(lstSession);
+        userRepository.saveAndFlush(userEntity);
+        return true;
+    }
+
+    public boolean updatePhone(int id, String phone) throws NotExitException {
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
+        if (!optionalUserEntity.isPresent()) {
+            throw new NotExitException();
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+        userEntity.setPhone(phone);
         userRepository.saveAndFlush(userEntity);
         return true;
     }

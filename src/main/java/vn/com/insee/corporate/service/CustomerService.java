@@ -37,6 +37,24 @@ public class CustomerService {
         return dto;
     }
 
+    public CustomerDTO findByPhone(String phone) {
+        CustomerEntity customerEntity = customerRepository.findByPhone(phone);
+        if (customerEntity != null) {
+            CustomerDTO dto = new CustomerDTO();
+            mapper.map(customerEntity, dto);
+            return dto;
+        }
+        return null;
+    }
+
+    public void linkCustomerToUserId(Integer customerID, Integer userId) {
+        CustomerEntity customerEntity = customerRepository.getOne(customerID);
+        if (customerEntity != null) {
+            customerEntity.setUserId(userId);
+            customerRepository.saveAndFlush(customerEntity);
+        }
+    }
+
     public CustomerDTO register(RegisterForm form, Integer userId) throws CustomerExitException, FirebaseAuthenException {
         if (customerRepository.findByPhone(form.getPhone()) != null) {
             throw new CustomerExitException();
