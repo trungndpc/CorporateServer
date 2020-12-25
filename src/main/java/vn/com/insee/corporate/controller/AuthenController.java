@@ -1,6 +1,7 @@
 package vn.com.insee.corporate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -52,6 +53,8 @@ public class AuthenController {
     @Autowired
     private Mapper mapper;
 
+    @Value("${authen.phone.need-check}")
+    private boolean isNeedCheckPhone;
 
     @Autowired
     private FirebaseService firebaseService;
@@ -109,12 +112,14 @@ public class AuthenController {
 
         try {
             String phone = dataMap.get("phone").replace("+", "");
-            String idToken = dataMap.get("idToken");
-            String firebaseUID = firebaseService.verifyTokenId(idToken);
-            String phoneToken = firebaseService.getUserPhoneNumberByUid(firebaseUID);
-            phoneToken = phoneToken.replace("+", "");
-            if (!phone.equals(phoneToken)) {
-                throw new FirebaseAuthenException(FirebaseAuthenException.FirebaseAuthenError.AUTH_ERROR);
+            if (isNeedCheckPhone) {
+                String idToken = dataMap.get("idToken");
+                String firebaseUID = firebaseService.verifyTokenId(idToken);
+                String phoneToken = firebaseService.getUserPhoneNumberByUid(firebaseUID);
+                phoneToken = phoneToken.replace("+", "");
+                if (!phone.equals(phoneToken)) {
+                    throw new FirebaseAuthenException(FirebaseAuthenException.FirebaseAuthenError.AUTH_ERROR);
+                }
             }
 
             CustomerDTO customerDTO = customerService.findByPhone(phone);

@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 import vn.com.insee.corporate.mapper.dto2entity.BillDTOToBillEntity;
+import vn.com.insee.corporate.mapper.dto2entity.ConstructionFormToConstructionEntity;
 import vn.com.insee.corporate.mapper.dto2entity.CustomerFormToCustomerEntity;
 import vn.com.insee.corporate.mapper.dto2entity.PostFormToPostEntity;
 import vn.com.insee.corporate.mapper.entity2dto.PostEntityToPostDTO;
@@ -25,6 +26,7 @@ public class Mapper {
         this.mapper.addMappings(new PostEntityToPostDTO());
         this.mapper.addMappings(new UserEntityToUserDTO());
         this.mapper.addMappings(new BillDTOToBillEntity());
+        this.mapper.addMappings(new ConstructionFormToConstructionEntity());
     }
     public <S, D> void map(S source, D destination) {
         mapper.map(source, destination);

@@ -7,18 +7,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.com.insee.corporate.common.BillStatus;
 import vn.com.insee.corporate.common.ConstructionStatus;
-import vn.com.insee.corporate.common.CustomerStatus;
 import vn.com.insee.corporate.common.ImageStatus;
 import vn.com.insee.corporate.dto.ConstructionForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
+import vn.com.insee.corporate.dto.response.BillDTO;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
-import vn.com.insee.corporate.dto.response.CustomerDTO;
+import vn.com.insee.corporate.dto.response.ImageDTO;
 import vn.com.insee.corporate.entity.BillEntity;
 import vn.com.insee.corporate.entity.ConstructionEntity;
-import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.ImageEntity;
 import vn.com.insee.corporate.exception.ConstructionExitException;
-import vn.com.insee.corporate.exception.CustomerExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.BillRepository;
 import vn.com.insee.corporate.repository.ConstructionRepository;
@@ -44,15 +42,17 @@ public class ConstructionService {
     @Autowired
     private BillRepository billRepository;
 
-    public ConstructionDTO create(ConstructionForm form) {
+    public ConstructionDTO create(ConstructionForm form, int userId) {
         ConstructionEntity constructionEntity = new ConstructionEntity();
         mapper.map(form, constructionEntity);
+        constructionEntity.setUserId(userId);
+        constructionEntity.setStatus(ConstructionStatus.WAITING_APPROVAL.getStatus());
         List<String> billIds = form.getBillIds();
+        List<BillEntity> billEntities = new ArrayList<>();
         if (billIds != null) {
-            List<BillEntity> billEntities = new ArrayList<>();
-            for (String billUrl: billIds) {
+            for (String billUrl : billIds) {
                 BillEntity billEntity = new BillEntity();
-                billEntity.setUrl(billUrl);
+                billEntity.setLink(billUrl);
                 billEntity.setStatus(BillStatus.WAITING_APPROVAL.getStatus());
                 billEntities.add(billEntity);
             }
@@ -61,11 +61,11 @@ public class ConstructionService {
         }
 
         List<String> imageIds = form.getImageIds();
+        List<ImageEntity> imageEntities = new ArrayList<>();
         if (imageIds != null) {
-            List<ImageEntity> imageEntities = new ArrayList<>();
-            for (String imageUrl: imageIds) {
+            for (String imageUrl : imageIds) {
                 ImageEntity imageEntity = new ImageEntity();
-                imageEntity.setUrl(imageUrl);
+                imageEntity.setLink(imageUrl);
                 imageEntity.setStatus(ImageStatus.WAITING_APPROVAL.getStatus());
                 imageEntities.add(imageEntity);
             }
@@ -75,7 +75,31 @@ public class ConstructionService {
         constructionEntity = constructionRepository.saveAndFlush(constructionEntity);
         ConstructionDTO construction = new ConstructionDTO();
         mapper.map(constructionEntity, construction);
-        return  construction;
+
+        if (billEntities != null && billEntities.size() > 0) {
+            List<BillDTO> billDTOS = new ArrayList<>();
+            for (BillEntity bill : billEntities) {
+                bill.setConstructionId(constructionEntity.getId());
+                BillDTO billDTO = new BillDTO();
+                mapper.map(bill, billDTO);
+                billDTOS.add(billDTO);
+            }
+            billRepository.saveAll(billEntities);
+            construction.setBills(billDTOS);
+        }
+
+        if (imageEntities != null && imageEntities.size() > 0) {
+            List<ImageDTO> imageDTOS = new ArrayList<>();
+            for (ImageEntity imageEntity : imageEntities) {
+                imageEntity.setConstructionId(constructionEntity.getId());
+                ImageDTO imageDTO = new ImageDTO();
+                mapper.map(imageEntity, imageDTO);
+                imageDTOS.add(imageDTO);
+            }
+            imageRepository.saveAll(imageEntities);
+            construction.setImages(imageDTOS);
+        }
+        return construction;
     }
 
     public PageDTO<ConstructionDTO> getList(int page, int pageSize) {

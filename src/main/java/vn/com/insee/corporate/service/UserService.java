@@ -53,18 +53,6 @@ public class UserService {
         return userEntity;
     }
 
-    public UserEntity update(int id, CustomerDTO customerDTO) throws NotExitException {
-        Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
-        if (!optionalUserEntity.isPresent()) {
-            throw new NotExitException();
-        }
-        UserEntity userEntity = optionalUserEntity.get();
-        userEntity.setPhone(customerDTO.getPhone());
-        userEntity.setName(customerDTO.getFullName());
-        userEntity.setCustomerId(customerDTO.getId());
-        userEntity = userRepository.saveAndFlush(userEntity);
-        return userEntity;
-    }
 
     public UserDTO create(RegisterForm registerForm, Permission role) {
         UserEntity userEntity = new UserEntity();
@@ -84,6 +72,14 @@ public class UserService {
         if (userEntity != null) {
             userEntity.setCustomerId(customerId);
             userEntity.setRoleId(Permission.CUSTOMER.getId());
+            userRepository.saveAndFlush(userEntity);
+        }
+    }
+
+    public void updatePassword(Integer userId, String password) {
+        UserEntity userEntity = userRepository.getOne(userId);
+        if (userEntity != null) {
+            userEntity.setPassword(password);
             userRepository.saveAndFlush(userEntity);
         }
     }

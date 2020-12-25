@@ -9,7 +9,7 @@ public class BillEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String url;
+    private String link;
     private int status;
     private int constructionId;
 
@@ -21,12 +21,12 @@ public class BillEntity {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    public String getLink() {
+        return link;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setLink(String link) {
+        this.link = link;
     }
 
     public int getStatus() {

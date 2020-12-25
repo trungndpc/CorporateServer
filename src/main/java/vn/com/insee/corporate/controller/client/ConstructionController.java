@@ -2,6 +2,7 @@ package vn.com.insee.corporate.controller.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,8 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.ConstructionForm;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
+import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.ConstructionService;
+import vn.com.insee.corporate.util.AuthenUtil;
 
 @RestController
 @RequestMapping("/api/construction")
@@ -20,10 +23,11 @@ public class ConstructionController {
     private ConstructionService constructionService;
 
     @PostMapping(path = "/create", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<BaseResponse> create(@RequestBody ConstructionForm form) {
+    public ResponseEntity<BaseResponse> create(@RequestBody ConstructionForm form, Authentication authentication) {
         BaseResponse response = new BaseResponse();
         try{
-            ConstructionDTO constructionDTO = constructionService.create(form);
+            UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+            ConstructionDTO constructionDTO = constructionService.create(form, authUser.getId());
             if (constructionDTO != null) {
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(constructionDTO);

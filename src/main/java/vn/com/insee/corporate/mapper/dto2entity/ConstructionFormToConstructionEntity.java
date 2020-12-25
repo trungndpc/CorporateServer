@@ -9,7 +9,7 @@ public class ConstructionFormToConstructionEntity extends PropertyMap<Constructi
 
     @Override
     protected void configure() {
-        skip().setImageIds(null);
-        source.setBillIds(null);
+        skip(destination.getBillIds());
+        skip(destination.getImageIds());
     }
 }

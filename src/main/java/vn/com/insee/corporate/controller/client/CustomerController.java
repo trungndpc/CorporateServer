@@ -30,21 +30,7 @@ public class CustomerController {
     @Autowired
     private UserService userService;
 
-    @GetMapping(path = "/", produces = {"application/json"})
-    public ResponseEntity<BaseResponse> get(@RequestParam(required = true) int id) {
-        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
-        try{
-            CustomerDTO customerDTO = service.get(id);
-            if (customerDTO == null) {
-                response.setError(ErrorCode.NOT_EXITS);
-            }else{
-                response.setData(customerDTO);
-            }
-        }catch (Exception e) {
-            response.setError(ErrorCode.FAILED);
-        }
-        return ResponseEntity.ok(response);
-    }
+
 
 
 
@@ -55,6 +41,10 @@ public class CustomerController {
             UserEntity authUser = AuthenUtil.getAuthUser(authentication);
             CustomerDTO customerDTO = service.createOrUpdate(form, authUser.getId());
             if (customerDTO != null) {
+                if (form.getPass() != null) {
+                    userService.linkCustomerIdToUser(authUser.getId(), customerDTO.getId());
+                    userService.updatePassword(authUser.getId(), form.getPass());
+                }
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(customerDTO);
             }else{

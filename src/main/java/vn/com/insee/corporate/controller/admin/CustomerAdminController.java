@@ -22,6 +22,22 @@ public class CustomerAdminController {
     @Autowired
     private CustomerService customerService;
 
+    @GetMapping(path = "", produces = {"application/json"})
+    public ResponseEntity<BaseResponse> get(@RequestParam(required = true) int id) {
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        try{
+            CustomerDTO customerDTO = customerService.get(id);
+            if (customerDTO == null) {
+                response.setError(ErrorCode.NOT_EXITS);
+            }else{
+                response.setData(customerDTO);
+            }
+        }catch (Exception e) {
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(path = "/list", produces = {"application/json"})
     public ResponseEntity<BaseResponse> list(@RequestParam(required = false, defaultValue = "0") int page,
                                              @RequestParam (required = false, defaultValue = "20") int pageSize) {
