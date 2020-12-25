@@ -1,6 +1,6 @@
 package vn.com.insee.corporate.common;
 
-public enum  PermissionEnum {
+public enum Permission {
 
     ADMIN(1, "Admin"),
     CUSTOMER(2, "Customer"),
@@ -10,7 +10,7 @@ public enum  PermissionEnum {
     private int id;
     private String name;
 
-    PermissionEnum(int id, String name) {
+    Permission(int id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -23,7 +23,7 @@ public enum  PermissionEnum {
         return name;
     }
 
-    public static PermissionEnum findById(int id) {
+    public static Permission findById(int id) {
         switch (id) {
             case 1 : return ADMIN;
             case 2 : return CUSTOMER;
@@ -32,7 +32,7 @@ public enum  PermissionEnum {
         }
     }
 
-    public static PermissionEnum findByName(String name) {
+    public static Permission findByName(String name) {
         switch (name) {
             case "Admin" : return ADMIN;
             case "Customer" : return CUSTOMER;

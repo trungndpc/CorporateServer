@@ -9,12 +9,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.com.insee.corporate.common.PermissionEnum;
-import vn.com.insee.corporate.common.UserStatusEnum;
+import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.InseeException;
 import vn.com.insee.corporate.repository.UserRepository;
-import vn.com.insee.corporate.service.external.ZaloUserEntity;
 
 
 import java.util.ArrayList;
@@ -43,7 +41,7 @@ public class InseeUserDetailService implements UserDetailsService {
 
     private InseeUserDetail buildUserDetails(UserEntity user) {
         Integer roleId = user.getRoleId();
-        PermissionEnum per = PermissionEnum.findById(roleId);
+        Permission per = Permission.findById(roleId);
         List<GrantedAuthority> authorityList = new ArrayList<>();
         authorityList.add(new SimpleGrantedAuthority(per.getName()));
         return new InseeUserDetail(user, authorityList);

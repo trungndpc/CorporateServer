@@ -1,9 +1,9 @@
 package vn.com.insee.corporate.common;
 
-public enum  PostStatusEnum {
+public enum PromotionStatus {
     INIT(1), EDITING(2), PUBLISHED(3), DELETED(4);
 
-    PostStatusEnum(int status) {
+    PromotionStatus(int status) {
         this.status = status;
     }
 

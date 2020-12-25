@@ -8,23 +8,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.page.PageDTO;
-import vn.com.insee.corporate.dto.response.PostDTO;
+import vn.com.insee.corporate.dto.response.PromotionDTO;
 import vn.com.insee.corporate.response.BaseResponse;
-import vn.com.insee.corporate.service.PostService;
+import vn.com.insee.corporate.service.PromotionService;
 
 @RestController
-@RequestMapping("/api/customer")
-public class PostController {
+@RequestMapping("/api/promotion")
+public class PromotionController {
 
     @Autowired
-    private PostService postService;
+    private PromotionService postService;
 
     @GetMapping(path = "/list", produces = {"application/json"})
     public ResponseEntity<BaseResponse> list(@RequestParam(required = false, defaultValue = "0") int page,
                                              @RequestParam (required = false, defaultValue = "20") int pageSize) {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try{
-            PageDTO<PostDTO> list = postService.getList(page, pageSize);
+            PageDTO<PromotionDTO> list = postService.getList(page, pageSize);
             response.setData(list);
         }catch (Exception e) {
             response.setError(ErrorCode.FAILED);

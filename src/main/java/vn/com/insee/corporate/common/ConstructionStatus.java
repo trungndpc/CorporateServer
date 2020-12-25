@@ -1,10 +1,10 @@
 package vn.com.insee.corporate.common;
 
-public enum CustomerStatusEnum {
-    REVIEWING(1), APPROVED(2), REJECTED(3);
+public enum ConstructionStatus {
+    WAITING_APPROVAL(1), APPROVED(2), REJECTED(3);
     private int status;
 
-    CustomerStatusEnum(int status) {
+    ConstructionStatus(int status) {
         this.status = status;
     }
 
@@ -12,13 +12,16 @@ public enum CustomerStatusEnum {
         return status;
     }
 
-    public static CustomerStatusEnum findByStatus(int status) {
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public static ConstructionStatus findByStatus(int status) {
         switch (status) {
-            case 1 : return REVIEWING;
+            case 1 : return WAITING_APPROVAL;
             case 2 : return APPROVED;
             case 3 : return REJECTED;
             default: return null;
         }
     }
-
 }

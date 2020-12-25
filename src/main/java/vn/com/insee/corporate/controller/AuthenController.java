@@ -1,13 +1,12 @@
 package vn.com.insee.corporate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
-import vn.com.insee.corporate.common.PermissionEnum;
+import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
@@ -132,7 +131,7 @@ public class AuthenController {
                     mapper.map(customerDTO, registerForm);
                 }
                 registerForm.setPhone(phone);
-                UserDTO userDTO = userService.create(registerForm, PermissionEnum.CUSTOMER);
+                UserDTO userDTO = userService.create(registerForm, Permission.CUSTOMER);
                 if (customerDTO != null && userDTO != null) {
                     userService.linkCustomerIdToUser(userDTO.getId(), customerDTO.getId());
                     customerService.linkCustomerToUserId(customerDTO.getId(), userDTO.getId());

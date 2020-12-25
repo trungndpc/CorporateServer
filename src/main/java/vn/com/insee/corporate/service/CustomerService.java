@@ -5,12 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.CustomerStatusEnum;
-import vn.com.insee.corporate.common.StatusEnum;
+import vn.com.insee.corporate.common.CustomerStatus;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
-import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.CustomerExitException;
@@ -18,7 +16,6 @@ import vn.com.insee.corporate.exception.FirebaseAuthenException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.UserRepository;
-import vn.com.insee.corporate.service.external.FirebaseService;
 
 import java.util.List;
 import java.util.Optional;
@@ -75,7 +72,7 @@ public class CustomerService {
                 customerEntity.setId(customerId);
                 customerEntity.setUserId(userId);
                 customerEntity.setPhone(phone);
-                customerEntity.setStatus(CustomerStatusEnum.REVIEWING.getStatus());
+                customerEntity.setStatus(CustomerStatus.REVIEWING.getStatus());
                 customerEntity.setLinkedUser(true);
                 customerRepository.saveAndFlush(customerEntity);
                 CustomerDTO customerDTO = new CustomerDTO();
@@ -86,7 +83,7 @@ public class CustomerService {
             CustomerEntity customerEntity = new CustomerEntity();
             mapper.map(form, customerEntity);
             customerEntity.setUserId(userId);
-            customerEntity.setStatus(CustomerStatusEnum.REVIEWING.getStatus());
+            customerEntity.setStatus(CustomerStatus.REVIEWING.getStatus());
             customerEntity.setLinkedUser(true);
             customerEntity = customerRepository.saveAndFlush(customerEntity);
             CustomerDTO customerDTO = new CustomerDTO();
@@ -101,7 +98,7 @@ public class CustomerService {
     public CustomerDTO createByAdmin(RegisterForm form) {
         CustomerEntity customerEntity = new CustomerEntity();
         mapper.map(form, customerEntity);
-        customerEntity.setStatus(CustomerStatusEnum.APPROVED.getStatus());
+        customerEntity.setStatus(CustomerStatus.APPROVED.getStatus());
         customerEntity.setLinkedUser(false);
         customerEntity = customerRepository.saveAndFlush(customerEntity);
         CustomerDTO customerDTO = new CustomerDTO();
@@ -117,7 +114,7 @@ public class CustomerService {
         return pageData;
     }
 
-    public CustomerDTO updateStatus(int id, CustomerStatusEnum statusEnum) throws CustomerExitException {
+    public CustomerDTO updateStatus(int id, CustomerStatus statusEnum) throws CustomerExitException {
         Optional<CustomerEntity> optionalCustomerEntity = customerRepository.findById(id);
         if (!optionalCustomerEntity.isPresent()) {
             throw new CustomerExitException();

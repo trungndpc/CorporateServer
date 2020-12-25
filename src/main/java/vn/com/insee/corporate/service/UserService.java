@@ -2,8 +2,7 @@ package vn.com.insee.corporate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.PermissionEnum;
-import vn.com.insee.corporate.common.StatusEnum;
+import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.common.UserStatusEnum;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
@@ -46,7 +45,7 @@ public class UserService {
             userEntity.setZaloId(zaloUserEntity.getId());
             userEntity.setPassword("");
             userEntity.setAvatar(zaloUserEntity.getAvatar());
-            userEntity.setRoleId(PermissionEnum.ANONYMOUS.getId());
+            userEntity.setRoleId(Permission.ANONYMOUS.getId());
             userEntity.setStatus(UserStatusEnum.INIT_FROM_ZALO.getId());
             userEntity.setEnable(true);
             userEntity = userRepository.saveAndFlush(userEntity);
@@ -67,7 +66,7 @@ public class UserService {
         return userEntity;
     }
 
-    public UserDTO create(RegisterForm registerForm, PermissionEnum role) {
+    public UserDTO create(RegisterForm registerForm, Permission role) {
         UserEntity userEntity = new UserEntity();
         userEntity.setName(registerForm.getFullName());
         userEntity.setPhone(registerForm.getPhone());
@@ -84,7 +83,7 @@ public class UserService {
         UserEntity userEntity = userRepository.getOne(userId);
         if (userEntity != null) {
             userEntity.setCustomerId(customerId);
-            userEntity.setRoleId(PermissionEnum.CUSTOMER.getId());
+            userEntity.setRoleId(Permission.CUSTOMER.getId());
             userRepository.saveAndFlush(userEntity);
         }
     }
