@@ -85,6 +85,7 @@ public class CustomerService {
             customerEntity.setUserId(userId);
             customerEntity.setStatus(CustomerStatus.REVIEWING.getStatus());
             customerEntity.setLinkedUser(true);
+            customerEntity.setPhone(userEntity.getPhone());
             customerEntity = customerRepository.saveAndFlush(customerEntity);
             CustomerDTO customerDTO = new CustomerDTO();
             mapper.map(customerEntity, customerDTO);

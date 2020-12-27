@@ -85,6 +85,9 @@ public class CustomerController {
             response.setError(ErrorCode.USER_NOT_IS_CUSTOMER);
         }else{
             CustomerDTO customerDTO = service.get(customerId);
+            if (customerDTO.getAvatar() == null) {
+                customerDTO.setAvatar(userDTO.getAvatar());
+            }
             response.setData(customerDTO);
         }
         return ResponseEntity.ok(response);
