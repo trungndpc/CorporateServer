@@ -20,14 +20,15 @@ public class PingController {
 
 
     @Autowired
-    private CustomerService customerService;
+    private CustomerRepository customerRepository;
 
     @Autowired
     private UserRepository repository;
 
     @GetMapping("/ping")
     String all(Authentication authentication) {
-        List<UserEntity> all = repository.findAll();
+        customerRepository.deleteAll();
+        repository.deleteAll();
         return "OK";
     }
 }
