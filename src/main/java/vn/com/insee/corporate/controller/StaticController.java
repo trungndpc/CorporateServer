@@ -12,6 +12,6 @@ public class StaticController {
     @GetMapping(path = "/images/{fileName}")
     @ResponseBody
     public RedirectView index(@PathVariable String fileName) {
-        return new RedirectView("https://github.com/trungndpc/insee-promotion-client/images/" + fileName);
+        return new RedirectView("https://trungndpc.github.io/insee-promotion-client/images/" + fileName);
     }
 }
