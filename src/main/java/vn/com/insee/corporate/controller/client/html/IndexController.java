@@ -45,6 +45,20 @@ public class IndexController {
         return index();
     }
 
-    
+
+    @GetMapping(value = "/khach-hang", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String login(Authentication authentication, @RequestHeader(value = "User-Agent") String userAgent, HttpServletResponse response) throws IOException {
+        UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+        if (authUser == null) {
+            response.sendRedirect("/dang-nhap");
+            return "OK";
+        }
+        return index();
+    }
+
+
+
+
 
 }
