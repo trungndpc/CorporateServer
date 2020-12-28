@@ -16,7 +16,6 @@ public class IndexController {
     @ResponseBody
     public String index() {
         String html = TemplateHTML.load("client/index");
-        System.out.println(html);
         return html;
     }
 
