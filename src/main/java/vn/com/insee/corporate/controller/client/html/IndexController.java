@@ -12,12 +12,14 @@ import vn.com.insee.corporate.webapp.TemplateHTML;
 @Controller
 public class IndexController {
 
-    @GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(value = "/*", produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
     public String index() {
         String html = TemplateHTML.load("client/index");
         System.out.println(html);
         return html;
     }
+
+    
 
 }
