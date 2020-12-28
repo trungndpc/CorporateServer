@@ -152,6 +152,21 @@ public class AuthenController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping(value = "/login-pass", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<BaseResponse> loginWithPassword(@RequestBody Map<String, String> dataMap, Authentication authentication, HttpServletResponse resp)  {
+        BaseResponse response = new BaseResponse(ErrorCode.FAILED);
+        try {
+            String phone = dataMap.get("phone").replace("+", "");
+            String pass = dataMap.getOrDefault("pass", null);
+            UserDTO userDTO = userService.loginWithPassword(phone, pass);
+            genAndSetSession(userDTO.getId(), userDTO.getPhone(), resp);
+            response.setError(ErrorCode.SUCCESS);
+        }catch (Exception e) {
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
 
     private void genAndSetSession(int id, String phone, HttpServletResponse resp) throws NotExitException {
         String session = TokenUtil.generate(id, phone, TokenUtil.MAX_AGE);
