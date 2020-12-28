@@ -36,6 +36,7 @@ public class IndexController {
                 return "OK";
             }
         }else {
+            System.out.println(userAgent);
             if (userAgent.contains("zalo")) {
                 response.sendRedirect("/authen/zalo?redirectUrl=" + "https%3A%2F%2Finsee-promotion.herokuapp.com%2Fdang-ky");
                 return "OK";
