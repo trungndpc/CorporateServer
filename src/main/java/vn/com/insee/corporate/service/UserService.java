@@ -1,5 +1,6 @@
 package vn.com.insee.corporate.service;
 
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.com.insee.corporate.common.Permission;
@@ -8,6 +9,7 @@ import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.UserEntity;
+import vn.com.insee.corporate.exception.LoginFailedException;
 import vn.com.insee.corporate.exception.NotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.UserRepository;
@@ -25,6 +27,23 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    public UserDTO loginWithPassword(String phone, String pass) throws LoginFailedException {
+        UserEntity userEntity = userRepository.findByPhone(phone);
+        if (userEntity == null) {
+            throw new LoginFailedException();
+        }
+        String password = userEntity.getPassword();
+        if (password == null || password.isEmpty() || pass == null || pass.isEmpty()) {
+            throw new LoginFailedException();
+        }
+        if (!pass.equals(password)) {
+            throw new LoginFailedException();
+        }
+        UserDTO userDTO = new UserDTO();
+        mapper.map(userEntity, userDTO);
+        return userDTO;
+    }
 
     public UserDTO findById(Integer id) {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
