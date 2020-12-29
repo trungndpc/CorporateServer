@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "user", schema="insee_promotion")
 @TypeDef(name = "list-array",typeClass = ListArrayType.class)
-public class UserEntity {
+public class UserEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

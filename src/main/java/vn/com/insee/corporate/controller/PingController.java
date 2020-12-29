@@ -27,8 +27,10 @@ public class PingController {
 
     @GetMapping("/ping")
     String all(Authentication authentication) {
-        customerRepository.deleteAll();
-        repository.deleteAll();
+//        customerRepository.deleteAll();
+//        repository.deleteAll();
+        List<UserEntity> all = repository.findAll();
+        System.out.println(all.size());
         return "OK";
     }
 }
