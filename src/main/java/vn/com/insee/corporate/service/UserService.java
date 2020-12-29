@@ -28,9 +28,12 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public UserDTO loginWithPassword(String phone, String pass) throws LoginFailedException {
+    public UserDTO loginWithPassword(String phone, String pass, Permission permission) throws LoginFailedException {
         UserEntity userEntity = userRepository.findByPhone(phone);
         if (userEntity == null) {
+            throw new LoginFailedException();
+        }
+        if (permission != null && permission.getId() != userEntity.getRoleId()) {
             throw new LoginFailedException();
         }
         String password = userEntity.getPassword();

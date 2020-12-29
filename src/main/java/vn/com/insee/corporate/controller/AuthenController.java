@@ -74,7 +74,8 @@ public class AuthenController {
             ZaloUserEntity zaloUserEntity = zaloService.getUserInfo(accessToken);
             UserEntity userEntity = userService.initUserFromZalo(zaloUserEntity);
             if (userEntity != null) {
-                genAndSetSession(userEntity.getId(), userEntity.getPhone(), resp);
+                String session = genAndSetSession(userEntity.getId(), userEntity.getPhone(), resp);
+                userService.updateSession(userEntity.getId(), session);
                 return new RedirectView(c);
             }
         } catch (Exception e) {
@@ -141,7 +142,8 @@ public class AuthenController {
                     userService.linkCustomerIdToUser(userDTO.getId(), customerDTO.getId());
                     customerService.linkCustomerToUserId(customerDTO.getId(), userDTO.getId());
                 }
-                genAndSetSession(userDTO.getId(), phone, resp);
+                String session = genAndSetSession(userDTO.getId(), phone, resp);
+                userService.updateSession(userDTO.getId(), session);
                 response.setData(userDTO);
             }
             return ResponseEntity.ok(response);
@@ -158,8 +160,9 @@ public class AuthenController {
         try {
             String phone = dataMap.get("phone").replace("+", "");
             String pass = dataMap.getOrDefault("pass", null);
-            UserDTO userDTO = userService.loginWithPassword(phone, pass);
-            genAndSetSession(userDTO.getId(), userDTO.getPhone(), resp);
+            UserDTO userDTO = userService.loginWithPassword(phone, pass, null);
+            String session = genAndSetSession(userDTO.getId(), userDTO.getPhone(), resp);
+            userService.updateSession(userDTO.getId(), session);
             response.setError(ErrorCode.SUCCESS);
         }catch (Exception e) {
             response.setError(ErrorCode.FAILED);
@@ -168,7 +171,7 @@ public class AuthenController {
     }
 
 
-    private void genAndSetSession(int id, String phone, HttpServletResponse resp) throws NotExitException {
+    public static String genAndSetSession(int id, String phone, HttpServletResponse resp) throws NotExitException {
         String session = TokenUtil.generate(id, phone, TokenUtil.MAX_AGE);
         ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(COOKIE_NAME, session)
                 .path("/")
@@ -178,7 +181,7 @@ public class AuthenController {
                 .maxAge(10 * 60 * 1000);
         String strCookie = cookieBuilder.build().toString();
         resp.addHeader("Set-Cookie", strCookie);
-        userService.updateSession(id, session);
+        return session;
     }
 
 }
