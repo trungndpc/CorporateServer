@@ -87,21 +87,21 @@ public class AuthenController {
     }
 
     @PostMapping(value = "/zalo-webhook", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<BaseResponse> zaloWebhook(@RequestBody Map<String, String> dataMap) throws InvalidSessionException {
+    public ResponseEntity<BaseResponse> zaloWebhook(@RequestBody JSONObject body) throws InvalidSessionException {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try{
-            System.out.println(dataMap);
-            String eventName = dataMap.getOrDefault("event_name", null);
-            String followerId = getFollowerId(dataMap);
-            if (followerId == null) {
-                throw new ZaloWebhookException();
-            }
-            if ("follow".equals(eventName)) {
-                String zaloId = dataMap.getOrDefault("user_id_by_app", null);
-                if (zaloId != null) {
-                    userService.linkFollowerZaloWithUser(zaloId, followerId);
-                }
-            }
+            System.out.println(body);
+//            String eventName = dataMap.getOrDefault("event_name", null);
+//            String followerId = getFollowerId(dataMap);
+//            if (followerId == null) {
+//                throw new ZaloWebhookException();
+//            }
+//            if ("follow".equals(eventName)) {
+//                String zaloId = dataMap.getOrDefault("user_id_by_app", null);
+//                if (zaloId != null) {
+//                    userService.linkFollowerZaloWithUser(zaloId, followerId);
+//                }
+//            }
         }catch (Exception e) {
             e.printStackTrace();
         }
