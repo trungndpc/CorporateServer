@@ -111,6 +111,7 @@ public class AuthenController {
     private String getFollowerId(Map<String, String> dataMap) {
         try{
             String strFollower = dataMap.get("follower");
+            System.out.println(strFollower);
             JSONObject json = new JSONObject(strFollower);
             return json.getString("id");
         }catch (Exception e) {
