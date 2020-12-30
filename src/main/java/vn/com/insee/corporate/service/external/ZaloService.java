@@ -18,6 +18,7 @@ public class ZaloService {
     private static final String GET_ACCESS_TOKEN_URL = "https://oauth.zaloapp.com/v3/access_token?app_id={1}&app_secret={2}&code={3}";
     private static final String GET_USER_INFO = "https://graph.zalo.me/v2.0/me?fields=id,name,picture,birthday,gender&access_token=";
     public static final String REDIRECT_AUTHEN_ZALO = "https://oauth.zaloapp.com/v3/auth?app_id=" + APP_ID + "&state=insee";
+    private static final String ACCESS_TOKEN_OA = "EvbUCXk4omi_cbyv5eR61J2UKZWFtAm5Kw1vEXNXfdHbcKLB0jcm1IgaUaXwvEO60lylRtocm1GAnGjKIellSXRFAKagZSqbTkyBNJUa_p5SmXTOFxNDD7weDt01wlWkLB4y7Itoz7vFxtKH3wgULrhCVGXvbO5dM_j70dwCc5nVobvZV9s_7oBcG615lhiqPiP43aQAsMbcnZek18FLT5V8EZ8jWSnl2Dan75g2vL4yd2KF6yFnNaY16JWRpTvXJeuX3YRNu4XZZG0r8flxIclz6Z92Wjn0Gn4lh0iPcCC0";
 
 
     public ZaloService() {

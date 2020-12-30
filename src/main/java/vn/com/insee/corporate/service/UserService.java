@@ -100,10 +100,12 @@ public class UserService {
 
     public void linkFollowerZaloWithUser(String zaloAppId, String followerId) {
         UserEntity userEntity = userRepository.findByZaloId(zaloAppId);
-        if (userEntity != null) {
-            userEntity.setFollowerZaloId(followerId);
-            userRepository.saveAndFlush(userEntity);
+        if (userEntity == null) {
+            userEntity = new UserEntity();
+            userEntity.setZaloId(zaloAppId);
         }
+        userEntity.setFollowerZaloId(followerId);
+        userRepository.saveAndFlush(userEntity);
     }
 
     public void updatePassword(Integer userId, String password) {
