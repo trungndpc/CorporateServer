@@ -98,6 +98,14 @@ public class UserService {
         }
     }
 
+    public void linkFollowerZaloWithUser(String zaloAppId, String followerId) {
+        UserEntity userEntity = userRepository.findByZaloId(zaloAppId);
+        if (userEntity != null) {
+            userEntity.setFollowerZaloId(followerId);
+            userRepository.saveAndFlush(userEntity);
+        }
+    }
+
     public void updatePassword(Integer userId, String password) {
         UserEntity userEntity = userRepository.getOne(userId);
         if (userEntity != null) {

@@ -1,5 +1,6 @@
 package vn.com.insee.corporate.controller;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -16,6 +17,7 @@ import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.FirebaseAuthenException;
 import vn.com.insee.corporate.exception.InvalidSessionException;
 import vn.com.insee.corporate.exception.NotExitException;
+import vn.com.insee.corporate.exception.ZaloWebhookException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.CustomerService;
@@ -82,6 +84,39 @@ public class AuthenController {
             e.printStackTrace();
         }
         return new RedirectView("/failed");
+    }
+
+    @PostMapping(value = "/zalo-webhook", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<BaseResponse> zaloWebhook(@RequestBody Map<String, String> dataMap) throws InvalidSessionException {
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        try{
+            System.out.println(dataMap);
+            String eventName = dataMap.getOrDefault("event_name", null);
+            String followerId = getFollowerId(dataMap);
+            if (followerId == null) {
+                throw new ZaloWebhookException();
+            }
+            if ("follow".equals(eventName)) {
+                String zaloId = dataMap.getOrDefault("user_id_by_app", null);
+                if (zaloId != null) {
+                    userService.linkFollowerZaloWithUser(zaloId, followerId);
+                }
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    private String getFollowerId(Map<String, String> dataMap) {
+        try{
+            String strFollower = dataMap.get("follower");
+            JSONObject json = new JSONObject(strFollower);
+            return json.getString("id");
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @PostMapping(value = "/check-phone", consumes = "application/json", produces = "application/json")

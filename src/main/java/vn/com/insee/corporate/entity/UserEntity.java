@@ -20,6 +20,7 @@ public class UserEntity extends BaseEntity{
     private String password;
     private Integer status;
     private String zaloId;
+    private String followerZaloId;
     private String avatar;
     private Integer customerId;
     private Integer roleId;
@@ -117,5 +118,13 @@ public class UserEntity extends BaseEntity{
 
     public void setLstSession(List<String> lstSession) {
         this.lstSession = lstSession;
+    }
+
+    public String getFollowerZaloId() {
+        return followerZaloId;
+    }
+
+    public void setFollowerZaloId(String followerZaloId) {
+        this.followerZaloId = followerZaloId;
     }
 }
