@@ -27,10 +27,22 @@ public class PingController {
 
     @GetMapping("/ping")
     String all(Authentication authentication) {
-//        customerRepository.deleteAll();
+//       / customerRepository.deleteAll();
 //        repository.deleteAll();
-        List<UserEntity> all = repository.findAll();
-        System.out.println(all.size());
+//        List<UserEntity> all = repository.findAll();
+//        System.out.println(all.size());
+        genCustomer();
         return "OK";
+    }
+
+    protected void genCustomer() {
+        List<CustomerEntity> all = customerRepository.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            CustomerEntity customerEntity = all.get(i);
+            for (int j = 0; j < 50; j++) {
+                customerEntity.setId(0);
+                customerEntity.setFullName(customerEntity.getFullName()  + " " + j);
+            }
+        }
     }
 }
