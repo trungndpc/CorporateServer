@@ -1,6 +1,7 @@
 package vn.com.insee.corporate.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import vn.com.insee.corporate.common.dto.CustomerDTOStatus;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CustomerDTO {
@@ -12,6 +13,7 @@ public class CustomerDTO {
     private String fullName;
     private String avatar;
     private Integer userId;
+    private CustomerDTOStatus status;
 
     public Integer getId() {
         return id;
@@ -79,4 +81,14 @@ public class CustomerDTO {
     public void setUserId(Integer userId) {
         this.userId = userId;
     }
+
+    public CustomerDTOStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(CustomerDTOStatus status) {
+        this.status = status;
+    }
 }
+
+

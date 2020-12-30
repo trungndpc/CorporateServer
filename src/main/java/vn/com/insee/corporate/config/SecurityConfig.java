@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthenticatedEntryPoint)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/ping").authenticated()
+//                .antMatchers("/ping").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 .csrf().disable()

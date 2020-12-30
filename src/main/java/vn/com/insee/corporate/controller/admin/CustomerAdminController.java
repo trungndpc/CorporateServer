@@ -5,10 +5,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import vn.com.insee.corporate.common.CustomerStatus;
+import vn.com.insee.corporate.common.dto.CustomerDTOStatus;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
+import vn.com.insee.corporate.exception.ParamNotSupportException;
 import vn.com.insee.corporate.exception.StatusNotSupportException;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.CustomerService;
@@ -43,9 +45,29 @@ public class CustomerAdminController {
                                              @RequestParam (required = false, defaultValue = "20") int pageSize) {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try{
-            PageDTO<CustomerDTO> list = customerService.getList(page, pageSize);
+            PageDTO<CustomerDTO> list = customerService.findAll(page, pageSize);
             response.setData(list);
         }catch (Exception e) {
+            e.printStackTrace();
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/find-by", produces = {"application/json"})
+    public ResponseEntity<BaseResponse> list(@RequestParam(required = false, defaultValue = "0") int page,
+                                             @RequestParam (required = false, defaultValue = "20") int pageSize,
+                                             @RequestParam(required = true) int status) {
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        try{
+            CustomerDTOStatus customerDTOStatus = CustomerDTOStatus.findByStatus(status);
+            if (customerDTOStatus == null) {
+                throw new ParamNotSupportException();
+            }
+            PageDTO<CustomerDTO> list = customerService.findBy(customerDTOStatus, page, pageSize);
+            response.setData(list);
+        }catch (Exception e) {
+            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
