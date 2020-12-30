@@ -63,15 +63,17 @@ public class UserService {
         if (userEntity == null) {
             userEntity = new UserEntity();
             userEntity.setId(0);
-            userEntity.setName(zaloUserEntity.getName());
-            userEntity.setZaloId(zaloUserEntity.getId());
-            userEntity.setPassword("");
-            userEntity.setAvatar(zaloUserEntity.getAvatar());
-            userEntity.setRoleId(Permission.ANONYMOUS.getId());
-            userEntity.setStatus(UserStatusEnum.INIT_FROM_ZALO.getId());
-            userEntity.setEnable(true);
-            userEntity = userRepository.saveAndFlush(userEntity);
         }
+        System.out.println("Zalo ID");
+        System.out.println(zaloUserEntity.getId());
+        userEntity.setName(zaloUserEntity.getName());
+        userEntity.setZaloId(zaloUserEntity.getId());
+        userEntity.setPassword("");
+        userEntity.setAvatar(zaloUserEntity.getAvatar());
+        userEntity.setRoleId(Permission.ANONYMOUS.getId());
+        userEntity.setStatus(UserStatusEnum.INIT_FROM_ZALO.getId());
+        userEntity.setEnable(true);
+        userEntity = userRepository.saveAndFlush(userEntity);
         return userEntity;
     }
 
