@@ -12,7 +12,6 @@ import vn.com.insee.corporate.common.dto.CustomerDTOStatus;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
-import vn.com.insee.corporate.dto.response.PromotionDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.CustomerExitException;
@@ -22,6 +21,7 @@ import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -136,8 +136,7 @@ public class CustomerService {
         Pageable pageable =
                 PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         Page<CustomerEntity> customerEntityPage = customerRepository.findAll(pageable);
-        List<CustomerDTO> customerDTOS = mapper.mapToList(customerEntityPage.toList(), new TypeToken<List<CustomerDTO>>() {
-        }.getType());
+        List<CustomerDTO> customerDTOS = convert(customerEntityPage.toList());
         PageDTO<CustomerDTO> customerDTOPage = new PageDTO<CustomerDTO>(page, size, customerEntityPage.getTotalPages(), customerDTOS);
         return customerDTOPage;
     }
@@ -158,10 +157,24 @@ public class CustomerService {
         if (customerEntityPage == null) {
             throw new ParamNotSupportException();
         }
-        List<CustomerDTO> customerDTOS = mapper.mapToList(customerEntityPage.toList(), new TypeToken<List<CustomerDTO>>() {
-        }.getType());
+        List<CustomerDTO> customerDTOS = convert(customerEntityPage.toList());
         PageDTO<CustomerDTO> customerDTOPage = new PageDTO<CustomerDTO>(page, size, customerEntityPage.getTotalPages(), customerDTOS);
         return customerDTOPage;
+    }
+
+    private List<CustomerDTO> convert(List<CustomerEntity> customerEntities) {
+        if (customerEntities == null) {
+            return null;
+        }
+        List<CustomerDTO> customerDTOS = new ArrayList<>();
+        for (CustomerEntity customer: customerEntities) {
+            CustomerDTO customerDTO = new CustomerDTO();
+            mapper.map(customer, customerDTO);
+            CustomerDTOStatus customerDTOStatus = CustomerDTOStatus.findBy(CustomerStatus.findByStatus(customer.getStatus()), customer.getLinkedUser());
+            customerDTO.setFinalStatus(customerDTOStatus.getStatus());
+            customerDTOS.add(customerDTO);
+        }
+        return customerDTOS;
     }
 
     public void delete(int id) {

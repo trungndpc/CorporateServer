@@ -13,7 +13,7 @@ public class CustomerDTO {
     private String fullName;
     private String avatar;
     private Integer userId;
-    private CustomerDTOStatus status;
+    private Integer finalStatus;
 
     public Integer getId() {
         return id;
@@ -82,12 +82,12 @@ public class CustomerDTO {
         this.userId = userId;
     }
 
-    public CustomerDTOStatus getStatus() {
-        return status;
+    public Integer getFinalStatus() {
+        return finalStatus;
     }
 
-    public void setStatus(CustomerDTOStatus status) {
-        this.status = status;
+    public void setFinalStatus(Integer finalStatus) {
+        this.finalStatus = finalStatus;
     }
 }
 

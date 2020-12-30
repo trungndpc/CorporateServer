@@ -10,6 +10,5 @@ public class CustomerEntityToCustomerDTO extends PropertyMap<CustomerEntity, Cus
 
     @Override
     protected void configure() {
-        skip().setStatus(CustomerDTOStatus.findBy(CustomerStatus.findByStatus(source.getStatus()), source.getLinkedUser()));
     }
 }
