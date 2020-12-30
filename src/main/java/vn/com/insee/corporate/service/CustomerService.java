@@ -41,6 +41,8 @@ public class CustomerService {
         CustomerEntity one = customerRepository.getOne(id);
         CustomerDTO dto = new CustomerDTO();
         mapper.map(one, dto);
+        CustomerDTOStatus customerDTOStatus = CustomerDTOStatus.findBy(CustomerStatus.findByStatus(one.getStatus()), one.getLinkedUser());
+        dto.setFinalStatus(customerDTOStatus.getStatus());
         return dto;
     }
 
