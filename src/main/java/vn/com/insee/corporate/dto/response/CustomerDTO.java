@@ -14,6 +14,7 @@ public class CustomerDTO {
     private String avatar;
     private Integer userId;
     private Integer finalStatus;
+    private String note;
 
     public Integer getId() {
         return id;
@@ -88,6 +89,14 @@ public class CustomerDTO {
 
     public void setFinalStatus(Integer finalStatus) {
         this.finalStatus = finalStatus;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }
 

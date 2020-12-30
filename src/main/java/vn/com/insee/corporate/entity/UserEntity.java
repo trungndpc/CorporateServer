@@ -26,6 +26,7 @@ public class UserEntity extends BaseEntity{
     private Integer roleId;
     private String name;
     private boolean isEnable;
+    private String note;
 
     @Type(type = "list-array")
     @Column(name = "lst_session",columnDefinition = "character varying[]")
@@ -126,5 +127,13 @@ public class UserEntity extends BaseEntity{
 
     public void setFollowerZaloId(String followerZaloId) {
         this.followerZaloId = followerZaloId;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

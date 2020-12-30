@@ -17,6 +17,7 @@ public class CustomerEntity extends BaseEntity{
     private Integer status;
     private Integer userId;
     private Boolean isLinkedUser;
+    private String note;
 
     public Integer getId() {
         return id;
@@ -88,5 +89,13 @@ public class CustomerEntity extends BaseEntity{
 
     public void setLinkedUser(Boolean linkedUser) {
         isLinkedUser = linkedUser;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

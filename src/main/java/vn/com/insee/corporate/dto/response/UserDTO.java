@@ -10,6 +10,8 @@ public class UserDTO {
     private String avatar;
     private String name;
     private Integer customerId;
+    private Integer roleId;
+    private String note;
 
     public String getPhone() {
         return phone;
@@ -57,5 +59,21 @@ public class UserDTO {
 
     public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
+    }
+
+    public Integer getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }
