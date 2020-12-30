@@ -87,7 +87,7 @@ public class AuthenController {
     }
 
     @PostMapping(value = "/zalo-webhook", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<BaseResponse> zaloWebhook(@RequestBody JSONObject body) throws InvalidSessionException {
+    public ResponseEntity<BaseResponse> zaloWebhook(@RequestBody String body) throws InvalidSessionException {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try{
             System.out.println(body);
