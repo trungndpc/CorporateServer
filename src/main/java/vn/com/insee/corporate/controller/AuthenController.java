@@ -90,30 +90,28 @@ public class AuthenController {
     public ResponseEntity<BaseResponse> zaloWebhook(@RequestBody String body) throws InvalidSessionException {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try{
-            System.out.println(body);
-//            String eventName = dataMap.getOrDefault("event_name", null);
-//            String followerId = getFollowerId(dataMap);
-//            if (followerId == null) {
-//                throw new ZaloWebhookException();
-//            }
-//            if ("follow".equals(eventName)) {
-//                String zaloId = dataMap.getOrDefault("user_id_by_app", null);
-//                if (zaloId != null) {
-//                    userService.linkFollowerZaloWithUser(zaloId, followerId);
-//                }
-//            }
+            JSONObject jsonBody = new JSONObject(body);
+            String eventName = jsonBody.optString("event_name", null);
+            String followerId = getFollowerId(jsonBody);
+            if (followerId == null) {
+                throw new ZaloWebhookException();
+            }
+            if ("follow".equals(eventName)) {
+                String zaloId = jsonBody.optString("user_id_by_app", null);
+                if (zaloId != null) {
+                    userService.linkFollowerZaloWithUser(zaloId, followerId);
+                }
+            }
         }catch (Exception e) {
             e.printStackTrace();
         }
         return ResponseEntity.ok(response);
     }
 
-    private String getFollowerId(Map<String, String> dataMap) {
+    private String getFollowerId(JSONObject jsonBody) {
         try{
-            String strFollower = dataMap.get("follower");
-            System.out.println(strFollower);
-            JSONObject json = new JSONObject(strFollower);
-            return json.getString("id");
+            JSONObject follower = jsonBody.getJSONObject("follower");
+            return follower.getString("id");
         }catch (Exception e) {
             e.printStackTrace();
         }
