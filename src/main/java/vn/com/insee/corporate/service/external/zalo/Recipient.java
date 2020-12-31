@@ -1,6 +1,9 @@
 package vn.com.insee.corporate.service.external.zalo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Recipient {
+    @JsonProperty("user_id")
     private String userId;
 
     public Recipient(String userId) {

@@ -1,5 +1,6 @@
 package vn.com.insee.corporate.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import vn.com.insee.corporate.exception.ParamNotSupportException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.UserRepository;
+import vn.com.insee.corporate.service.external.ZaloService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,9 @@ public class CustomerService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ZaloService zaloService;
     
     @Autowired
     private Mapper mapper;
@@ -122,12 +127,26 @@ public class CustomerService {
         return pageData;
     }
 
-    public CustomerDTO updateStatus(int id, CustomerStatus statusEnum) throws CustomerExitException {
+    public CustomerDTO updateStatus(int id, CustomerStatus statusEnum, String note) throws CustomerExitException, JsonProcessingException {
         Optional<CustomerEntity> optionalCustomerEntity = customerRepository.findById(id);
         if (!optionalCustomerEntity.isPresent()) {
             throw new CustomerExitException();
         }
         optionalCustomerEntity.get().setStatus(statusEnum.getStatus());
+        optionalCustomerEntity.get().setNote(note);
+        int currentStatus = optionalCustomerEntity.get().getStatus();
+        Integer userId = optionalCustomerEntity.get().getUserId();
+        if (userId != null) {
+            UserEntity userEntity = userRepository.getOne(userId);
+            String followerZaloId = userEntity != null ? userEntity.getFollowerZaloId() : null;
+            if (followerZaloId != null && currentStatus != statusEnum.getStatus()) {
+                if (statusEnum.equals(CustomerStatus.APPROVED)) {
+                    zaloService.sendTextMsg(followerZaloId, "Chúc mừng bạn! Hồ sơ nhà thầu của bạn đã được chúng tôi phê duyệt");
+                }else if (statusEnum.equals(CustomerStatus.REJECTED)) {
+                    zaloService.sendTextMsg(followerZaloId, "Rất tiếc!!!, Hồ sơ nhà thầu của bạn đã không được phê duyệt. " + note);
+                }
+            }
+        }
         CustomerEntity customerEntity = customerRepository.saveAndFlush(optionalCustomerEntity.get());
         CustomerDTO customerDTO = new CustomerDTO();
         mapper.map(customerEntity, customerDTO);

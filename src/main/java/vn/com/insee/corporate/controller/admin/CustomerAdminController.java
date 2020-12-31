@@ -91,11 +91,12 @@ public class CustomerAdminController {
         try {
             int id = Integer.parseInt(dataMap.get("id"));
             int status = Integer.parseInt(dataMap.get("status"));
+            String note = dataMap.getOrDefault("note", "");
             CustomerStatus enumStatus = CustomerStatus.findByStatus(status);
             if (enumStatus == null) {
                 throw new StatusNotSupportException();
             }
-            CustomerDTO customerDTO = customerService.updateStatus(id, enumStatus);
+            CustomerDTO customerDTO = customerService.updateStatus(id, enumStatus, note);
             response.setData(customerDTO);
         }catch (Exception e) {
             response.setError(ErrorCode.FAILED);
