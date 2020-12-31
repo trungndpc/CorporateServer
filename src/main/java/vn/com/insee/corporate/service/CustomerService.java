@@ -134,10 +134,10 @@ public class CustomerService {
         }
         optionalCustomerEntity.get().setStatus(statusEnum.getStatus());
         optionalCustomerEntity.get().setNote(note);
-        int currentStatus = optionalCustomerEntity.get().getStatus();
         Integer userId = optionalCustomerEntity.get().getUserId();
         if (userId != null) {
             UserEntity userEntity = userRepository.getOne(userId);
+            int currentStatus = optionalCustomerEntity.get().getStatus();
             String followerZaloId = userEntity != null ? userEntity.getFollowerZaloId() : null;
             if (followerZaloId != null && currentStatus != statusEnum.getStatus()) {
                 if (statusEnum.equals(CustomerStatus.APPROVED)) {
