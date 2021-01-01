@@ -192,7 +192,8 @@ public class CustomerService {
         for (CustomerEntity customer: customerEntities) {
             CustomerDTO customerDTO = new CustomerDTO();
             mapper.map(customer, customerDTO);
-            CustomerDTOStatus customerDTOStatus = CustomerDTOStatus.findBy(CustomerStatus.findByStatus(customer.getStatus()), customer.getLinkedUser());
+            CustomerDTOStatus customerDTOStatus = CustomerDTOStatus.findBy(CustomerStatus.findByStatus(customer.getStatus()),
+                    customer.getLinkedUser() == null ? false : customer.getLinkedUser());
             customerDTO.setFinalStatus(customerDTOStatus.getStatus());
             customerDTOS.add(customerDTO);
         }
