@@ -15,6 +15,7 @@ import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.service.external.zalo.TextMessage;
 import vn.com.insee.corporate.service.external.zalo.ZaloResponse;
 
+import java.nio.charset.Charset;
 import java.util.Collection;
 
 @Service
@@ -69,6 +70,12 @@ public class ZaloService {
             return false;
         }
         return true;
+    }
+
+    public static void main(String[] args) throws JsonProcessingException {
+        ZaloService zaloService = new ZaloService();
+        String c = "Chúc mừng";
+        zaloService.sendTextMsg("8735999925442427033", c);
     }
 
 }
