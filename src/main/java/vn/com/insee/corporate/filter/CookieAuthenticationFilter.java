@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -55,21 +56,25 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
                 Claims claims = TokenUtil.parse(_inseeSS);
                 int userId = Integer.parseInt(claims.getAudience());
 
-                InseeUserDetail userDetails = (InseeUserDetail) userUserDetailsService.loadUserById(userId);
-                if (!userDetails.getUser().isEnable()) {
-                    throw new InseeException();
+                UserDetails userDetails = userUserDetailsService.loadUserById(userId);
+                if (userDetails != null) {
+                    InseeUserDetail inseeUserDetail = (InseeUserDetail) userDetails;
+                    if (!inseeUserDetail.getUser().isEnable()) {
+                        throw new InseeException();
+                    }
+                    List<String> lstSession = inseeUserDetail.getUser().getLstSession();
+                    if (lstSession == null) {
+                        throw new InseeException();
+                    }
+                    if (lstSession.contains(_inseeSS)) {
+                        UsernamePasswordAuthenticationToken auth
+                                = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                        SecurityContextHolder.clearContext();
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
                 }
-                List<String> lstSession = userDetails.getUser().getLstSession();
-                if (lstSession == null) {
-                    throw new InseeException();
-                }
-                if (lstSession.contains(_inseeSS)) {
-                    UsernamePasswordAuthenticationToken auth
-                            = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-                    SecurityContextHolder.clearContext();
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+
             }
         } catch (ExpiredJwtException e) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
