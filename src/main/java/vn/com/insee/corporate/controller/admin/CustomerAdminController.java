@@ -99,6 +99,7 @@ public class CustomerAdminController {
             CustomerDTO customerDTO = customerService.updateStatus(id, enumStatus, note);
             response.setData(customerDTO);
         }catch (Exception e) {
+            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
