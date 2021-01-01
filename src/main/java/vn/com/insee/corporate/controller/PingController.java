@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.com.insee.corporate.common.CustomerStatus;
 import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
@@ -65,7 +66,7 @@ public class PingController {
                 clone.setPhone("09227971" + j);
                 clone.setAvatar(customerEntity.getAvatar());
                 clone.setMainAreaId(1);
-                clone.setStatus(customerEntity.getStatus());
+                clone.setStatus(CustomerStatus.REJECTED.getStatus());
                 customerRepository.save(clone);
             }
         }
