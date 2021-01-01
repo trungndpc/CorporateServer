@@ -39,7 +39,7 @@ public class PingController {
         userEntity.setName("Nguyễn Công Phượng");
         userEntity.setAvatar("https://static2.yan.vn/YanNews/202006/202006030349344511-2fc01591-f2a8-45f8-a210-79f517c9297b.png");
         userEntity.setPassword("1");
-        userEntity.setPassword("84972797200");
+        userEntity.setPhone("84972797200");
         userEntity.setEnable(true);
         userEntity.setStatus(1);
         userEntity.setRoleId(Permission.ADMIN.getId());
