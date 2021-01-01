@@ -132,8 +132,6 @@ public class CustomerService {
         if (!optionalCustomerEntity.isPresent()) {
             throw new CustomerExitException();
         }
-        optionalCustomerEntity.get().setStatus(statusEnum.getStatus());
-        optionalCustomerEntity.get().setNote(note);
         Integer userId = optionalCustomerEntity.get().getUserId();
         if (userId != null) {
             UserEntity userEntity = userRepository.getOne(userId);
@@ -147,6 +145,8 @@ public class CustomerService {
                 }
             }
         }
+        optionalCustomerEntity.get().setStatus(statusEnum.getStatus());
+        optionalCustomerEntity.get().setNote(note);
         CustomerEntity customerEntity = customerRepository.saveAndFlush(optionalCustomerEntity.get());
         CustomerDTO customerDTO = new CustomerDTO();
         mapper.map(customerEntity, customerDTO);
