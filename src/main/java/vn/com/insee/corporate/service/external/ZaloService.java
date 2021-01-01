@@ -3,20 +3,13 @@ package vn.com.insee.corporate.service.external;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import vn.com.insee.corporate.exception.ZaloException;
-import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.service.external.zalo.TextMessage;
-import vn.com.insee.corporate.service.external.zalo.ZaloResponse;
-
-import java.nio.charset.Charset;
-import java.util.Collection;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class ZaloService {
@@ -33,6 +26,8 @@ public class ZaloService {
 
     public ZaloService() {
         this.restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters()
+                .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         this.objectMapper = new ObjectMapper();
     }
 
@@ -71,11 +66,4 @@ public class ZaloService {
         }
         return true;
     }
-
-    public static void main(String[] args) throws JsonProcessingException {
-        ZaloService zaloService = new ZaloService();
-        String c = "Chúc mừng";
-        zaloService.sendTextMsg("8735999925442427033", c);
-    }
-
 }
