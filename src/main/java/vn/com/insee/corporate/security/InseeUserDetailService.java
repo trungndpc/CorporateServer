@@ -49,7 +49,12 @@ public class InseeUserDetailService implements UserDetailsService {
 
     public UserDetails loadUserById(Integer id) throws InseeException {
         Optional<UserEntity> user = userRepository.findById(id);
-        return buildUserDetails(user.orElseThrow(() -> new InseeException()));
+        try {
+            return buildUserDetails(user.orElseThrow(() -> new InseeException()));
+        }catch (Exception e) {
+
+        }
+        return null;
     }
 
 }
