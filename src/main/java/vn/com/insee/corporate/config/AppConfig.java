@@ -38,6 +38,7 @@ public class AppConfig {
     @Bean
     public AuthenticationEntryPoint unauthenticatedEntryPoint() {
         return (request, resp, authException) -> {
+            authException.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
             resp.setHeader("Content-Type", "application/json");

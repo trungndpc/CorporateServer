@@ -77,6 +77,7 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
 
             }
         } catch (ExpiredJwtException e) {
+            e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
             resp.setHeader("Content-Type", "application/json");
@@ -85,6 +86,7 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
             resp.getWriter().println(objectMapper.writeValueAsString(baseResponse));
             return;
         } catch (InseeException ex) {
+            ex.printStackTrace();
             resp.setStatus(HttpStatus.UNAUTHORIZED.value());
             resp.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
             resp.setHeader("Content-Type", "application/json");
