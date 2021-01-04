@@ -41,10 +41,10 @@ public class CustomerController {
             UserEntity authUser = AuthenUtil.getAuthUser(authentication);
             CustomerDTO customerDTO = service.createOrUpdate(form, authUser.getId());
             if (customerDTO != null) {
-                if (form.getPass() != null) {
+//                if (form.getPass() != null) {
                     userService.linkCustomerIdToUser(authUser.getId(), customerDTO.getId());
                     userService.updatePassword(authUser.getId(), form.getPass());
-                }
+//                }
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(customerDTO);
             }else{
