@@ -21,6 +21,7 @@ public class ConstructionDTO {
     private int type;
     private int userId;
     private int status;
+    private String address;
 
     public Integer getId() {
         return id;
@@ -124,5 +125,13 @@ public class ConstructionDTO {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

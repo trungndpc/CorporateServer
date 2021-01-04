@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.com.insee.corporate.common.TypeConstruction;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.ConstructionForm;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.entity.UserEntity;
+import vn.com.insee.corporate.exception.NotSupportTypeConstruction;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.ConstructionService;
 import vn.com.insee.corporate.util.AuthenUtil;
@@ -27,6 +29,11 @@ public class ConstructionController {
         BaseResponse response = new BaseResponse();
         try{
             UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+            Integer type = form.getType();
+            if (type == null || TypeConstruction.findByType(type) == null) {
+                throw new NotSupportTypeConstruction();
+            }
+
             ConstructionDTO constructionDTO = constructionService.create(form, authUser.getId());
             if (constructionDTO != null) {
                 response.setError(ErrorCode.SUCCESS);
