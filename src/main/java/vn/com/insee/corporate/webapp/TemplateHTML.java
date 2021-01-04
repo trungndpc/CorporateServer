@@ -1,8 +1,12 @@
 package vn.com.insee.corporate.webapp;
 
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,8 +18,8 @@ public class TemplateHTML {
         String cache = CACHED.getOrDefault(path, null);
         if (cache == null) {
             try{
-                File file = ResourceUtils.getFile("classpath:webapp/" + path + ".html");
-                String content = new String(Files.readAllBytes(file.toPath()));
+                InputStream inputStream = new ClassPathResource("webapp/" + path + ".html").getInputStream();
+                String content = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
                 cache = content;
                 CACHED.put(path, content);
             }catch (Exception e) {

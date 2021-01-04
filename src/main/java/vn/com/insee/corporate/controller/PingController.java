@@ -69,6 +69,7 @@ public class PingController {
                 clone.setPhone("09227971" + j);
                 clone.setAvatar(customerEntity.getAvatar());
                 clone.setMainAreaId(1);
+                clone.setLinkedUser(false);
                 clone.setStatus(CustomerStatus.REJECTED.getStatus());
                 customerRepository.save(clone);
             }
