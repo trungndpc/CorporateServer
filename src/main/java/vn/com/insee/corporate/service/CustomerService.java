@@ -204,4 +204,8 @@ public class CustomerService {
         customerRepository.deleteById(id);
     }
 
+    public static void main(String[] args) throws JsonProcessingException {
+        ZaloService zaloService = new ZaloService();
+        zaloService.sendTextMsg("8917975072990610790", "Chúc mừng bạn! Hồ sơ nhà thầu của bạn đã được chúng tôi phê duyệt");
+    }
 }

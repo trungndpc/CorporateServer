@@ -27,10 +27,13 @@ public class PingController {
     @Autowired
     private UserRepository repository;
 
-    @GetMapping("/delete-all")
+    @GetMapping("/ping")
     String all(Authentication authentication) {
-        repository.deleteAll();
-        customerRepository.deleteAll();
+        List<UserEntity> all = repository.findAll();
+        for (UserEntity e:
+        all) {
+            System.out.println(e.getPhone() + " " + e.getFollowerZaloId());
+        }
         return "OK";
     }
 

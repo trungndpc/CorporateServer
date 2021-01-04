@@ -60,6 +60,7 @@ public class ZaloService {
         TextMessage textMessage = new TextMessage(followerId, text);
         String textJson = this.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(textMessage);
         ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(SEND_MSG_TO_USER_URL, textJson, String.class, ACCESS_TOKEN_OA);
+        System.out.println(zaloResponseResponseEntity.getBody());
         if (zaloResponseResponseEntity.getStatusCode() != HttpStatus.OK) {
             System.out.println(zaloResponseResponseEntity.getBody());
             return false;
