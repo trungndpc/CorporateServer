@@ -110,6 +110,13 @@ public class ConstructionService {
         return pageData;
     }
 
+    public List<ConstructionDTO> findByUserId(int userId) {
+        List<ConstructionEntity> constructionEntityList = constructionRepository.findByUserId(userId);
+        List<ConstructionDTO> constructionDTOS = mapper.mapToList(constructionEntityList, new TypeToken<List<ConstructionDTO>>() {
+        }.getType());
+        return constructionDTOS;
+    }
+
     public ConstructionDTO updateStatus(int id, ConstructionStatus status) throws ConstructionExitException {
         Optional<ConstructionEntity> optionalConstructionEntity = constructionRepository.findById(id);
         if (!optionalConstructionEntity.isPresent()) {
