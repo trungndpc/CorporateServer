@@ -37,7 +37,7 @@ public class ConstructionController {
                 throw new NotSupportTypeConstruction();
             }
 
-            ConstructionDTO constructionDTO = constructionService.create(form, 25);
+            ConstructionDTO constructionDTO = constructionService.create(form, authUser.getId());
             if (constructionDTO != null) {
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(constructionDTO);
@@ -55,10 +55,10 @@ public class ConstructionController {
     public ResponseEntity<BaseResponse> getProfile(Authentication authentication) throws UnsupportedEncodingException {
         UserEntity authUser = AuthenUtil.getAuthUser(authentication);
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
-//        if (authUser == null) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-        List<ConstructionDTO> constructionDTOS = constructionService.findByUserId(25);
+        if (authUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<ConstructionDTO> constructionDTOS = constructionService.findByUserId(authUser.getId());
         response.setData(constructionDTOS);
         return ResponseEntity.ok(response);
     }
