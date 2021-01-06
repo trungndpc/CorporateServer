@@ -61,9 +61,6 @@ public class ConstructionAdminController {
         }
         try{
             ConstructionDTO constructionDTO = constructionService.findById(id);
-            if (constructionDTO.getUserId() != authUser.getId()) {
-                throw new InvalidSessionException();
-            }
             UserDTO userDTO = userService.findById(constructionDTO.getUserId());
             constructionDTO.setUser(userDTO);
             response.setData(constructionDTO);
