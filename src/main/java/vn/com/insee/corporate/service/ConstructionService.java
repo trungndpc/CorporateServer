@@ -102,6 +102,45 @@ public class ConstructionService {
         return construction;
     }
 
+    public ConstructionDTO findById(int id) throws ConstructionExitException {
+        Optional<ConstructionEntity> constructionEntity = constructionRepository.findById(id);
+        if (!constructionEntity.isPresent()) {
+            throw new ConstructionExitException();
+        }
+        ConstructionDTO constructionDTO = new ConstructionDTO();
+        List<BillDTO> billDTOS = null;
+        List<ImageDTO> imageDTOS = null;
+        mapper.map(constructionEntity.get(), constructionDTO);
+
+        List<Integer> billIds = constructionEntity.get().getBillIds();
+        if (billIds != null && billIds.size() > 0) {
+            List<BillEntity> billEntities = billRepository.findAllById(billIds);
+            if (billEntities != null && billEntities.size() > 0) {
+                billDTOS = new ArrayList<>();
+                for (BillEntity e: billEntities) {
+                    BillDTO billDTO = new BillDTO();
+                    mapper.map(e, billDTO);
+                    billDTOS.add(billDTO);
+                }
+            }
+        }
+        List<Integer> imageIds = constructionEntity.get().getImageIds();
+        if (imageIds != null && imageIds.size() > 0) {
+            List<ImageEntity> imageEntities = imageRepository.findAllById(imageIds);
+            if (imageEntities != null && imageEntities.size() > 0) {
+                imageDTOS = new ArrayList<>();
+                for (ImageEntity e: imageEntities) {
+                    ImageDTO imageDTO = new ImageDTO();
+                    mapper.map(e, imageDTO);
+                    imageDTOS.add(imageDTO);
+                }
+            }
+        }
+        constructionDTO.setBills(billDTOS);
+        constructionDTO.setImages(imageDTOS);
+        return constructionDTO;
+    }
+
     public PageDTO<ConstructionDTO> getList(int page, int pageSize) {
         Page<ConstructionEntity> constructionEntities = constructionRepository.findAll(PageRequest.of(page, pageSize));
         List<ConstructionDTO> constructionDTOS = mapper.mapToList(constructionEntities.toList(), new TypeToken<List<ConstructionDTO>>() {
@@ -128,6 +167,5 @@ public class ConstructionService {
         mapper.map(constructionEntity, constructionDTO);
         return constructionDTO;
     }
-
 
 }

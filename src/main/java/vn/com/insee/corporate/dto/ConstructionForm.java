@@ -1,24 +1,26 @@
 package vn.com.insee.corporate.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ConstructionForm {
     private Integer id;
-    private int city;
+    private Integer city;
     private String district;
     private String name;
     private String phone;
-    private int quantity;
+    private Integer quantity;
     private List<String> billIds;
     private List<String> imageIds;
-    private int estimateTimeStart;
-    private int typeConstruction;
-    private int type;
-    private int userId;
-    private int status;
+    private Integer estimateTimeStart;
+    private Integer typeConstruction;
+    private Integer type;
+    private Integer userId;
+    private Integer status;
     private String address;
 
     public Integer getId() {
@@ -29,11 +31,11 @@ public class ConstructionForm {
         this.id = id;
     }
 
-    public int getCity() {
+    public Integer getCity() {
         return city;
     }
 
-    public void setCity(int city) {
+    public void setCity(Integer city) {
         this.city = city;
     }
 
@@ -61,11 +63,11 @@ public class ConstructionForm {
         this.phone = phone;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -85,43 +87,43 @@ public class ConstructionForm {
         this.imageIds = imageIds;
     }
 
-    public int getEstimateTimeStart() {
+    public Integer getEstimateTimeStart() {
         return estimateTimeStart;
     }
 
-    public void setEstimateTimeStart(int estimateTimeStart) {
+    public void setEstimateTimeStart(Integer estimateTimeStart) {
         this.estimateTimeStart = estimateTimeStart;
     }
 
-    public int getTypeConstruction() {
+    public Integer getTypeConstruction() {
         return typeConstruction;
     }
 
-    public void setTypeConstruction(int typeConstruction) {
+    public void setTypeConstruction(Integer typeConstruction) {
         this.typeConstruction = typeConstruction;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
-    public int getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

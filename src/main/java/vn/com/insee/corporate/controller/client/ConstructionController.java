@@ -12,6 +12,8 @@ import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.UserEntity;
+import vn.com.insee.corporate.exception.ConstructionExitException;
+import vn.com.insee.corporate.exception.InvalidSessionException;
 import vn.com.insee.corporate.exception.NotSupportTypeConstruction;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.ConstructionService;
@@ -60,6 +62,26 @@ public class ConstructionController {
         }
         List<ConstructionDTO> constructionDTOS = constructionService.findByUserId(authUser.getId());
         response.setData(constructionDTOS);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(produces = {"application/json"})
+    public ResponseEntity<BaseResponse> getById(@RequestParam(required = true) int id, Authentication authentication)  {
+        UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        if (authUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        try{
+            ConstructionDTO constructionDTO = constructionService.findById(id);
+            if (constructionDTO.getUserId() != authUser.getId()) {
+                throw new InvalidSessionException();
+            }
+            response.setData(constructionDTO);
+        }catch (Exception e) {
+            e.printStackTrace();
+            response.setError(ErrorCode.FAILED);
+        }
         return ResponseEntity.ok(response);
     }
 
