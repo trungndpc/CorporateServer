@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import vn.com.insee.corporate.common.ConstructionStatus;
 import vn.com.insee.corporate.common.CustomerStatus;
+import vn.com.insee.corporate.common.ImageStatus;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
@@ -16,7 +17,9 @@ import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.InvalidSessionException;
 import vn.com.insee.corporate.exception.StatusNotSupportException;
 import vn.com.insee.corporate.response.BaseResponse;
+import vn.com.insee.corporate.service.BillService;
 import vn.com.insee.corporate.service.ConstructionService;
+import vn.com.insee.corporate.service.ImageService;
 import vn.com.insee.corporate.service.UserService;
 import vn.com.insee.corporate.util.AuthenUtil;
 
@@ -32,6 +35,12 @@ public class ConstructionAdminController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ImageService imageService;
+
+    @Autowired
+    private BillService billService;
 
     @GetMapping(path = "/list", produces = {"application/json"})
     public ResponseEntity<BaseResponse> list(@RequestParam(required = false, defaultValue = "0") int page,
@@ -88,6 +97,30 @@ public class ConstructionAdminController {
             ConstructionDTO constructionDTO = constructionService.updateStatus(id, enumStatus);
             response.setData(constructionDTO);
         }catch (Exception e) {
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    private static final int BILL_TYPE = 1;
+    private static final int IMAGE_INSEE_TYPE = 2;
+    @PostMapping(path = "/image/update-status", produces = {"application/json"})
+    public ResponseEntity<BaseResponse> updateImgStatus(@RequestBody Map<String, String> dataMap) {
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        try {
+            int id = Integer.parseInt(dataMap.get("id"));
+            int type = Integer.parseInt(dataMap.get("type"));
+            int status = Integer.parseInt(dataMap.get("status"));
+
+            if (type == BILL_TYPE) {
+                billService.updateStatus(id, ImageStatus.findByStatus(status));
+            }
+
+            if (type == IMAGE_INSEE_TYPE) {
+                imageService.updateStatus(id, ImageStatus.findByStatus(status));
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
