@@ -8,6 +8,17 @@ public enum ImageStatus {
         this.status = status;
     }
 
+    public static ImageStatus findByStatus(int status) {
+        switch (status) {
+            case 1 : return WAITING_APPROVAL;
+            case 2 : return APPROVED;
+            case 3 : return REJECT;
+            default: return null;
+        }
+    }
+
+
+
     public int getStatus() {
         return status;
     }
