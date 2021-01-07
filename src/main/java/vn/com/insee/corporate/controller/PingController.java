@@ -16,6 +16,7 @@ import vn.com.insee.corporate.security.InseeUserDetail;
 import vn.com.insee.corporate.service.CustomerService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("")
@@ -97,28 +98,32 @@ public class PingController {
 //        return "OK";
 //    }
 //
-//    @GetMapping("/auto-gen")
-//    String autoGen(Authentication authentication) {
-//        genCustomer();
-//        return "OK";
-//    }
+    @GetMapping("/auto-gen")
+    String autoGen(Authentication authentication) {
+        genCustomer("Contractor B", "https://f33-zpg.zdn.vn/4246271967914451302/c139cb61f461043f5d70.jpg"
+        ,"84972699592", 6);
+        genCustomer("Contractor C", "https://f36-zpg.zdn.vn/1730508780768327302/74cb19982698d6c68f89.jpg"
+                ,"84972659592", 7);
+        genCustomer("Contractor D", "https://f22-zpg.zdn.vn/7089438183322163729/beac9448aa485a160359.jpg"
+                ,"84972691592", 8);
+        genCustomer("Contractor E", "https://f32-zpg.zdn.vn/5292562318383030202/21444b5a735a8304da4b.jpg"
+                ,"84972669592", 1);
+
+        return "OK";
+    }
 //
 //
 //
-//    protected void genCustomer() {
-//        List<CustomerEntity> all = customerRepository.findAll();
-//        for (int i = 0; i < all.size(); i++) {
-//            CustomerEntity customerEntity = all.get(i);
-//            for (int j = 10; j < 99; j++) {
-//                CustomerEntity clone = new CustomerEntity();
-//                clone.setFullName("Auto gen" + " " + j);
-//                clone.setPhone("09227971" + j);
-//                clone.setAvatar(customerEntity.getAvatar());
-//                clone.setMainAreaId(1);
-//                clone.setLinkedUser(false);
-//                clone.setStatus(CustomerStatus.REJECTED.getStatus());
-//                customerRepository.save(clone);
-//            }
-//        }
-//    }
+    protected void genCustomer(String name, String avatar, String phone, int mainArea) {
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setFullName(name);
+        customerEntity.setAvatar(avatar);
+        customerEntity.setPhone(phone);
+        customerEntity.setMainAreaId(mainArea);
+        customerEntity.setStatus(CustomerStatus.APPROVED.getStatus());
+        customerEntity.setBirthday(536950800);
+        customerEntity.setLinkedUser(false);
+        customerRepository.saveAndFlush(customerEntity);
+
+    }
 }
