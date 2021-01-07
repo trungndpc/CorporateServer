@@ -44,10 +44,12 @@ public class ConstructionAdminController {
 
     @GetMapping(path = "/list", produces = {"application/json"})
     public ResponseEntity<BaseResponse> list(@RequestParam(required = false, defaultValue = "0") int page,
-                                             @RequestParam (required = false, defaultValue = "20") int pageSize) {
+                                             @RequestParam (required = false, defaultValue = "20") int pageSize,
+                                             @RequestParam(required = true) int type,
+                                             @RequestParam(required = false) Integer status) {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try{
-            PageDTO<ConstructionDTO> list = constructionService.getList(page, pageSize);
+            PageDTO<ConstructionDTO> list = constructionService.getList(type, status, page, pageSize);
             List<ConstructionDTO> constructionDTOS = list.getList();
             for (int i = 0; i < constructionDTOS.size(); i++) {
                 ConstructionDTO constructionDTO = constructionDTOS.get(i);

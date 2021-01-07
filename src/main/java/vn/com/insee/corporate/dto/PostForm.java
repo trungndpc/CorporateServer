@@ -7,6 +7,9 @@ public class PostForm {
     private String content;
     private int typePromotion;
     private String summary;
+    private Integer location;
+    private Long timeStart;
+    private Long timeEnd;
 
     public Integer getId() {
         return id;
@@ -54,5 +57,29 @@ public class PostForm {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public Integer getLocation() {
+        return location;
+    }
+
+    public void setLocation(Integer location) {
+        this.location = location;
+    }
+
+    public Long getTimeStart() {
+        return timeStart;
+    }
+
+    public void setTimeStart(Long timeStart) {
+        this.timeStart = timeStart;
+    }
+
+    public Long getTimeEnd() {
+        return timeEnd;
+    }
+
+    public void setTimeEnd(Long timeEnd) {
+        this.timeEnd = timeEnd;
     }
 }

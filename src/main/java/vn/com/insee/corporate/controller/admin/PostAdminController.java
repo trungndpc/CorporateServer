@@ -11,8 +11,8 @@ import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.PromotionService;
 
 @RestController
-@RequestMapping("/api/admin/promotion")
-public class PromotionAdminController {
+@RequestMapping("/api/admin/post")
+public class PostAdminController {
 
     @Autowired
     private PromotionService promotionService;

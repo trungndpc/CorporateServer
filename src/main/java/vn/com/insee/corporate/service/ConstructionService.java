@@ -1,9 +1,12 @@
 package vn.com.insee.corporate.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.com.insee.corporate.common.BillStatus;
 import vn.com.insee.corporate.common.ConstructionStatus;
@@ -13,14 +16,18 @@ import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.BillDTO;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.dto.response.ImageDTO;
+import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.BillEntity;
 import vn.com.insee.corporate.entity.ConstructionEntity;
 import vn.com.insee.corporate.entity.ImageEntity;
+import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.ConstructionExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.BillRepository;
 import vn.com.insee.corporate.repository.ConstructionRepository;
 import vn.com.insee.corporate.repository.ImageRepository;
+import vn.com.insee.corporate.repository.UserRepository;
+import vn.com.insee.corporate.service.external.ZaloService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +48,12 @@ public class ConstructionService {
 
     @Autowired
     private BillRepository billRepository;
+
+    @Autowired
+    private ZaloService zaloService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public ConstructionDTO create(ConstructionForm form, int userId) {
         ConstructionEntity constructionEntity = new ConstructionEntity();
@@ -141,8 +154,15 @@ public class ConstructionService {
         return constructionDTO;
     }
 
-    public PageDTO<ConstructionDTO> getList(int page, int pageSize) {
-        Page<ConstructionEntity> constructionEntities = constructionRepository.findAll(PageRequest.of(page, pageSize));
+    public PageDTO<ConstructionDTO> getList(int type, Integer status, int page, int pageSize) {
+        Pageable pageable =
+                PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Page<ConstructionEntity> constructionEntities;
+        if (status == null) {
+            constructionEntities = constructionRepository.findByType(type, pageable);
+        }else {
+            constructionEntities = constructionRepository.findByTypeAndStatus(type, status, pageable);
+        }
         List<ConstructionDTO> constructionDTOS = mapper.mapToList(constructionEntities.toList(), new TypeToken<List<ConstructionDTO>>() {
         }.getType());
         PageDTO<ConstructionDTO> pageData = new PageDTO<ConstructionDTO>(page, pageSize, constructionEntities.getTotalPages(), constructionDTOS);
@@ -156,10 +176,21 @@ public class ConstructionService {
         return constructionDTOS;
     }
 
-    public ConstructionDTO updateStatus(int id, ConstructionStatus status) throws ConstructionExitException {
+    public ConstructionDTO updateStatus(int id, ConstructionStatus status) throws ConstructionExitException, JsonProcessingException {
         Optional<ConstructionEntity> optionalConstructionEntity = constructionRepository.findById(id);
         if (!optionalConstructionEntity.isPresent()) {
             throw new ConstructionExitException();
+        }
+
+        if (optionalConstructionEntity.get().getStatus() != status.getStatus()) {
+            int userId = optionalConstructionEntity.get().getUserId();
+            UserEntity userEntity = userRepository.getOne(userId);
+            if (userEntity != null && userEntity.getFollowerZaloId() != null)
+            if (status == ConstructionStatus.APPROVED) {
+                zaloService.sendTextMsg(userEntity.getFollowerZaloId(), "Công trình của bạn đã được chúng tôi xác thực! Trạng thái hóa đơn, hình ảnh của bạn upload sẽ được chúng tôi cập nhật trên trang nhà thầu chính thức của INSEE.");
+            }else if(status == ConstructionStatus.REJECTED) {
+                zaloService.sendTextMsg(userEntity.getFollowerZaloId(), "Rất tiếc!!! Những thông tin công trình của bạn cung cấp không đáp ứng được yêu cầu của chúng tôi!!!");
+            }
         }
         optionalConstructionEntity.get().setStatus(status.getStatus());
         ConstructionEntity constructionEntity = constructionRepository.saveAndFlush(optionalConstructionEntity.get());
