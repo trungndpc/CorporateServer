@@ -52,6 +52,11 @@ public class PingController {
         for (UserEntity e:
 
         all) {
+            System.out.println(e.getPhone());
+            if ("84972797200".equals(e.getPhone())) {
+                e.setAvatar("https://insee-promotion-vn.s3.us-east-2.amazonaws.com/static/images/log-admin.png");
+                repository.saveAndFlush(e);
+            }
             System.out.println(e.getPhone() + " " + e.getFollowerZaloId());
         }
         return "OK";
