@@ -1,6 +1,7 @@
 package vn.com.insee.corporate.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.json.JSONObject;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,6 +61,10 @@ public class ConstructionService {
         mapper.map(form, constructionEntity);
         constructionEntity.setUserId(userId);
         constructionEntity.setStatus(ConstructionStatus.WAITING_APPROVAL.getStatus());
+        JSONObject extra = form.getExtra();
+        if (extra != null) {
+            constructionEntity.setExtra(extra.toString());
+        }
         List<String> billIds = form.getBillIds();
         List<BillEntity> billEntities = new ArrayList<>();
         if (billIds != null) {
@@ -124,6 +129,9 @@ public class ConstructionService {
         List<BillDTO> billDTOS = null;
         List<ImageDTO> imageDTOS = null;
         mapper.map(constructionEntity.get(), constructionDTO);
+        if (constructionEntity.get().getExtra() != null) {
+            constructionDTO.setExtra(new JSONObject(constructionEntity.get().getExtra()));
+        }
 
         List<Integer> billIds = constructionEntity.get().getBillIds();
         if (billIds != null && billIds.size() > 0) {
@@ -199,6 +207,6 @@ public class ConstructionService {
         return constructionDTO;
     }
 
-
+    public ConstructionDTO updateLabel(int id, )
 
 }

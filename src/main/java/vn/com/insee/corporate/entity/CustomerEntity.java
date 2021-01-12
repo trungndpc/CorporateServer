@@ -18,6 +18,7 @@ public class CustomerEntity extends BaseEntity{
     private Integer userId;
     private Boolean isLinkedUser;
     private String note;
+    private Integer volumeCiment;
 
     public Integer getId() {
         return id;
@@ -97,5 +98,13 @@ public class CustomerEntity extends BaseEntity{
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public Integer getVolumeCiment() {
+        return volumeCiment;
+    }
+
+    public void setVolumeCiment(Integer volumeCiment) {
+        this.volumeCiment = volumeCiment;
     }
 }

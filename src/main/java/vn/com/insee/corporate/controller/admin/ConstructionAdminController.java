@@ -8,19 +8,18 @@ import org.springframework.web.bind.annotation.*;
 import vn.com.insee.corporate.common.ConstructionStatus;
 import vn.com.insee.corporate.common.CustomerStatus;
 import vn.com.insee.corporate.common.ImageStatus;
+import vn.com.insee.corporate.common.TypeLabel;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
+import vn.com.insee.corporate.dto.response.LabelDTO;
 import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.InvalidSessionException;
 import vn.com.insee.corporate.exception.StatusNotSupportException;
 import vn.com.insee.corporate.response.BaseResponse;
-import vn.com.insee.corporate.service.BillService;
-import vn.com.insee.corporate.service.ConstructionService;
-import vn.com.insee.corporate.service.ImageService;
-import vn.com.insee.corporate.service.UserService;
+import vn.com.insee.corporate.service.*;
 import vn.com.insee.corporate.util.AuthenUtil;
 
 import java.util.List;
@@ -41,6 +40,9 @@ public class ConstructionAdminController {
 
     @Autowired
     private BillService billService;
+
+    @Autowired
+    private LabelService labelService;
 
     @GetMapping(path = "/list", produces = {"application/json"})
     public ResponseEntity<BaseResponse> list(@RequestParam(required = false, defaultValue = "0") int page,
@@ -77,6 +79,26 @@ public class ConstructionAdminController {
             response.setData(constructionDTO);
         }catch (Exception e) {
             e.printStackTrace();
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/update", produces = {"application/json"})
+    public ResponseEntity<BaseResponse> update(@RequestBody Map<String, String> dataMap) {
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        try {
+            int id = Integer.parseInt(dataMap.get("id"));
+            int labelId = Integer.parseInt(dataMap.get("labelId"));
+            Integer labelType = Integer.parseInt(dataMap.get("labelType") != null ? dataMap.get("labelType")  : "0");
+            LabelDTO labelDTO = labelService.findOrCreate(labelId, TypeLabel.findByType(labelType));
+            ConstructionStatus enumStatus = ConstructionStatus.findByStatus(status);
+            if (enumStatus == null) {
+                throw new StatusNotSupportException();
+            }
+            ConstructionDTO constructionDTO = constructionService.updateStatus(id, enumStatus);
+            response.setData(constructionDTO);
+        }catch (Exception e) {
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);

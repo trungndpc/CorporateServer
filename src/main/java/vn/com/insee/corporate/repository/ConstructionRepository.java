@@ -12,4 +12,5 @@ public interface ConstructionRepository extends JpaRepository<ConstructionEntity
     List<ConstructionEntity> findByUserId(int uid);
     Page<ConstructionEntity> findByTypeAndStatus(int type, int status, Pageable pageable);
     Page<ConstructionEntity> findByType(int type, Pageable pageable);
+    List<ConstructionEntity> findByPromotionIdAndUserId(Integer promotionId, Integer userId);
 }

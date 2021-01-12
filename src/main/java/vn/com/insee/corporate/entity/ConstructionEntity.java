@@ -35,6 +35,9 @@ public class ConstructionEntity {
     private int userId;
     private int status;
     private String address;
+    private Integer promotionId;
+    private Integer labelId;
+    private String extra;
 
     public Integer getId() {
         return id;
@@ -146,5 +149,29 @@ public class ConstructionEntity {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public Integer getPromotionId() {
+        return promotionId;
+    }
+
+    public void setPromotionId(Integer promotionId) {
+        this.promotionId = promotionId;
+    }
+
+    public Integer getLabelId() {
+        return labelId;
+    }
+
+    public void setLabelId(Integer labelId) {
+        this.labelId = labelId;
+    }
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
     }
 }

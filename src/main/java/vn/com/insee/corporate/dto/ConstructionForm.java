@@ -2,6 +2,7 @@ package vn.com.insee.corporate.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.Type;
+import org.json.JSONObject;
 
 import javax.persistence.Column;
 import java.util.List;
@@ -22,6 +23,8 @@ public class ConstructionForm {
     private Integer userId;
     private Integer status;
     private String address;
+    private Integer promotionId;
+    private JSONObject extra;
 
     public Integer getId() {
         return id;
@@ -133,5 +136,21 @@ public class ConstructionForm {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public Integer getPromotionId() {
+        return promotionId;
+    }
+
+    public void setPromotionId(Integer promotionId) {
+        this.promotionId = promotionId;
+    }
+
+    public JSONObject getExtra() {
+        return extra;
+    }
+
+    public void setExtra(JSONObject extra) {
+        this.extra = extra;
     }
 }

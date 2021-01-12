@@ -9,5 +9,6 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Intege
     CustomerEntity findByPhone(String phone);
     Page<CustomerEntity> findByStatusAndIsLinkedUser(int status, boolean isLinkedUser, Pageable pageable);
     Page<CustomerEntity> findByIsLinkedUser(boolean isLinkedUser, Pageable pageable);
+    CustomerEntity findByUserId(Integer userId);
 
 }

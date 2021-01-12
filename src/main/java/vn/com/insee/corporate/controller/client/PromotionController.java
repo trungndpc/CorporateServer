@@ -1,16 +1,26 @@
 package vn.com.insee.corporate.controller.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.page.PageDTO;
+import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.PromotionDTO;
+import vn.com.insee.corporate.dto.response.UserDTO;
+import vn.com.insee.corporate.dto.response.client.PromotionClientDTO;
+import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.PromotionService;
+import vn.com.insee.corporate.util.AuthenUtil;
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/promotion")
@@ -20,12 +30,25 @@ public class PromotionController {
     private PromotionService postService;
 
     @GetMapping(path = "/list", produces = {"application/json"})
-    public ResponseEntity<BaseResponse> list(@RequestParam(required = false, defaultValue = "0") int page,
-                                             @RequestParam (required = false, defaultValue = "20") int pageSize) {
+    public ResponseEntity<BaseResponse> list(Authentication authentication) {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        UserEntity authUser = AuthenUtil.getAuthUser(authentication);
         try{
-            PageDTO<PromotionDTO> list = postService.getList(page, pageSize);
+            List<PromotionClientDTO> list = postService.getList(authUser != null ? authUser.getId() : null);
             response.setData(list);
+        }catch (Exception e) {
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping()
+    public ResponseEntity<BaseResponse> get(@RequestParam(required = true) int id, Authentication authentication) {
+        UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        try {
+            PromotionClientDTO promotionClientDTO = postService.get(id, authUser != null ? authUser.getId() : null);
+            response.setData(promotionClientDTO);
         }catch (Exception e) {
             response.setError(ErrorCode.FAILED);
         }
