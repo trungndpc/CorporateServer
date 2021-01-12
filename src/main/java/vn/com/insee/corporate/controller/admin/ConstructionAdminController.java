@@ -6,17 +6,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import vn.com.insee.corporate.common.ConstructionStatus;
-import vn.com.insee.corporate.common.CustomerStatus;
 import vn.com.insee.corporate.common.ImageStatus;
 import vn.com.insee.corporate.common.TypeLabel;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
-import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.LabelDTO;
 import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.UserEntity;
-import vn.com.insee.corporate.exception.InvalidSessionException;
+import vn.com.insee.corporate.exception.LabelIDException;
 import vn.com.insee.corporate.exception.StatusNotSupportException;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.*;
@@ -89,15 +87,15 @@ public class ConstructionAdminController {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try {
             int id = Integer.parseInt(dataMap.get("id"));
-            int labelId = Integer.parseInt(dataMap.get("labelId"));
-            Integer labelType = Integer.parseInt(dataMap.get("labelType") != null ? dataMap.get("labelType")  : "0");
-            LabelDTO labelDTO = labelService.findOrCreate(labelId, TypeLabel.findByType(labelType));
-            ConstructionStatus enumStatus = ConstructionStatus.findByStatus(status);
-            if (enumStatus == null) {
-                throw new StatusNotSupportException();
+            String labelId = dataMap.get("labelId");
+            if(labelId != null) {
+                constructionService.updateLabel(id, Integer.parseInt(labelId));
+            }else {
+                Integer labelType = Integer.parseInt(dataMap.get("labelType"));
+                String labelName = dataMap.get("labelName");
+                LabelDTO labelDTO = labelService.create(labelName, TypeLabel.findByType(labelType));
+                constructionService.updateLabel(id, labelDTO.getId());
             }
-            ConstructionDTO constructionDTO = constructionService.updateStatus(id, enumStatus);
-            response.setData(constructionDTO);
         }catch (Exception e) {
             response.setError(ErrorCode.FAILED);
         }
@@ -132,8 +130,21 @@ public class ConstructionAdminController {
             int id = Integer.parseInt(dataMap.get("id"));
             int type = Integer.parseInt(dataMap.get("type"));
             int status = Integer.parseInt(dataMap.get("status"));
-
+            String labelId = dataMap.get("labelId");
+            String strVolumeCiment = dataMap.get("volumeCiment");
+            Integer volumeCiment = 0;
+            if (strVolumeCiment != null) {
+                volumeCiment = Integer.parseInt(strVolumeCiment);
+            }
+            if (labelId != null) {
+                boolean exits = billService.isExits(labelId);
+                if (exits) {
+                    throw new LabelIDException();
+                }
+            }
             if (type == BILL_TYPE) {
+                billService.updateLabelId(id, labelId);
+                billService.updateVolumeCiment(id, volumeCiment);
                 billService.updateStatus(id, ImageStatus.findByStatus(status));
             }
 

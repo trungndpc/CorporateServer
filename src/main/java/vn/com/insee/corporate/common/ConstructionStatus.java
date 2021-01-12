@@ -1,7 +1,7 @@
 package vn.com.insee.corporate.common;
 
 public enum ConstructionStatus {
-    WAITING_APPROVAL(1), APPROVED(2), REJECTED(3);
+    WAITING_APPROVAL(1), APPROVED(2), REJECTED(3), SEND_GIFT(4);
     private int status;
 
     ConstructionStatus(int status) {

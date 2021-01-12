@@ -23,6 +23,7 @@ import vn.com.insee.corporate.entity.ConstructionEntity;
 import vn.com.insee.corporate.entity.ImageEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.ConstructionExitException;
+import vn.com.insee.corporate.exception.CustomerExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.BillRepository;
 import vn.com.insee.corporate.repository.ConstructionRepository;
@@ -207,6 +208,15 @@ public class ConstructionService {
         return constructionDTO;
     }
 
-    public ConstructionDTO updateLabel(int id, )
+    public boolean updateLabel(int id, int labelId) throws CustomerExitException {
+        Optional<ConstructionEntity> constructionEntityOptional = constructionRepository.findById(id);
+        if (!constructionEntityOptional.isPresent()) {
+            throw new CustomerExitException();
+        }
+        ConstructionEntity constructionEntity = constructionEntityOptional.get();
+        constructionEntity.setLabelId(labelId);
+        constructionRepository.saveAndFlush(constructionEntity);
+        return true;
+    }
 
 }

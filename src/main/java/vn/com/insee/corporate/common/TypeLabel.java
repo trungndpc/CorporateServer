@@ -15,4 +15,8 @@ public enum TypeLabel {
             default: return null;
         }
     }
+
+    public int getType() {
+        return type;
+    }
 }
