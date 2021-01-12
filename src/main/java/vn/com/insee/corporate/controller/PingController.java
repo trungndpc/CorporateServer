@@ -49,24 +49,24 @@ public class PingController {
     @GetMapping("/ping")
     String all(Authentication authentication) {
         List<UserEntity> all = repository.findAll();
-        for (UserEntity e:
-
-        all) {
-            System.out.println(e.getPhone());
-            if ("84972797200".equals(e.getPhone())) {
-                e.setAvatar("https://insee-promotion-vn.s3.us-east-2.amazonaws.com/static/images/log-admin.png");
-                repository.saveAndFlush(e);
-            }
-            System.out.println(e.getPhone() + " " + e.getFollowerZaloId());
-        }
+//        for (UserEntity e:
+//
+//        all) {
+//            System.out.println(e.getPhone());
+//            if ("84972797200".equals(e.getPhone())) {
+//                e.setAvatar("https://insee-promotion-vn.s3.us-east-2.amazonaws.com/static/images/log-admin.png");
+//                repository.saveAndFlush(e);
+//            }
+//            System.out.println(e.getPhone() + " " + e.getFollowerZaloId());
+//        }
         return "OK";
     }
 
     @GetMapping("/delete")
-    String delete(@RequestParam(required = true) String phone) {
+    String delete(@RequestParam(required = false) String phone, @RequestParam(required = false) int idc) {
         List<UserEntity> all = repository.findAll();
         for (UserEntity e:all) {
-            if (e.getPhone() != null && e.getPhone().equals(phone)) {
+            if ((e.getPhone() != null  && e.getPhone().equals(phone)) || e.getId() == idc) {
                 int id = e.getId();
                 int customerId = e.getCustomerId();
                 String zaloId = e.getZaloId();
