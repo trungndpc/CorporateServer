@@ -25,6 +25,7 @@ public class ConstructionDTO {
     private String address;
     private UserDTO user;
     private JSONObject extra;
+    private LabelDTO label;
 
     public Integer getId() {
         return id;
@@ -152,5 +153,13 @@ public class ConstructionDTO {
 
     public void setExtra(JSONObject extra) {
         this.extra = extra;
+    }
+
+    public LabelDTO getLabel() {
+        return label;
+    }
+
+    public void setLabel(LabelDTO label) {
+        this.label = label;
     }
 }

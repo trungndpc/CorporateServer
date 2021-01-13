@@ -14,21 +14,12 @@ import vn.com.insee.corporate.common.ConstructionStatus;
 import vn.com.insee.corporate.common.ImageStatus;
 import vn.com.insee.corporate.dto.ConstructionForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
-import vn.com.insee.corporate.dto.response.BillDTO;
-import vn.com.insee.corporate.dto.response.ConstructionDTO;
-import vn.com.insee.corporate.dto.response.ImageDTO;
-import vn.com.insee.corporate.dto.response.UserDTO;
-import vn.com.insee.corporate.entity.BillEntity;
-import vn.com.insee.corporate.entity.ConstructionEntity;
-import vn.com.insee.corporate.entity.ImageEntity;
-import vn.com.insee.corporate.entity.UserEntity;
+import vn.com.insee.corporate.dto.response.*;
+import vn.com.insee.corporate.entity.*;
 import vn.com.insee.corporate.exception.ConstructionExitException;
 import vn.com.insee.corporate.exception.CustomerExitException;
 import vn.com.insee.corporate.mapper.Mapper;
-import vn.com.insee.corporate.repository.BillRepository;
-import vn.com.insee.corporate.repository.ConstructionRepository;
-import vn.com.insee.corporate.repository.ImageRepository;
-import vn.com.insee.corporate.repository.UserRepository;
+import vn.com.insee.corporate.repository.*;
 import vn.com.insee.corporate.service.external.ZaloService;
 
 import java.util.ArrayList;
@@ -56,6 +47,12 @@ public class ConstructionService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private LabelRepository labelRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     public ConstructionDTO create(ConstructionForm form, int userId) {
         ConstructionEntity constructionEntity = new ConstructionEntity();
@@ -158,6 +155,14 @@ public class ConstructionService {
                 }
             }
         }
+        Integer labelId = constructionEntity.get().getLabelId();
+        if (labelId != null) {
+            Optional<LabelEntity> optionalLabelEntity = labelRepository.findById(labelId);
+            if (optionalLabelEntity.isPresent()) {
+                constructionDTO.setLabel(mapper.map(optionalLabelEntity.get(), LabelDTO.class));
+            }
+        }
+
         constructionDTO.setBills(billDTOS);
         constructionDTO.setImages(imageDTOS);
         return constructionDTO;
@@ -194,6 +199,30 @@ public class ConstructionService {
         if (optionalConstructionEntity.get().getStatus() != status.getStatus()) {
             int userId = optionalConstructionEntity.get().getUserId();
             UserEntity userEntity = userRepository.getOne(userId);
+
+            if (status == ConstructionStatus.APPROVED) {
+                List<Integer> billIds = optionalConstructionEntity.get().getBillIds();
+                if (billIds != null && billIds.size() > 0) {
+                    List<BillEntity> billEntities = billRepository.findAllById(billIds);
+                    int volumeCiment = 0;
+                    for (BillEntity billEntity: billEntities) {
+                        if (billEntity.getStatus() == BillStatus.APPROVED.getStatus()) {
+                            if (billEntity.getVolumeCiment() != null) {
+                                volumeCiment = volumeCiment + billEntity.getVolumeCiment();
+                            }
+                        }
+                    }
+                    if (userEntity != null) {
+                        Integer customerId = userEntity.getCustomerId();
+                        CustomerEntity customerEntity = customerRepository.getOne(customerId);
+                        customerEntity.setVolumeCiment(customerEntity.getVolumeCiment() + volumeCiment);
+                        customerRepository.saveAndFlush(customerEntity);
+                    }
+
+
+                }
+            }
+
             if (userEntity != null && userEntity.getFollowerZaloId() != null)
             if (status == ConstructionStatus.APPROVED) {
                 zaloService.sendTextMsg(userEntity.getFollowerZaloId(), "Công trình của bạn đã được chúng tôi xác thực! Trạng thái hóa đơn, hình ảnh của bạn upload sẽ được chúng tôi cập nhật trên trang nhà thầu chính thức của INSEE.");

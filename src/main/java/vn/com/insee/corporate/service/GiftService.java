@@ -25,7 +25,8 @@ public class GiftService {
     @Autowired
     private ConstructionService constructionService;
 
-    public GiftDTO create(GiftService giftForm) throws ConstructionExitException, JsonProcessingException {
+    public GiftDTO create(GiftForm giftForm) throws ConstructionExitException, JsonProcessingException {
+        System.out.println("CREATE GIFT");
         GiftEntity giftEntity = mapper.map(giftForm, GiftEntity.class);
         giftEntity.setStatus(GiftStatus.SEND.getStatus());
         giftEntity = giftRepository.saveAndFlush(giftEntity);

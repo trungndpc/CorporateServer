@@ -28,7 +28,8 @@ public class GiftAdminController {
     public ResponseEntity<BaseResponse> create(@RequestBody GiftForm form) {
         BaseResponse response = new BaseResponse();
         try{
-            GiftDTO giftDTO = giftService.create(giftService);
+            System.out.println("POST");
+            GiftDTO giftDTO = giftService.create(form);
             if (giftDTO != null) {
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(giftDTO);

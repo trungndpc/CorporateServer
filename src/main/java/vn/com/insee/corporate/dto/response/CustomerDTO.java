@@ -15,6 +15,7 @@ public class CustomerDTO {
     private Integer userId;
     private Integer finalStatus;
     private String note;
+    private Integer volumeCiment;
 
     public Integer getId() {
         return id;
@@ -97,6 +98,14 @@ public class CustomerDTO {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public Integer getVolumeCiment() {
+        return volumeCiment;
+    }
+
+    public void setVolumeCiment(Integer volumeCiment) {
+        this.volumeCiment = volumeCiment;
     }
 }
 
