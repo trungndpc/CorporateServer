@@ -14,6 +14,7 @@ public class GiftEntity {
     private String code;
     private int status;
     private Integer constructionId;
+    private Integer userId;
 
     public int getId() {
         return id;

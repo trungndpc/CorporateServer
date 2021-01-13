@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.common.CustomerStatus;
 import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.entity.CustomerEntity;
+import vn.com.insee.corporate.entity.PromotionEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.repository.CustomerRepository;
+import vn.com.insee.corporate.repository.PromotionRepository;
 import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.security.InseeUserDetail;
 import vn.com.insee.corporate.service.CustomerService;
@@ -29,6 +31,8 @@ public class PingController {
     @Autowired
     private UserRepository repository;
 
+    @Autowired
+    private PromotionRepository promotionRepository;
 //    @GetMapping("/reset")
 //    String reset(Authentication authentication) {
 //        customerRepository.deleteAll();
@@ -48,17 +52,15 @@ public class PingController {
 
     @GetMapping("/ping")
     String all(Authentication authentication) {
-        List<UserEntity> all = repository.findAll();
-        for (UserEntity e:
+//        promotionRepository.deleteById(1000);
+//        promotionRepository.deleteById(1001);
+//        promotionRepository.deleteById(1002);
+        PromotionEntity one = promotionRepository.getOne(1004);
+        one.setLocation(7);
+        promotionRepository.saveAndFlush(one);
 
-        all) {
-            System.out.println(e.getPhone());
-            if ("84972797200".equals(e.getPhone())) {
-                e.setAvatar("https://insee-promotion-vn.s3.us-east-2.amazonaws.com/static/images/log-admin.png");
-                repository.saveAndFlush(e);
-            }
-            System.out.println(e.getPhone() + " " + e.getFollowerZaloId());
-        }
+//        List<PromotionEntity> all = promotionRepository.findAll();
+//        System.out.println(all);
         return "OK";
     }
 

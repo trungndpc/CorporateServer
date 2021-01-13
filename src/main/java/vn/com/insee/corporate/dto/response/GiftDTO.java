@@ -10,6 +10,7 @@ public class GiftDTO {
     private String seri;
     private String code;
     private int status;
+    private String name;
 
     public int getId() {
         return id;
@@ -57,5 +58,13 @@ public class GiftDTO {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
