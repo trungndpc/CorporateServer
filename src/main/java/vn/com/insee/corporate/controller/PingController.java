@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.common.CustomerStatus;
 import vn.com.insee.corporate.common.Permission;
+import vn.com.insee.corporate.dto.response.client.gift.HistoryGiftDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.PromotionEntity;
 import vn.com.insee.corporate.entity.UserEntity;
@@ -16,6 +17,7 @@ import vn.com.insee.corporate.repository.PromotionRepository;
 import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.security.InseeUserDetail;
 import vn.com.insee.corporate.service.CustomerService;
+import vn.com.insee.corporate.service.GiftService;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +32,9 @@ public class PingController {
 
     @Autowired
     private UserRepository repository;
+
+    @Autowired
+    private GiftService giftService;
 
     @Autowired
     private PromotionRepository promotionRepository;
@@ -51,16 +56,19 @@ public class PingController {
 //    }
 
     @GetMapping("/ping")
-    String all(Authentication authentication) {
+    String all(Authentication authentication) throws Exception {
 //        promotionRepository.deleteById(1000);
 //        promotionRepository.deleteById(1001);
 //        promotionRepository.deleteById(1002);
-        PromotionEntity one = promotionRepository.getOne(1004);
-        one.setLocation(7);
-        promotionRepository.saveAndFlush(one);
+//        PromotionEntity one = promotionRepository.getOne(1004);
+//        one.setLocation(7);
+//        promotionRepository.saveAndFlush(one);
 
 //        List<PromotionEntity> all = promotionRepository.findAll();
-//        System.out.println(all);
+//        System.out.println(all);ory.getOne(1004);
+//        one.setLocation(7);
+//        promotionRepository.saveAndFlush(one);
+        List<HistoryGiftDTO> listByUid = giftService.getListByUid(25);
         return "OK";
     }
 

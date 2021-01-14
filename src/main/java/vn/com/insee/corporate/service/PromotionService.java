@@ -6,11 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.com.insee.corporate.common.ConstructionStatus;
+import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.common.PromotionStatus;
 import vn.com.insee.corporate.common.dto.PromotionUserDTOStatus;
 import vn.com.insee.corporate.dto.PostForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.PromotionDTO;
+import vn.com.insee.corporate.dto.response.admin.history.HistoryPromotionCustomerDTO;
 import vn.com.insee.corporate.dto.response.client.PromotionClientDTO;
 import vn.com.insee.corporate.entity.ConstructionEntity;
 import vn.com.insee.corporate.entity.CustomerEntity;
@@ -42,7 +44,7 @@ public class PromotionService {
     @Autowired
     private Mapper mapper;
 
-    public PageDTO<PromotionDTO> getList(int page, int pageSize) {
+    public PageDTO<PromotionDTO> getListForAdmin(int page, int pageSize) {
         Page<PromotionEntity> postEntities = promotionRepository.findAll(PageRequest.of(page, pageSize));
         List<PromotionDTO> promotionDTOList = mapper.mapToList(postEntities.toList(), new TypeToken<List<PromotionDTO>>() {
         }.getType());
@@ -71,7 +73,7 @@ public class PromotionService {
         return promotionClientDTO;
     }
 
-    public List<PromotionClientDTO> getList(Integer userId) throws Exception {
+    public List<PromotionClientDTO> getList(Integer userId, Integer roleId) throws Exception {
         CustomerEntity customerEntity = customerRepository.findByUserId(userId);
         if (customerEntity == null) {
             throw new CustomerExitException();
@@ -90,7 +92,13 @@ public class PromotionService {
             if (userId != null) {
                 promotionClientDTO = convertForClient(promotionClientDTO, userId);
             }
-            rs.add(promotionClientDTO);
+            if (roleId == Permission.ADMIN.getId()) {
+                rs.add(promotionClientDTO);
+            }else {
+                if (promotionClientDTO.getStatus() == PromotionStatus.PUBLISHED.getStatus()) {
+                    rs.add(promotionClientDTO);
+                }
+            }
         }
         return rs;
     }
@@ -104,6 +112,36 @@ public class PromotionService {
         mapper.map(postEntity, promotionDTO);
         return promotionDTO;
     }
+
+    public PromotionDTO update(int id, PostForm postForm) {
+        PromotionEntity promotionEntity = promotionRepository.getOne(id);
+        if (postForm.getContent() != null) {
+            promotionEntity.setContent(postForm.getContent());
+        }
+        if (postForm.getLocation() != null) {
+            promotionEntity.setLocation(postForm.getLocation());
+        }
+        if (postForm.getTypePromotion() != 0) {
+            promotionEntity.setTypePromotion(postForm.getTypePromotion());
+        }
+        if (postForm.getSummary() != null) {
+            promotionEntity.setSummary(postForm.getSummary());
+        }
+        if (postForm.getTitle() != null) {
+            promotionEntity.setTitle(postForm.getTitle());
+        }
+        if (postForm.getTimeStart() != null) {
+            promotionEntity.setTimeStart(postForm.getTimeStart());
+        }
+        if (postForm.getTimeEnd() != null) {
+            promotionEntity.setTimeEnd(postForm.getTimeEnd());
+        }
+        promotionEntity = promotionRepository.saveAndFlush(promotionEntity);
+        PromotionDTO promotionDTO = new PromotionDTO();
+        mapper.map(promotionEntity, promotionDTO);
+        return promotionDTO;
+    }
+
 
     public boolean publish(int id) throws PostNotExitException {
         Optional<PromotionEntity> postEntity = promotionRepository.findById(id);
@@ -130,5 +168,4 @@ public class PromotionService {
         promotionClientDTO.setPlayingStatus(promotionUserDTOStatus.getStatus());
         return promotionClientDTO;
     }
-
 }

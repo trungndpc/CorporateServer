@@ -38,6 +38,7 @@ public class ConstructionEntity {
     private Integer promotionId;
     private Integer labelId;
     private String extra;
+    private Integer giftId;
 
     public Integer getId() {
         return id;
@@ -173,5 +174,13 @@ public class ConstructionEntity {
 
     public void setExtra(String extra) {
         this.extra = extra;
+    }
+
+    public Integer getGiftId() {
+        return giftId;
+    }
+
+    public void setGiftId(Integer giftId) {
+        this.giftId = giftId;
     }
 }

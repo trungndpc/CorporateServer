@@ -10,11 +10,13 @@ import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
+import vn.com.insee.corporate.dto.response.admin.history.HistoryPromotionCustomerDTO;
 import vn.com.insee.corporate.exception.ParamNotSupportException;
 import vn.com.insee.corporate.exception.StatusNotSupportException;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.CustomerService;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -104,4 +106,18 @@ public class CustomerAdminController {
         }
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(path = "/history", produces = {"application/json"})
+    public ResponseEntity<BaseResponse> history(@RequestParam(required = true) int id) {
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        try{
+            List<HistoryPromotionCustomerDTO> historyPromotionCustomerDTOS = customerService.getHistoryById(id);
+            response.setData(historyPromotionCustomerDTOS);
+        }catch (Exception e) {
+            e.printStackTrace();
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
 }

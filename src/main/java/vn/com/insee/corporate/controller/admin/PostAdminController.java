@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.PostForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
+import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.PromotionDTO;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.PromotionService;
@@ -38,7 +39,7 @@ public class PostAdminController {
                                              @RequestParam (required = false, defaultValue = "20") int pageSize) {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try{
-            PageDTO<PromotionDTO> list = promotionService.getList(page, pageSize);
+            PageDTO<PromotionDTO> list = promotionService.getListForAdmin(page, pageSize);
             response.setData(list);
         }catch (Exception e) {
             response.setError(ErrorCode.FAILED);
@@ -65,7 +66,12 @@ public class PostAdminController {
     public ResponseEntity<BaseResponse> create(@RequestBody PostForm form) {
         BaseResponse response = new BaseResponse();
         try{
-            PromotionDTO promotionDTO = promotionService.create(form);
+            PromotionDTO promotionDTO = null;
+            if (form.getId() != null) {
+                promotionDTO = promotionService.update(form.getId(),form);
+            }else {
+                promotionDTO = promotionService.create(form);
+            }
             if (promotionDTO != null) {
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(promotionDTO);

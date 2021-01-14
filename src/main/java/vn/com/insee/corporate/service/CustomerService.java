@@ -12,12 +12,17 @@ import vn.com.insee.corporate.common.CustomerStatus;
 import vn.com.insee.corporate.common.dto.CustomerDTOStatus;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
+import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
+import vn.com.insee.corporate.dto.response.GiftDTO;
+import vn.com.insee.corporate.dto.response.PromotionDTO;
+import vn.com.insee.corporate.dto.response.admin.history.HistoryPromotionCustomerDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.CustomerExitException;
 import vn.com.insee.corporate.exception.FirebaseAuthenException;
 import vn.com.insee.corporate.exception.ParamNotSupportException;
+import vn.com.insee.corporate.exception.PostNotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.UserRepository;
@@ -39,6 +44,15 @@ public class CustomerService {
 
     @Autowired
     private ZaloService zaloService;
+
+    @Autowired
+    private ConstructionService constructionService;
+
+    @Autowired
+    private PromotionService promotionService;
+
+    @Autowired
+    private GiftService giftService;
     
     @Autowired
     private Mapper mapper;
@@ -203,6 +217,30 @@ public class CustomerService {
     public void delete(int id) {
         customerRepository.deleteById(id);
     }
+
+    public List<HistoryPromotionCustomerDTO> getHistoryById(int uid) throws PostNotExitException {
+        List<ConstructionDTO> constructionDTOS = constructionService.findByUserId(uid);
+        List<HistoryPromotionCustomerDTO> rs = new ArrayList<>();
+        if (constructionDTOS != null) {
+            for (ConstructionDTO constructionDTO: constructionDTOS) {
+                HistoryPromotionCustomerDTO historyPromotionCustomerDTO = new HistoryPromotionCustomerDTO();
+                Integer promotionId = constructionDTO.getPromotionId();
+                PromotionDTO promotionDTO = promotionService.get(promotionId);
+                mapper.map(promotionDTO, historyPromotionCustomerDTO);
+                Integer giftId = constructionDTO.getGiftId();
+                if (giftId != null) {
+                    GiftDTO giftDTO = giftService.getById(giftId);
+                    historyPromotionCustomerDTO.setGift(giftDTO);
+                }
+                rs.add(historyPromotionCustomerDTO);
+            }
+        }
+        return rs;
+    }
+
+//    private List<HistoryPromotionCustomerDTO> getHistoryAll() {
+//        giftService.get
+//    }
 
     public static void main(String[] args) throws JsonProcessingException {
         ZaloService zaloService = new ZaloService();

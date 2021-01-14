@@ -12,6 +12,7 @@ public class ConstructionDTO {
     private Integer id;
     private int city;
     private String district;
+    private String address;
     private String name;
     private String phone;
     private int quantity;
@@ -22,10 +23,11 @@ public class ConstructionDTO {
     private int type;
     private int userId;
     private int status;
-    private String address;
     private UserDTO user;
     private JSONObject extra;
     private LabelDTO label;
+    private Integer promotionId;
+    private Integer giftId;
 
     public Integer getId() {
         return id;
@@ -161,5 +163,21 @@ public class ConstructionDTO {
 
     public void setLabel(LabelDTO label) {
         this.label = label;
+    }
+
+    public Integer getPromotionId() {
+        return promotionId;
+    }
+
+    public void setPromotionId(Integer promotionId) {
+        this.promotionId = promotionId;
+    }
+
+    public Integer getGiftId() {
+        return giftId;
+    }
+
+    public void setGiftId(Integer giftId) {
+        this.giftId = giftId;
     }
 }

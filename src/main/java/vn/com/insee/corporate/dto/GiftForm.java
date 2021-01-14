@@ -8,6 +8,8 @@ public class GiftForm {
     private String code;
     private int status;
     private Integer constructionId;
+    private Integer userId;
+    private String name;
 
     public int getId() {
         return id;
@@ -63,5 +65,21 @@ public class GiftForm {
 
     public void setConstructionId(Integer constructionId) {
         this.constructionId = constructionId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

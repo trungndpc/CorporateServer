@@ -1,25 +1,20 @@
 package vn.com.insee.corporate.controller.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.constant.ErrorCode;
-import vn.com.insee.corporate.dto.page.PageDTO;
-import vn.com.insee.corporate.dto.response.CustomerDTO;
-import vn.com.insee.corporate.dto.response.PromotionDTO;
-import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.dto.response.client.PromotionClientDTO;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.PromotionService;
 import vn.com.insee.corporate.util.AuthenUtil;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RestController
@@ -34,7 +29,10 @@ public class PromotionController {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         UserEntity authUser = AuthenUtil.getAuthUser(authentication);
         try{
-            List<PromotionClientDTO> list = postService.getList(authUser != null ? authUser.getId() : null);
+            Integer uid = authUser != null ? authUser.getId() : null;
+            Integer roleId = authUser != null ? authUser.getRoleId() : Permission.ANONYMOUS.getId();
+
+            List<PromotionClientDTO> list = postService.getList(uid, roleId);
             response.setData(list);
         }catch (Exception e) {
             response.setError(ErrorCode.FAILED);
