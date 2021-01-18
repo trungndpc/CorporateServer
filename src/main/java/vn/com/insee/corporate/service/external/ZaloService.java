@@ -8,8 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import vn.com.insee.corporate.service.external.zalo.ListMessage;
+import vn.com.insee.corporate.service.external.zalo.Recipient;
 import vn.com.insee.corporate.service.external.zalo.TextMessage;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ZaloService {
@@ -66,5 +70,38 @@ public class ZaloService {
             return false;
         }
         return true;
+    }
+
+    public boolean sendGiftMsg(String followerId, String imgUrl, String url, String title, String subTitle) throws JsonProcessingException {
+        ListMessage.Element element = new ListMessage.Element();
+        element.setImageUrl(imgUrl);
+        element.setTitle(title);
+        element.setSubtitle(subTitle);
+        ListMessage.Action action = new ListMessage.Action("oa.open.url", url);
+        element.setDefaultAction(action);
+        ListMessage listMessage = new ListMessage();
+        listMessage.setRecipient(new Recipient(followerId));
+        ListMessage.Message message = new ListMessage.Message();
+        List<ListMessage.Element> elements = new ArrayList<>();
+        elements.add(element);
+        ListMessage.Payload payload = new ListMessage.Payload(elements);
+        ListMessage.Attachment attachment = new ListMessage.Attachment(payload);
+        message.setAttachment(attachment);
+        listMessage.setMessage(message);
+
+        String textJson = this.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(listMessage);
+        ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(SEND_MSG_TO_USER_URL, textJson, String.class, ACCESS_TOKEN_OA);
+        System.out.println(zaloResponseResponseEntity.getBody());
+        if (zaloResponseResponseEntity.getStatusCode() != HttpStatus.OK) {
+            System.out.println(zaloResponseResponseEntity.getBody());
+            return false;
+        }
+        System.out.println(textJson);
+        return true;
+    }
+
+    public static void main(String[] args) throws JsonProcessingException {
+        ZaloService zaloService = new ZaloService();
+        zaloService.sendGiftMsg("8735999925442427033", "https://developers.zalo.me/web/static/zalo.png", "https://developers.zalo.me/web/static/zalo.png", "title", "sub");
     }
 }

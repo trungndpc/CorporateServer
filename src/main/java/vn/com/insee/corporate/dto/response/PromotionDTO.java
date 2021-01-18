@@ -6,15 +6,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class PromotionDTO {
     private Integer id;
     private String title;
-    private String subTitle;
     private String content;
-    private Long time;
     private int typePromotion;
     private String summary;
     private Integer status;
     private Integer location;
     private Long timeStart;
     private Long timeEnd;
+    private Long updatedTime;
 
     public Integer getId() {
         return id;
@@ -32,28 +31,12 @@ public class PromotionDTO {
         this.title = title;
     }
 
-    public String getSubTitle() {
-        return subTitle;
-    }
-
-    public void setSubTitle(String subTitle) {
-        this.subTitle = subTitle;
-    }
-
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public Long getTime() {
-        return time;
-    }
-
-    public void setTime(Long time) {
-        this.time = time;
     }
 
     public int getTypePromotion() {
@@ -102,5 +85,13 @@ public class PromotionDTO {
 
     public void setTimeEnd(Long timeEnd) {
         this.timeEnd = timeEnd;
+    }
+
+    public Long getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(Long updatedTime) {
+        this.updatedTime = updatedTime;
     }
 }

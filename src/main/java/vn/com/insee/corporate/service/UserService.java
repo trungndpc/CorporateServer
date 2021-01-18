@@ -48,7 +48,7 @@ public class UserService {
         return userDTO;
     }
 
-    public UserDTO findById(Integer id) {
+    public UserDTO get(Integer id) {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
         if (optionalUserEntity.isPresent()) {
             UserDTO userDTO = new UserDTO();

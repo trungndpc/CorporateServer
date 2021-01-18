@@ -3,13 +3,13 @@ package vn.com.insee.corporate.dto;
 public class PostForm {
     private Integer id;
     private String title;
-    private String subTitle;
     private String content;
     private int typePromotion;
     private String summary;
     private Integer location;
     private Long timeStart;
     private Long timeEnd;
+    private Long updatedTime;
 
     public Integer getId() {
         return id;
@@ -25,14 +25,6 @@ public class PostForm {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getSubTitle() {
-        return subTitle;
-    }
-
-    public void setSubTitle(String subTitle) {
-        this.subTitle = subTitle;
     }
 
     public String getContent() {
@@ -81,5 +73,13 @@ public class PostForm {
 
     public void setTimeEnd(Long timeEnd) {
         this.timeEnd = timeEnd;
+    }
+
+    public Long getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(Long updatedTime) {
+        this.updatedTime = updatedTime;
     }
 }

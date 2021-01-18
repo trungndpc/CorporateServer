@@ -1,6 +1,10 @@
 package vn.com.insee.corporate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,19 +12,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.common.CustomerStatus;
 import vn.com.insee.corporate.common.Permission;
-import vn.com.insee.corporate.dto.response.client.gift.HistoryGiftDTO;
+import vn.com.insee.corporate.dto.response.GiftDTO;
+import vn.com.insee.corporate.dto.response.client.HistoryGiftCustomerDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
-import vn.com.insee.corporate.entity.PromotionEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.PromotionRepository;
 import vn.com.insee.corporate.repository.UserRepository;
-import vn.com.insee.corporate.security.InseeUserDetail;
-import vn.com.insee.corporate.service.CustomerService;
 import vn.com.insee.corporate.service.GiftService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("")
@@ -57,6 +58,10 @@ public class PingController {
 
     @GetMapping("/ping")
     String all(Authentication authentication) throws Exception {
+        Pageable pageable =
+                PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "updatedTime"));
+        Page<CustomerEntity> listByStatusAndLocationAndLinkedUser = customerRepository.getListByStatusAndLocationAndLinkedUser(null, null, null, pageable);
+        System.out.println(listByStatusAndLocationAndLinkedUser);
 //        promotionRepository.deleteById(1000);
 //        promotionRepository.deleteById(1001);
 //        promotionRepository.deleteById(1002);
@@ -68,7 +73,7 @@ public class PingController {
 //        System.out.println(all);ory.getOne(1004);
 //        one.setLocation(7);
 //        promotionRepository.saveAndFlush(one);
-        List<HistoryGiftDTO> listByUid = giftService.getListByUid(25);
+//        List<HistoryGiftCustomerDTO> listByUid = giftService.getHistoryByCustomerId(25);
         return "OK";
     }
 
@@ -99,19 +104,19 @@ public class PingController {
 //        return "OK";
 //    }
 //
-//    @GetMapping("/add-admin")
-//    String addAdmin(Authentication authentication) {
-//        UserEntity userEntity = new UserEntity();
-//        userEntity.setName("Nguyễn Công Phượng");
-//        userEntity.setAvatar("https://static2.yan.vn/YanNews/202006/202006030349344511-2fc01591-f2a8-45f8-a210-79f517c9297b.png");
-//        userEntity.setPassword("1");
-//        userEntity.setPhone("84972797200");
-//        userEntity.setEnable(true);
-//        userEntity.setStatus(1);
-//        userEntity.setRoleId(Permission.ADMIN.getId());
-//        repository.saveAndFlush(userEntity);
-//        return "OK";
-//    }
+    @GetMapping("/add-admin")
+    String addAdmin(Authentication authentication) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setName("INSEE Admin");
+        userEntity.setAvatar("https://insee-promotion-vn.s3.us-east-2.amazonaws.com/static/images/log-admin.png");
+        userEntity.setPassword("123");
+        userEntity.setPhone("84972797200");
+        userEntity.setEnable(true);
+        userEntity.setStatus(1);
+        userEntity.setRoleId(Permission.ADMIN.getId());
+        repository.saveAndFlush(userEntity);
+        return "OK";
+    }
 //
     @GetMapping("/auto-gen")
     String autoGen(Authentication authentication) {

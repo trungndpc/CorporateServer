@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.constant.ErrorCode;
-import vn.com.insee.corporate.dto.response.client.PromotionClientDTO;
+import vn.com.insee.corporate.dto.response.PromotionDTO;
+import vn.com.insee.corporate.dto.response.client.PromotionCustomerDTO;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.PromotionService;
@@ -29,12 +30,12 @@ public class PromotionController {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         UserEntity authUser = AuthenUtil.getAuthUser(authentication);
         try{
-            Integer uid = authUser != null ? authUser.getId() : null;
+            Integer customerId = authUser != null ? authUser.getCustomerId() : null;
             Integer roleId = authUser != null ? authUser.getRoleId() : Permission.ANONYMOUS.getId();
-
-            List<PromotionClientDTO> list = postService.getList(uid, roleId);
+            List<PromotionCustomerDTO> list = postService.getList(customerId, roleId);
             response.setData(list);
         }catch (Exception e) {
+            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
@@ -45,9 +46,10 @@ public class PromotionController {
         UserEntity authUser = AuthenUtil.getAuthUser(authentication);
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try {
-            PromotionClientDTO promotionClientDTO = postService.get(id, authUser != null ? authUser.getId() : null);
-            response.setData(promotionClientDTO);
+            PromotionDTO promotionDTO = postService.get(id);
+            response.setData(promotionDTO);
         }catch (Exception e) {
+            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);

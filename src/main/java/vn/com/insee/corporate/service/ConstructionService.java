@@ -1,6 +1,9 @@
 package vn.com.insee.corporate.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.catalina.User;
 import org.json.JSONObject;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,23 +12,24 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.BillStatus;
 import vn.com.insee.corporate.common.ConstructionStatus;
-import vn.com.insee.corporate.common.ImageStatus;
 import vn.com.insee.corporate.dto.ConstructionForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.*;
+import vn.com.insee.corporate.dto.response.admin.HistoryConstructionDTO;
+import vn.com.insee.corporate.dto.response.ext.ExtraDTO;
 import vn.com.insee.corporate.entity.*;
 import vn.com.insee.corporate.exception.ConstructionExitException;
 import vn.com.insee.corporate.exception.CustomerExitException;
+import vn.com.insee.corporate.exception.PostNotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.*;
 import vn.com.insee.corporate.service.external.ZaloService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ConstructionService {
@@ -37,134 +41,88 @@ public class ConstructionService {
     private ConstructionRepository constructionRepository;
 
     @Autowired
-    private ImageRepository imageRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    private BillRepository billRepository;
+    private ImageService imageService;
+
+    @Autowired
+    private BillService billService;
+
+    @Autowired
+    private LabelService labelService;
 
     @Autowired
     private ZaloService zaloService;
 
     @Autowired
-    private UserRepository userRepository;
+    private CustomerService customerService;
 
     @Autowired
-    private LabelRepository labelRepository;
+    private PromotionService promotionService;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private GiftService giftService;
 
-    public ConstructionDTO create(ConstructionForm form, int userId) {
-        ConstructionEntity constructionEntity = new ConstructionEntity();
-        mapper.map(form, constructionEntity);
-        constructionEntity.setUserId(userId);
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    public void create(ConstructionForm form, int customerId) throws JsonProcessingException {
+        ConstructionEntity constructionEntity = mapper.map(form, ConstructionEntity.class);
+        constructionEntity.setCustomerId(customerId);
         constructionEntity.setStatus(ConstructionStatus.WAITING_APPROVAL.getStatus());
-        JSONObject extra = form.getExtra();
+
+        ExtraDTO extra = form.getExtra();
         if (extra != null) {
-            constructionEntity.setExtra(extra.toString());
-        }
-        List<String> billIds = form.getBillIds();
-        List<BillEntity> billEntities = new ArrayList<>();
-        if (billIds != null) {
-            for (String billUrl : billIds) {
-                BillEntity billEntity = new BillEntity();
-                billEntity.setLink(billUrl);
-                billEntity.setStatus(BillStatus.WAITING_APPROVAL.getStatus());
-                billEntities.add(billEntity);
-            }
-            billEntities = billRepository.saveAll(billEntities);
-            constructionEntity.setBillIds(billEntities.stream().map(b -> b.getId()).collect(Collectors.toList()));
+            String s = objectMapper.writeValueAsString(extra);
+            constructionEntity.setExtra(s);
         }
 
-        List<String> imageIds = form.getImageIds();
-        List<ImageEntity> imageEntities = new ArrayList<>();
-        if (imageIds != null) {
-            for (String imageUrl : imageIds) {
-                ImageEntity imageEntity = new ImageEntity();
-                imageEntity.setLink(imageUrl);
-                imageEntity.setStatus(ImageStatus.WAITING_APPROVAL.getStatus());
-                imageEntities.add(imageEntity);
-            }
-            imageEntities = imageRepository.saveAll(imageEntities);
-            constructionEntity.setImageIds(imageEntities.stream().map(i -> i.getId()).collect(Collectors.toList()));
+        List<String> billIds = form.getBillIds();
+        if (billIds != null) {
+            constructionEntity.setBillIds(billService.initFromListUrl(billIds));
+        }
+        List<String> images = form.getImageIds();
+        if (images != null) {
+            constructionEntity.setImageIds(imageService.initFromListUrl(images));
         }
         constructionEntity = constructionRepository.saveAndFlush(constructionEntity);
-        ConstructionDTO construction = new ConstructionDTO();
-        mapper.map(constructionEntity, construction);
-
-        if (billEntities != null && billEntities.size() > 0) {
-            List<BillDTO> billDTOS = new ArrayList<>();
-            for (BillEntity bill : billEntities) {
-                bill.setConstructionId(constructionEntity.getId());
-                BillDTO billDTO = new BillDTO();
-                mapper.map(bill, billDTO);
-                billDTOS.add(billDTO);
-            }
-            billRepository.saveAll(billEntities);
-            construction.setBills(billDTOS);
-        }
-
-        if (imageEntities != null && imageEntities.size() > 0) {
-            List<ImageDTO> imageDTOS = new ArrayList<>();
-            for (ImageEntity imageEntity : imageEntities) {
-                imageEntity.setConstructionId(constructionEntity.getId());
-                ImageDTO imageDTO = new ImageDTO();
-                mapper.map(imageEntity, imageDTO);
-                imageDTOS.add(imageDTO);
-            }
-            imageRepository.saveAll(imageEntities);
-            construction.setImages(imageDTOS);
-        }
-        return construction;
     }
 
-    public ConstructionDTO findById(int id) throws ConstructionExitException {
+    public ConstructionDTO get(int id) throws ConstructionExitException, JsonProcessingException {
         Optional<ConstructionEntity> constructionEntity = constructionRepository.findById(id);
         if (!constructionEntity.isPresent()) {
             throw new ConstructionExitException();
         }
-        ConstructionDTO constructionDTO = new ConstructionDTO();
-        List<BillDTO> billDTOS = null;
-        List<ImageDTO> imageDTOS = null;
-        mapper.map(constructionEntity.get(), constructionDTO);
+        ConstructionDTO constructionDTO = mapper.map(constructionEntity.get(), ConstructionDTO.class);
         if (constructionEntity.get().getExtra() != null) {
-            constructionDTO.setExtra(new JSONObject(constructionEntity.get().getExtra()));
+            ExtraDTO extraDTO = objectMapper.readValue(constructionEntity.get().getExtra(), ExtraDTO.class);
+            constructionDTO.setExtra(extraDTO);
         }
-
         List<Integer> billIds = constructionEntity.get().getBillIds();
         if (billIds != null && billIds.size() > 0) {
-            List<BillEntity> billEntities = billRepository.findAllById(billIds);
-            if (billEntities != null && billEntities.size() > 0) {
-                billDTOS = new ArrayList<>();
-                for (BillEntity e: billEntities) {
-                    BillDTO billDTO = new BillDTO();
-                    mapper.map(e, billDTO);
-                    billDTOS.add(billDTO);
-                }
+            List<BillDTO> billDTOList = billService.getList(billIds);
+            if (billDTOList != null) {
+                constructionDTO.setBills(billDTOList);
             }
         }
         List<Integer> imageIds = constructionEntity.get().getImageIds();
         if (imageIds != null && imageIds.size() > 0) {
-            List<ImageEntity> imageEntities = imageRepository.findAllById(imageIds);
-            if (imageEntities != null && imageEntities.size() > 0) {
-                imageDTOS = new ArrayList<>();
-                for (ImageEntity e: imageEntities) {
-                    ImageDTO imageDTO = new ImageDTO();
-                    mapper.map(e, imageDTO);
-                    imageDTOS.add(imageDTO);
-                }
+            List<ImageDTO> imageDTOList = imageService.getList(imageIds);
+            if (imageDTOList != null) {
+                constructionDTO.setImages(imageDTOList);
             }
         }
         Integer labelId = constructionEntity.get().getLabelId();
         if (labelId != null) {
-            Optional<LabelEntity> optionalLabelEntity = labelRepository.findById(labelId);
-            if (optionalLabelEntity.isPresent()) {
-                constructionDTO.setLabel(mapper.map(optionalLabelEntity.get(), LabelDTO.class));
-            }
+            LabelDTO labelDTO = labelService.get(labelId);
+            constructionDTO.setLabel(labelDTO);
         }
 
-        constructionDTO.setBills(billDTOS);
-        constructionDTO.setImages(imageDTOS);
+        int customerId = constructionEntity.get().getCustomerId();
+        CustomerDTO customerDTO = customerService.get(customerId);
+        UserEntity userEntity = userRepository.getOne(customerDTO.getUserId());
+        constructionDTO.setUser(mapper.map(userEntity, UserDTO.class));
         return constructionDTO;
     }
 
@@ -177,52 +135,34 @@ public class ConstructionService {
         }else {
             constructionEntities = constructionRepository.findByTypeAndStatus(type, status, pageable);
         }
-        List<ConstructionDTO> constructionDTOS = mapper.mapToList(constructionEntities.toList(), new TypeToken<List<ConstructionDTO>>() {
-        }.getType());
+        List<ConstructionDTO> constructionDTOS = new ArrayList<>();
+        for (ConstructionEntity constructionEntity: constructionEntities) {
+            ConstructionDTO constructionDTO = mapper.map(constructionEntity, ConstructionDTO.class);
+            int customerId = constructionEntity.getCustomerId();
+            CustomerDTO customerDTO = customerService.get(customerId);
+            Integer userId = customerDTO.getUserId();
+            UserEntity userEntity = userRepository.getOne(userId);
+            constructionDTO.setUser(mapper.map(userEntity, UserDTO.class));
+            constructionDTOS.add(constructionDTO);
+        }
         PageDTO<ConstructionDTO> pageData = new PageDTO<ConstructionDTO>(page, pageSize, constructionEntities.getTotalPages(), constructionDTOS);
         return pageData;
     }
 
-    public List<ConstructionDTO> findByUserId(int userId) {
-        List<ConstructionEntity> constructionEntityList = constructionRepository.findByUserId(userId);
-        List<ConstructionDTO> constructionDTOS = mapper.mapToList(constructionEntityList, new TypeToken<List<ConstructionDTO>>() {
-        }.getType());
-        return constructionDTOS;
-    }
+    public void updateStatus(int id, ConstructionStatus status) throws ConstructionExitException, JsonProcessingException {
+        ConstructionEntity constructionEntity = constructionRepository.getOne(id);
 
-    public ConstructionDTO updateStatus(int id, ConstructionStatus status) throws ConstructionExitException, JsonProcessingException {
-        Optional<ConstructionEntity> optionalConstructionEntity = constructionRepository.findById(id);
-        if (!optionalConstructionEntity.isPresent()) {
-            throw new ConstructionExitException();
-        }
-
-        if (optionalConstructionEntity.get().getStatus() != status.getStatus()) {
-            int userId = optionalConstructionEntity.get().getUserId();
-            UserEntity userEntity = userRepository.getOne(userId);
-
+        if (constructionEntity.getStatus() != status.getStatus()) {
+            int customerId = constructionEntity.getCustomerId();
             if (status == ConstructionStatus.APPROVED) {
-                List<Integer> billIds = optionalConstructionEntity.get().getBillIds();
+                List<Integer> billIds = constructionEntity.getBillIds();
                 if (billIds != null && billIds.size() > 0) {
-                    List<BillEntity> billEntities = billRepository.findAllById(billIds);
-                    int volumeCiment = 0;
-                    for (BillEntity billEntity: billEntities) {
-                        if (billEntity.getStatus() == BillStatus.APPROVED.getStatus()) {
-                            if (billEntity.getVolumeCiment() != null) {
-                                volumeCiment = volumeCiment + billEntity.getVolumeCiment();
-                            }
-                        }
-                    }
-                    if (userEntity != null) {
-                        Integer customerId = userEntity.getCustomerId();
-                        CustomerEntity customerEntity = customerRepository.getOne(customerId);
-                        customerEntity.setVolumeCiment(customerEntity.getVolumeCiment() + volumeCiment);
-                        customerRepository.saveAndFlush(customerEntity);
-                    }
-
-
+                    int volumeCiment = billService.countVolumeCiment(billIds);
+                    customerService.updateVolumeCiment(customerId, volumeCiment);
                 }
             }
-
+            int userId = customerService.get(customerId).getUserId();
+            UserEntity userEntity = userRepository.getOne(userId);
             if (userEntity != null && userEntity.getFollowerZaloId() != null)
             if (status == ConstructionStatus.APPROVED) {
                 zaloService.sendTextMsg(userEntity.getFollowerZaloId(), "Công trình của bạn đã được chúng tôi xác thực! Trạng thái hóa đơn, hình ảnh của bạn upload sẽ được chúng tôi cập nhật trên trang nhà thầu chính thức của INSEE.");
@@ -230,11 +170,8 @@ public class ConstructionService {
                 zaloService.sendTextMsg(userEntity.getFollowerZaloId(), "Rất tiếc!!! Những thông tin công trình của bạn cung cấp không đáp ứng được yêu cầu của chúng tôi!!!");
             }
         }
-        optionalConstructionEntity.get().setStatus(status.getStatus());
-        ConstructionEntity constructionEntity = constructionRepository.saveAndFlush(optionalConstructionEntity.get());
-        ConstructionDTO constructionDTO = new ConstructionDTO();
-        mapper.map(constructionEntity, constructionDTO);
-        return constructionDTO;
+        constructionEntity.setStatus(status.getStatus());
+        constructionRepository.saveAndFlush(constructionEntity);
     }
 
     public boolean updateLabel(int id, int labelId) throws CustomerExitException {
@@ -247,5 +184,36 @@ public class ConstructionService {
         constructionRepository.saveAndFlush(constructionEntity);
         return true;
     }
+
+    public void updateGift(int id, int giftId) {
+        ConstructionEntity constructionEntity = constructionRepository.getOne(id);
+        constructionEntity.setGiftId(giftId);
+        constructionEntity.setStatus(ConstructionStatus.SEND_GIFT.getStatus());
+        constructionRepository.saveAndFlush(constructionEntity);
+    }
+
+    public List<ConstructionDTO> findByCustomerAndPromotionId(int customerId, int promotionId) {
+        List<ConstructionEntity> constructionEntityList = constructionRepository.findByCustomerIdAndPromotionId(customerId, promotionId);
+        List<ConstructionDTO> constructionDTOS = mapper.mapToList(constructionEntityList, new TypeToken<List<ConstructionDTO>>() {
+        }.getType());
+        return constructionDTOS;
+    }
+
+    public List<HistoryConstructionDTO> getHistoryByCustomerId(int customerId) throws PostNotExitException, JsonProcessingException {
+        List<ConstructionEntity> constructionEntities = constructionRepository.findByCustomerId(customerId);
+        List<HistoryConstructionDTO> rs = new ArrayList<>();
+        for (ConstructionEntity constructionEntity: constructionEntities) {
+            HistoryConstructionDTO constructionDTO = mapper.map(constructionEntity, HistoryConstructionDTO.class);
+            PromotionDTO promotionDTO = promotionService.get(constructionEntity.getPromotionId());
+            constructionDTO.setPromotion(promotionDTO);
+            if (constructionEntity.getGiftId() != null) {
+                GiftDTO giftDTO = giftService.get(constructionEntity.getGiftId());
+                constructionDTO.setGift(giftDTO);
+            }
+            rs.add(constructionDTO);
+        }
+        return rs;
+    }
+
 
 }

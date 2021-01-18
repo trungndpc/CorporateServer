@@ -6,5 +6,5 @@ import vn.com.insee.corporate.entity.GiftEntity;
 import java.util.List;
 
 public interface GiftRepository extends JpaRepository<GiftEntity, Integer> {
-    List<GiftEntity> findByUserId(int userId);
+    List<GiftEntity> findByCustomerId(int customerId);
 }

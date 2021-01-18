@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "construction", schema="insee_promotion")
 @TypeDef(name = "list-array",typeClass = ListArrayType.class)
-public class ConstructionEntity {
+public class ConstructionEntity extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +20,7 @@ public class ConstructionEntity {
     private String name;
     private String phone;
     private int quantity;
+    private String address;
 
     @Type(type = "list-array")
     @Column(name = "bill_ids",columnDefinition = "integer[]")
@@ -32,12 +33,11 @@ public class ConstructionEntity {
     private int estimateTimeStart;
     private int typeConstruction;
     private int type;
-    private int userId;
     private int status;
-    private String address;
-    private Integer promotionId;
-    private Integer labelId;
+    private int promotionId;
+    private int customerId;
     private String extra;
+    private Integer labelId;
     private Integer giftId;
 
     public Integer getId() {
@@ -88,6 +88,14 @@ public class ConstructionEntity {
         this.quantity = quantity;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public List<Integer> getBillIds() {
         return billIds;
     }
@@ -128,14 +136,6 @@ public class ConstructionEntity {
         this.type = type;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
     public int getStatus() {
         return status;
     }
@@ -144,28 +144,20 @@ public class ConstructionEntity {
         this.status = status;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Integer getPromotionId() {
+    public int getPromotionId() {
         return promotionId;
     }
 
-    public void setPromotionId(Integer promotionId) {
+    public void setPromotionId(int promotionId) {
         this.promotionId = promotionId;
     }
 
-    public Integer getLabelId() {
-        return labelId;
+    public int getCustomerId() {
+        return customerId;
     }
 
-    public void setLabelId(Integer labelId) {
-        this.labelId = labelId;
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
     }
 
     public String getExtra() {
@@ -174,6 +166,14 @@ public class ConstructionEntity {
 
     public void setExtra(String extra) {
         this.extra = extra;
+    }
+
+    public Integer getLabelId() {
+        return labelId;
+    }
+
+    public void setLabelId(Integer labelId) {
+        this.labelId = labelId;
     }
 
     public Integer getGiftId() {

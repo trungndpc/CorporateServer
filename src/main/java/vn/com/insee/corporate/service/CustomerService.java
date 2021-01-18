@@ -16,7 +16,6 @@ import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.GiftDTO;
 import vn.com.insee.corporate.dto.response.PromotionDTO;
-import vn.com.insee.corporate.dto.response.admin.history.HistoryPromotionCustomerDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.CustomerExitException;
@@ -28,7 +27,6 @@ import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.service.external.ZaloService;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -177,18 +175,20 @@ public class CustomerService {
         return customerDTOPage;
     }
 
-    public PageDTO<CustomerDTO> findBy(CustomerDTOStatus dtoStatus, int page, int size) throws ParamNotSupportException {
+    public PageDTO<CustomerDTO> findBy(CustomerDTOStatus dtoStatus , Integer location, int page, int size) throws ParamNotSupportException {
         Pageable pageable =
                 PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedTime"));
         Page<CustomerEntity> customerEntityPage = null;
-        if (dtoStatus.equals(CustomerDTOStatus.DO_NOT_HAVE_ACCOUNT)) {
-            customerEntityPage = customerRepository.findByIsLinkedUser(false, pageable);
+        if (dtoStatus == null) {
+            customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(null,  location, true, pageable);
+        }else if (dtoStatus.equals(CustomerDTOStatus.DO_NOT_HAVE_ACCOUNT)) {
+            customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(null,  location, false, pageable);
         }else if (dtoStatus.equals(CustomerDTOStatus.NEED_REVIEW)) {
-            customerEntityPage = customerRepository.findByStatusAndIsLinkedUser(CustomerStatus.REVIEWING.getStatus(), true, pageable);
+            customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(CustomerStatus.REVIEWING.getStatus(), location,true, pageable);
         }else if (dtoStatus.equals(CustomerDTOStatus.APPROVED)) {
-            customerEntityPage = customerRepository.findByStatusAndIsLinkedUser(CustomerStatus.APPROVED.getStatus(), true, pageable);
+            customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(CustomerStatus.APPROVED.getStatus(), location, true, pageable);
         }else if (dtoStatus.equals(CustomerDTOStatus.REJECTED)) {
-            customerEntityPage = customerRepository.findByStatusAndIsLinkedUser(CustomerStatus.REJECTED.getStatus(), true, pageable);
+            customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(CustomerStatus.REJECTED.getStatus(), location, true, pageable);
         }
         if (customerEntityPage == null) {
             throw new ParamNotSupportException();
@@ -218,29 +218,15 @@ public class CustomerService {
         customerRepository.deleteById(id);
     }
 
-    public List<HistoryPromotionCustomerDTO> getHistoryById(int uid) throws PostNotExitException {
-        List<ConstructionDTO> constructionDTOS = constructionService.findByUserId(uid);
-        List<HistoryPromotionCustomerDTO> rs = new ArrayList<>();
-        if (constructionDTOS != null) {
-            for (ConstructionDTO constructionDTO: constructionDTOS) {
-                HistoryPromotionCustomerDTO historyPromotionCustomerDTO = new HistoryPromotionCustomerDTO();
-                Integer promotionId = constructionDTO.getPromotionId();
-                PromotionDTO promotionDTO = promotionService.get(promotionId);
-                mapper.map(promotionDTO, historyPromotionCustomerDTO);
-                Integer giftId = constructionDTO.getGiftId();
-                if (giftId != null) {
-                    GiftDTO giftDTO = giftService.getById(giftId);
-                    historyPromotionCustomerDTO.setGift(giftDTO);
-                }
-                rs.add(historyPromotionCustomerDTO);
-            }
+    public void updateVolumeCiment(int customerId, int volume) {
+        CustomerEntity customerEntity = customerRepository.getOne(customerId);
+        Integer volumeCiment = customerEntity.getVolumeCiment();
+        if (volumeCiment == null) {
+            volumeCiment = 0;
         }
-        return rs;
+        customerEntity.setVolumeCiment(volumeCiment + volume);
+        customerRepository.saveAndFlush(customerEntity);
     }
-
-//    private List<HistoryPromotionCustomerDTO> getHistoryAll() {
-//        giftService.get
-//    }
 
     public static void main(String[] args) throws JsonProcessingException {
         ZaloService zaloService = new ZaloService();

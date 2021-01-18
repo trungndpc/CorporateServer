@@ -8,6 +8,10 @@ public enum TypeGift {
         this.type = type;
     }
 
+    public static TypeGift findByValue(int type) {
+        return type == 1 ? CARD_PHONE : null;
+    }
+
     public int getType() {
         return type;
     }

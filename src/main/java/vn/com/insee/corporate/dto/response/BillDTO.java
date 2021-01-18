@@ -8,6 +8,8 @@ public class BillDTO {
     private String link;
     private int status;
     private int constructionId;
+    private Integer volumeCiment;
+    private String labelId;
 
     public int getId() {
         return id;
@@ -39,5 +41,21 @@ public class BillDTO {
 
     public void setConstructionId(int constructionId) {
         this.constructionId = constructionId;
+    }
+
+    public Integer getVolumeCiment() {
+        return volumeCiment;
+    }
+
+    public void setVolumeCiment(Integer volumeCiment) {
+        this.volumeCiment = volumeCiment;
+    }
+
+    public String getLabelId() {
+        return labelId;
+    }
+
+    public void setLabelId(String labelId) {
+        this.labelId = labelId;
     }
 }

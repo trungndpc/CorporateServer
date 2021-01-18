@@ -10,7 +10,6 @@ import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
-import vn.com.insee.corporate.dto.response.admin.history.HistoryPromotionCustomerDTO;
 import vn.com.insee.corporate.exception.ParamNotSupportException;
 import vn.com.insee.corporate.exception.StatusNotSupportException;
 import vn.com.insee.corporate.response.BaseResponse;
@@ -59,14 +58,15 @@ public class CustomerAdminController {
     @GetMapping(path = "/find-by", produces = {"application/json"})
     public ResponseEntity<BaseResponse> list(@RequestParam(required = false, defaultValue = "0") int page,
                                              @RequestParam (required = false, defaultValue = "20") int pageSize,
-                                             @RequestParam(required = true) int status) {
+                                             @RequestParam(required = false, defaultValue = "-10") Integer status ,
+                                             @RequestParam(required = false) Integer location) {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try{
             CustomerDTOStatus customerDTOStatus = CustomerDTOStatus.findByStatus(status);
-            if (customerDTOStatus == null) {
-                throw new ParamNotSupportException();
-            }
-            PageDTO<CustomerDTO> list = customerService.findBy(customerDTOStatus, page, pageSize);
+//            if (customerDTOStatus == null) {
+//                throw new ParamNotSupportException();
+//            }
+            PageDTO<CustomerDTO> list = customerService.findBy(customerDTOStatus, location, page, pageSize);
             response.setData(list);
         }catch (Exception e) {
             e.printStackTrace();
@@ -107,17 +107,5 @@ public class CustomerAdminController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/history", produces = {"application/json"})
-    public ResponseEntity<BaseResponse> history(@RequestParam(required = true) int id) {
-        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
-        try{
-            List<HistoryPromotionCustomerDTO> historyPromotionCustomerDTOS = customerService.getHistoryById(id);
-            response.setData(historyPromotionCustomerDTOS);
-        }catch (Exception e) {
-            e.printStackTrace();
-            response.setError(ErrorCode.FAILED);
-        }
-        return ResponseEntity.ok(response);
-    }
 
 }

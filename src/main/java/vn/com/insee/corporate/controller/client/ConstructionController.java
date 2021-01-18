@@ -9,10 +9,7 @@ import vn.com.insee.corporate.common.TypeConstruction;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.ConstructionForm;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
-import vn.com.insee.corporate.dto.response.CustomerDTO;
-import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.UserEntity;
-import vn.com.insee.corporate.exception.ConstructionExitException;
 import vn.com.insee.corporate.exception.InvalidSessionException;
 import vn.com.insee.corporate.exception.NotSupportTypeConstruction;
 import vn.com.insee.corporate.response.BaseResponse;
@@ -38,14 +35,8 @@ public class ConstructionController {
             if (type == null || TypeConstruction.findByType(type) == null) {
                 throw new NotSupportTypeConstruction();
             }
-
-            ConstructionDTO constructionDTO = constructionService.create(form, authUser.getId());
-            if (constructionDTO != null) {
-                response.setError(ErrorCode.SUCCESS);
-                response.setData(constructionDTO);
-            }else{
-                response.setError(ErrorCode.FAILED);
-            }
+            constructionService.create(form, authUser.getCustomerId());
+            response.setError(ErrorCode.SUCCESS);
         }catch (Exception e) {
             e.printStackTrace();
             response.setError(ErrorCode.FAILED);
@@ -53,17 +44,6 @@ public class ConstructionController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/me")
-    public ResponseEntity<BaseResponse> getProfile(Authentication authentication) throws UnsupportedEncodingException {
-        UserEntity authUser = AuthenUtil.getAuthUser(authentication);
-        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
-        if (authUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        List<ConstructionDTO> constructionDTOS = constructionService.findByUserId(authUser.getId());
-        response.setData(constructionDTOS);
-        return ResponseEntity.ok(response);
-    }
 
     @GetMapping(produces = {"application/json"})
     public ResponseEntity<BaseResponse> getById(@RequestParam(required = true) int id, Authentication authentication)  {
@@ -73,7 +53,7 @@ public class ConstructionController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         try{
-            ConstructionDTO constructionDTO = constructionService.findById(id);
+            ConstructionDTO constructionDTO = constructionService.get(id);
             if (constructionDTO.getUserId() != authUser.getId()) {
                 throw new InvalidSessionException();
             }
@@ -84,6 +64,4 @@ public class ConstructionController {
         }
         return ResponseEntity.ok(response);
     }
-
-
 }

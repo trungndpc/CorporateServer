@@ -3,6 +3,7 @@ package vn.com.insee.corporate.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.Type;
 import org.json.JSONObject;
+import vn.com.insee.corporate.dto.response.ext.ExtraDTO;
 
 import javax.persistence.Column;
 import java.util.List;
@@ -24,10 +25,12 @@ public class ConstructionDTO {
     private int userId;
     private int status;
     private UserDTO user;
-    private JSONObject extra;
+    private ExtraDTO extra;
     private LabelDTO label;
     private Integer promotionId;
     private Integer giftId;
+    private Long createdTime;
+    private Long updatedTime;
 
     public Integer getId() {
         return id;
@@ -51,6 +54,14 @@ public class ConstructionDTO {
 
     public void setDistrict(String district) {
         this.district = district;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getName() {
@@ -133,14 +144,6 @@ public class ConstructionDTO {
         this.status = status;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public UserDTO getUser() {
         return user;
     }
@@ -149,11 +152,11 @@ public class ConstructionDTO {
         this.user = user;
     }
 
-    public JSONObject getExtra() {
+    public ExtraDTO getExtra() {
         return extra;
     }
 
-    public void setExtra(JSONObject extra) {
+    public void setExtra(ExtraDTO extra) {
         this.extra = extra;
     }
 
@@ -179,5 +182,21 @@ public class ConstructionDTO {
 
     public void setGiftId(Integer giftId) {
         this.giftId = giftId;
+    }
+
+    public Long getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Long createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public Long getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(Long updatedTime) {
+        this.updatedTime = updatedTime;
     }
 }

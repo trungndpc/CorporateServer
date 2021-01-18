@@ -1,54 +1,59 @@
 package vn.com.insee.corporate.dto;
 
-public class GiftForm {
-    private int id;
-    private Integer type;
-    private Integer network;
-    private String seri;
-    private String code;
-    private int status;
-    private Integer constructionId;
-    private Integer userId;
-    private String name;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import vn.com.insee.corporate.dto.response.ext.PhoneCard;
 
-    public int getId() {
+import java.util.List;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class GiftForm {
+    private Integer id;
+    private String name;
+    private int type;
+    private int constructionId;
+    private int customerId;
+    private int network;
+    private int status;
+    private List<PhoneCard> cards;
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Integer getType() {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(int type) {
         this.type = type;
     }
 
-    public Integer getNetwork() {
-        return network;
+    public int getConstructionId() {
+        return constructionId;
     }
 
-    public void setNetwork(Integer network) {
-        this.network = network;
+    public void setConstructionId(int constructionId) {
+        this.constructionId = constructionId;
     }
 
-    public String getSeri() {
-        return seri;
+    public int getCustomerId() {
+        return customerId;
     }
 
-    public void setSeri(String seri) {
-        this.seri = seri;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
     }
 
     public int getStatus() {
@@ -59,27 +64,19 @@ public class GiftForm {
         this.status = status;
     }
 
-    public Integer getConstructionId() {
-        return constructionId;
+    public List<PhoneCard> getCards() {
+        return cards;
     }
 
-    public void setConstructionId(Integer constructionId) {
-        this.constructionId = constructionId;
+    public void setCards(List<PhoneCard> cards) {
+        this.cards = cards;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public int getNetwork() {
+        return network;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setNetwork(int network) {
+        this.network = network;
     }
 }

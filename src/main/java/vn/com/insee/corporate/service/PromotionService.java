@@ -11,9 +11,10 @@ import vn.com.insee.corporate.common.PromotionStatus;
 import vn.com.insee.corporate.common.dto.PromotionUserDTOStatus;
 import vn.com.insee.corporate.dto.PostForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
+import vn.com.insee.corporate.dto.response.ConstructionDTO;
+import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.PromotionDTO;
-import vn.com.insee.corporate.dto.response.admin.history.HistoryPromotionCustomerDTO;
-import vn.com.insee.corporate.dto.response.client.PromotionClientDTO;
+import vn.com.insee.corporate.dto.response.client.PromotionCustomerDTO;
 import vn.com.insee.corporate.entity.ConstructionEntity;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.PromotionEntity;
@@ -36,10 +37,11 @@ public class PromotionService {
     private PromotionRepository promotionRepository;
 
     @Autowired
-    private ConstructionRepository constructionRepository;
-
+    private CustomerService customerService;
+    
     @Autowired
-    private CustomerRepository customerRepository;
+    private ConstructionService constructionService;
+
 
     @Autowired
     private Mapper mapper;
@@ -60,25 +62,12 @@ public class PromotionService {
         return mapper.map(postEntity.get(), PromotionDTO.class);
     }
 
-    public PromotionClientDTO get(int id, Integer userId) throws PostNotExitException {
-        Optional<PromotionEntity> optionalPromotionEntity = promotionRepository.findById(id);
-        if (!optionalPromotionEntity.isPresent()) {
-            throw new PostNotExitException();
-        }
-        PromotionEntity promotionEntity = optionalPromotionEntity.get();
-        PromotionClientDTO promotionClientDTO = mapper.map(promotionEntity, PromotionClientDTO.class);
-        if (userId != null) {
-            promotionClientDTO = convertForClient(promotionClientDTO, userId);
-        }
-        return promotionClientDTO;
-    }
-
-    public List<PromotionClientDTO> getList(Integer userId, Integer roleId) throws Exception {
-        CustomerEntity customerEntity = customerRepository.findByUserId(userId);
-        if (customerEntity == null) {
+    public List<PromotionCustomerDTO> getList(Integer customerId, Integer roleId) throws Exception {
+        CustomerDTO customerDTO = customerService.get(customerId);
+        if (customerDTO == null) {
             throw new CustomerExitException();
         }
-        Integer mainAreaId = customerEntity.getMainAreaId();
+        Integer mainAreaId = customerDTO.getMainAreaId();
         if (mainAreaId == null) {
             throw new FieldNullException();
         }
@@ -86,34 +75,29 @@ public class PromotionService {
         if (promotionEntities == null) {
             return new ArrayList<>();
         }
-        List<PromotionClientDTO> rs = new ArrayList<>();
+        List<PromotionCustomerDTO> rs = new ArrayList<>();
         for (PromotionEntity promotionEntity: promotionEntities) {
-            PromotionClientDTO promotionClientDTO = mapper.map(promotionEntity, PromotionClientDTO.class);
-            if (userId != null) {
-                promotionClientDTO = convertForClient(promotionClientDTO, userId);
-            }
-            if (roleId == Permission.ADMIN.getId()) {
-                rs.add(promotionClientDTO);
+            PromotionCustomerDTO promotionCustomerDTO = convertEntityToPromotionCustomer(promotionEntity, customerId);
+            if (roleId != null && roleId == Permission.ADMIN.getId()) {
+                rs.add(promotionCustomerDTO);
             }else {
-                if (promotionClientDTO.getStatus() == PromotionStatus.PUBLISHED.getStatus()) {
-                    rs.add(promotionClientDTO);
+                if (promotionCustomerDTO.getStatus() == PromotionStatus.PUBLISHED.getStatus()) {
+                    rs.add(promotionCustomerDTO);
                 }
             }
         }
         return rs;
     }
 
-    public PromotionDTO create(PostForm postForm) {
+    public int create(PostForm postForm) {
         PromotionEntity postEntity = new PromotionEntity();
         mapper.map(postForm, postEntity);
         postEntity.setStatus(PromotionStatus.INIT.getStatus());
         postEntity = promotionRepository.saveAndFlush(postEntity);
-        PromotionDTO promotionDTO = new PromotionDTO();
-        mapper.map(postEntity, promotionDTO);
-        return promotionDTO;
+        return postEntity.getId();
     }
 
-    public PromotionDTO update(int id, PostForm postForm) {
+    public int update(int id, PostForm postForm) {
         PromotionEntity promotionEntity = promotionRepository.getOne(id);
         if (postForm.getContent() != null) {
             promotionEntity.setContent(postForm.getContent());
@@ -137,11 +121,8 @@ public class PromotionService {
             promotionEntity.setTimeEnd(postForm.getTimeEnd());
         }
         promotionEntity = promotionRepository.saveAndFlush(promotionEntity);
-        PromotionDTO promotionDTO = new PromotionDTO();
-        mapper.map(promotionEntity, promotionDTO);
-        return promotionDTO;
+        return promotionEntity.getId();
     }
-
 
     public boolean publish(int id) throws PostNotExitException {
         Optional<PromotionEntity> postEntity = promotionRepository.findById(id);
@@ -153,19 +134,14 @@ public class PromotionService {
         return true;
     }
 
-    private PromotionClientDTO convertForClient(PromotionClientDTO promotionClientDTO, Integer userId) {
-        PromotionUserDTOStatus promotionUserDTOStatus = PromotionUserDTOStatus.CAN_CREATE_NEW;
-        List<ConstructionEntity> listPromotionByUser = constructionRepository.findByPromotionIdAndUserId(promotionClientDTO.getId(), userId);
-        if (listPromotionByUser != null) {
-            for (ConstructionEntity constructionEntity : listPromotionByUser) {
-                if (constructionEntity.getStatus() == ConstructionStatus.WAITING_APPROVAL.getStatus()) {
-                    promotionUserDTOStatus = PromotionUserDTOStatus.WAITING_APPROVAL;
-                    break;
-                }
+    private PromotionCustomerDTO convertEntityToPromotionCustomer(PromotionEntity promotionEntity, Integer customerId) {
+        PromotionCustomerDTO promotionCustomerDTO = mapper.map(promotionEntity, PromotionCustomerDTO.class);
+        if (customerId != null){
+            List<ConstructionDTO> constructionDTOList = constructionService.findByCustomerAndPromotionId(customerId, promotionEntity.getId());
+            if (constructionDTOList != null) {
+                promotionCustomerDTO.setCount(constructionDTOList.size());
             }
-            promotionClientDTO.setListPlayingId(listPromotionByUser.stream().map(e -> e.getId()).collect(Collectors.toList()));
         }
-        promotionClientDTO.setPlayingStatus(promotionUserDTOStatus.getStatus());
-        return promotionClientDTO;
+        return promotionCustomerDTO;
     }
 }

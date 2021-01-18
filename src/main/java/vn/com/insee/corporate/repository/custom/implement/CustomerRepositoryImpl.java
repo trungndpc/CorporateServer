@@ -1,0 +1,63 @@
+package vn.com.insee.corporate.repository.custom.implement;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
+import vn.com.insee.corporate.entity.CustomerEntity;
+import vn.com.insee.corporate.repository.custom.CustomerRepositoryCustom;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.List;
+
+@Repository
+public class CustomerRepositoryImpl implements CustomerRepositoryCustom {
+
+    @PersistenceContext
+    EntityManager entityManager;
+
+
+
+    @Override
+    public Page<CustomerEntity> getListByStatusAndLocationAndLinkedUser(Integer status, Integer location, Boolean isLinkedUser, Pageable pageable) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<CustomerEntity> cq =cb.createQuery(CustomerEntity.class);
+        Root<CustomerEntity> root = cq.from(CustomerEntity.class);
+        List<Predicate> predicates = getListPredicate(cb, root, status, location, isLinkedUser);
+        cq.where(predicates.toArray(new Predicate[0]));
+        TypedQuery<CustomerEntity> typedQuery = entityManager.createQuery(cq);
+        typedQuery.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
+        typedQuery.setMaxResults(pageable.getPageSize());
+        return new PageImpl<>(typedQuery.getResultList(), pageable, countListByStatusAndLocationAndLinkedUser(status, location, isLinkedUser));
+    }
+
+    private List<Predicate> getListPredicate(CriteriaBuilder cb, Root<CustomerEntity> root, Integer status, Integer location, Boolean isLinkedUser) {
+        List<Predicate> predicates = new ArrayList<>();
+        if (status != null) {
+            predicates.add(cb.equal(root.get("status"), status));
+        }
+        if (location != null) {
+            predicates.add(cb.equal(root.get("mainAreaId"), location));
+        }
+        if (isLinkedUser != null) {
+            predicates.add(cb.equal(root.get("isLinkedUser"), isLinkedUser));
+        }
+        return predicates;
+    }
+
+    private long countListByStatusAndLocationAndLinkedUser(Integer status, Integer location, Boolean isLinkedUser) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<CustomerEntity> root = cq.from(CustomerEntity.class);
+        List<Predicate> predicates = getListPredicate(cb, root, status, location, isLinkedUser);
+        cq.select(cb.count(root)).where(predicates.toArray(new Predicate[0]));
+        return entityManager.createQuery(cq).getSingleResult();
+    }
+}

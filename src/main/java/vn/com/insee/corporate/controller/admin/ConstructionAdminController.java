@@ -10,9 +10,11 @@ import vn.com.insee.corporate.common.ImageStatus;
 import vn.com.insee.corporate.common.TypeLabel;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.page.PageDTO;
+import vn.com.insee.corporate.dto.response.BillDTO;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.dto.response.LabelDTO;
 import vn.com.insee.corporate.dto.response.UserDTO;
+import vn.com.insee.corporate.dto.response.admin.HistoryConstructionDTO;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.LabelIDException;
 import vn.com.insee.corporate.exception.StatusNotSupportException;
@@ -50,14 +52,9 @@ public class ConstructionAdminController {
         BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
         try{
             PageDTO<ConstructionDTO> list = constructionService.getList(type, status, page, pageSize);
-            List<ConstructionDTO> constructionDTOS = list.getList();
-            for (int i = 0; i < constructionDTOS.size(); i++) {
-                ConstructionDTO constructionDTO = constructionDTOS.get(i);
-                UserDTO userDTO = userService.findById(constructionDTO.getUserId());
-                constructionDTO.setUser(userDTO);
-            }
             response.setData(list);
         }catch (Exception e) {
+            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
@@ -71,9 +68,7 @@ public class ConstructionAdminController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         try{
-            ConstructionDTO constructionDTO = constructionService.findById(id);
-            UserDTO userDTO = userService.findById(constructionDTO.getUserId());
-            constructionDTO.setUser(userDTO);
+            ConstructionDTO constructionDTO = constructionService.get(id);
             response.setData(constructionDTO);
         }catch (Exception e) {
             e.printStackTrace();
@@ -97,6 +92,7 @@ public class ConstructionAdminController {
                 constructionService.updateLabel(id, labelDTO.getId());
             }
         }catch (Exception e) {
+            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
@@ -113,9 +109,9 @@ public class ConstructionAdminController {
             if (enumStatus == null) {
                 throw new StatusNotSupportException();
             }
-            ConstructionDTO constructionDTO = constructionService.updateStatus(id, enumStatus);
-            response.setData(constructionDTO);
+            constructionService.updateStatus(id, enumStatus);
         }catch (Exception e) {
+            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
@@ -137,25 +133,44 @@ public class ConstructionAdminController {
                 volumeCiment = Integer.parseInt(strVolumeCiment);
             }
             if (labelId != null) {
-                boolean exits = billService.isExits(labelId);
+                boolean exits = billService.isLabelExits(labelId);
                 if (exits) {
                     throw new LabelIDException();
                 }
             }
             if (type == BILL_TYPE) {
-                billService.updateLabelId(id, labelId);
-                billService.updateVolumeCiment(id, volumeCiment);
-                billService.updateStatus(id, ImageStatus.findByStatus(status));
+                BillDTO billDTO = new BillDTO();
+                billDTO.setId(id);
+                billDTO.setLabelId(labelId);
+                billDTO.setStatus(status);
+                billDTO.setVolumeCiment(volumeCiment);
+                billService.update(billDTO);
             }
 
             if (type == IMAGE_INSEE_TYPE) {
-                imageService.updateStatus(id, ImageStatus.findByStatus(status));
+                imageService.update(id, status);
             }
+
         }catch (Exception e) {
             e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(path = "/history", produces = {"application/json"})
+    public ResponseEntity<BaseResponse> list(@RequestParam(required = true, defaultValue = "0") int customerId) {
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        try{
+            List<HistoryConstructionDTO> historyByCustomer = constructionService.getHistoryByCustomerId(customerId);
+            response.setData(historyByCustomer);
+        }catch (Exception e) {
+            e.printStackTrace();
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+
 
 }

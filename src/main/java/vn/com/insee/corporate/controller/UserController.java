@@ -30,7 +30,7 @@ public class UserController {
         if (authUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        UserDTO userDTO = userService.findById(authUser.getId());
+        UserDTO userDTO = userService.get(authUser.getId());
         response.setData(userDTO);
         return ResponseEntity.ok(response);
     }

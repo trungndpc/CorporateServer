@@ -4,15 +4,13 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "promotion", schema="insee_promotion")
-public class PromotionEntity {
+public class PromotionEntity extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String title;
-    private String subTitle;
     private String content;
-    private Long time;
     private int typePromotion;
     private String summary;
     private Integer status;
@@ -37,28 +35,12 @@ public class PromotionEntity {
         this.title = title;
     }
 
-    public String getSubTitle() {
-        return subTitle;
-    }
-
-    public void setSubTitle(String subTitle) {
-        this.subTitle = subTitle;
-    }
-
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public Long getTime() {
-        return time;
-    }
-
-    public void setTime(Long time) {
-        this.time = time;
     }
 
     public int getTypePromotion() {

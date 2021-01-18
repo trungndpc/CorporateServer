@@ -42,6 +42,7 @@ public class PostAdminController {
             PageDTO<PromotionDTO> list = promotionService.getListForAdmin(page, pageSize);
             response.setData(list);
         }catch (Exception e) {
+            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
@@ -56,6 +57,7 @@ public class PostAdminController {
                 response.setError(ErrorCode.FAILED);
             }
         }catch (Exception e) {
+            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
@@ -66,18 +68,14 @@ public class PostAdminController {
     public ResponseEntity<BaseResponse> create(@RequestBody PostForm form) {
         BaseResponse response = new BaseResponse();
         try{
-            PromotionDTO promotionDTO = null;
+            int id = 0;
             if (form.getId() != null) {
-                promotionDTO = promotionService.update(form.getId(),form);
+                id = promotionService.update(form.getId(),form);
             }else {
-                promotionDTO = promotionService.create(form);
+                id = promotionService.create(form);
             }
-            if (promotionDTO != null) {
-                response.setError(ErrorCode.SUCCESS);
-                response.setData(promotionDTO);
-            }else{
-                response.setError(ErrorCode.FAILED);
-            }
+            response.setError(ErrorCode.SUCCESS);
+            response.setData(id);
         }catch (Exception e) {
             e.printStackTrace();
             response.setError(ErrorCode.FAILED);

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.controller.AuthenController;
-import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.response.BaseResponse;
@@ -49,7 +48,7 @@ public class AuthenAdminController {
         if (authUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        UserDTO userDTO = userService.findById(authUser.getId());
+        UserDTO userDTO = userService.get(authUser.getId());
         response.setData(userDTO);
         return ResponseEntity.ok(response);
     }

@@ -2,19 +2,16 @@ package vn.com.insee.corporate.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import vn.com.insee.corporate.common.TypeGift;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.GiftForm;
-import vn.com.insee.corporate.dto.PostForm;
 import vn.com.insee.corporate.dto.response.GiftDTO;
-import vn.com.insee.corporate.dto.response.HistoryDTO;
-import vn.com.insee.corporate.dto.response.PromotionDTO;
+import vn.com.insee.corporate.dto.response.admin.HistoryConstructionDTO;
+import vn.com.insee.corporate.dto.response.admin.HistoryGiftDTO;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.GiftService;
-import vn.com.insee.corporate.service.HistoryService;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RestController
@@ -28,6 +25,7 @@ public class GiftAdminController {
     public ResponseEntity<BaseResponse> create(@RequestBody GiftForm form) {
         BaseResponse response = new BaseResponse();
         try{
+            form.setType(TypeGift.CARD_PHONE.getType());
             GiftDTO giftDTO = giftService.create(form);
             if (giftDTO != null) {
                 response.setError(ErrorCode.SUCCESS);
@@ -41,5 +39,19 @@ public class GiftAdminController {
         }
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(path = "/history", produces = {"application/json"})
+    public ResponseEntity<BaseResponse> history() {
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        try{
+            List<HistoryGiftDTO> history = giftService.getHistory();
+            response.setData(history);
+        }catch (Exception e) {
+            e.printStackTrace();
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
 
 }

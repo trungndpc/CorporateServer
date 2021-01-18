@@ -36,4 +36,8 @@ public class LabelService {
         return labelDTOS;
     }
 
+    public LabelDTO get(int id) {
+        return mapper.map(labelRepository.getOne(id), LabelDTO.class);
+    }
+
 }

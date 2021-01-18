@@ -7,7 +7,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.RegisterForm;
-import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.UserEntity;
@@ -79,7 +78,7 @@ public class CustomerController {
         if (authUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        UserDTO userDTO = userService.findById(authUser.getId());
+        UserDTO userDTO = userService.get(authUser.getId());
         Integer customerId = userDTO.getCustomerId();
         if (customerId == null) {
             response.setError(ErrorCode.USER_NOT_IS_CUSTOMER);

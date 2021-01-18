@@ -16,11 +16,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 
-@Controller
+@Controller()
 public class IndexController {
 
-    private static final String DOMAIN_CLIENT = "insee-client.wash-up.vn";
-    private static final String DOMAIN_ADMIN = "insee-admin-client.wash-up.vn";
+    public static final String DOMAIN_CLIENT = "insee-client.wash-up.vn";
+    public static final String DOMAIN_ADMIN = "insee-admin-client.wash-up.vn";
     private static final String TEXT_RESPONSE_WHEN_REDIRECT = "OK";
     private static final String TEXT_RESPONSE_WHEN_EXCEPTION = "Please try again!";
     private static final String TEXT_RESPONSE_WHEN_NOT_FOUND_PATH = "Not found!";
@@ -31,7 +31,6 @@ public class IndexController {
         try {
             UserEntity authUser = AuthenUtil.getAuthUser(authentication);
             String domain = getDomain(request);
-            System.out.println("domain: " + domain);
             if (DOMAIN_ADMIN.equals(domain)) {
                 if (authUser == null || authUser.getRoleId() != Permission.ADMIN.getId()) {
                     response.sendRedirect("/login");
@@ -44,7 +43,7 @@ public class IndexController {
                     return TEXT_RESPONSE_WHEN_REDIRECT;
                 }
             }
-            return TemplateHTML.load("client/index");
+            return TemplateHTML.load("client/index", DOMAIN_ADMIN.equals(domain));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,7 +63,7 @@ public class IndexController {
         if (authUser != null && authUser.getRoleId() != Permission.ANONYMOUS.getId()) {
             response.sendRedirect("/khach-hang");
         } else if (authUser != null && authUser.getRoleId() == Permission.ANONYMOUS.getId()) {
-            return TemplateHTML.load("client/index");
+            return TemplateHTML.load("client/index", false);
         } else {
             if (userAgent.contains("Zalo")) {
                 response.sendRedirect("/authen/zalo?redirectUrl=" + "https%3A%2F%2Finsee-client.wash-up.vn%2Fdang-ky");
@@ -73,7 +72,7 @@ public class IndexController {
             }
             return TEXT_RESPONSE_WHEN_REDIRECT;
         }
-        return TemplateHTML.load("client/index");
+        return TemplateHTML.load("client/index", false);
     }
 
 
@@ -90,7 +89,7 @@ public class IndexController {
             response.sendRedirect("/dang-nhap");
             return TEXT_RESPONSE_WHEN_REDIRECT;
         }
-        return TemplateHTML.load("client/index");
+        return TemplateHTML.load("client/index", false);
     }
 
     @GetMapping(value = "/login", produces = MediaType.TEXT_HTML_VALUE)
@@ -106,7 +105,7 @@ public class IndexController {
             response.sendRedirect("/");
             return TEXT_RESPONSE_WHEN_REDIRECT;
         }
-        return TemplateHTML.load("client/index");
+        return TemplateHTML.load("client/index", true);
     }
 
     @GetMapping(value = "/khuyen-mai", produces = MediaType.TEXT_HTML_VALUE)
@@ -118,7 +117,7 @@ public class IndexController {
         if (DOMAIN_ADMIN.equals(domain)) {
             return TEXT_RESPONSE_WHEN_NOT_FOUND_PATH;
         }
-        return TemplateHTML.load("client/index");
+        return TemplateHTML.load("client/index", false);
     }
 
     @GetMapping(value = "/dang-nhap", produces = MediaType.TEXT_HTML_VALUE)
@@ -134,7 +133,7 @@ public class IndexController {
             response.sendRedirect("/khach-hang");
             return TEXT_RESPONSE_WHEN_REDIRECT;
         }
-        return TemplateHTML.load("client/index");
+        return TemplateHTML.load("client/index", false);
     }
 
     @GetMapping(value = "/customer/*", produces = MediaType.TEXT_HTML_VALUE)
@@ -150,7 +149,15 @@ public class IndexController {
             response.sendRedirect("/login");
             return TEXT_RESPONSE_WHEN_REDIRECT;
         }
-        return TemplateHTML.load("client/index");
+        return TemplateHTML.load("client/index", true);
+    }
+
+    @GetMapping(value = "/**", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String index(Authentication authentication, @RequestHeader(value = "User-Agent") String userAgent,
+                                 HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String domain = getDomain(request);
+        return TemplateHTML.load("client/index", DOMAIN_ADMIN.equals(domain));
     }
 
 

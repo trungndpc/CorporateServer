@@ -4,18 +4,16 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "gift", schema="insee_promotion")
-public class GiftEntity {
+public class GiftEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private Integer type;
-    private Integer network;
-    private String seri;
-    private String code;
-    private int status;
-    private Integer constructionId;
-    private Integer userId;
     private String name;
+    private String data;
+    private Integer constructionId;
+    private Integer customerId;
+    private int status;
 
     public int getId() {
         return id;
@@ -33,36 +31,20 @@ public class GiftEntity {
         this.type = type;
     }
 
-    public Integer getNetwork() {
-        return network;
+    public String getName() {
+        return name;
     }
 
-    public void setNetwork(Integer network) {
-        this.network = network;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getSeri() {
-        return seri;
+    public String getData() {
+        return data;
     }
 
-    public void setSeri(String seri) {
-        this.seri = seri;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
+    public void setData(String data) {
+        this.data = data;
     }
 
     public Integer getConstructionId() {
@@ -73,19 +55,19 @@ public class GiftEntity {
         this.constructionId = constructionId;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public Integer getCustomerId() {
+        return customerId;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setCustomerId(Integer customerId) {
+        this.customerId = customerId;
     }
 
-    public String getName() {
-        return name;
+    public int getStatus() {
+        return status;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
