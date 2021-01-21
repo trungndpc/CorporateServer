@@ -39,6 +39,7 @@ public class ConstructionEntity extends BaseEntity{
     private String extra;
     private Integer labelId;
     private Integer giftId;
+    private String note;
 
     public Integer getId() {
         return id;
@@ -182,5 +183,13 @@ public class ConstructionEntity extends BaseEntity{
 
     public void setGiftId(Integer giftId) {
         this.giftId = giftId;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

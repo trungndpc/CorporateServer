@@ -137,19 +137,24 @@ public class ConstructionService {
         }
         List<ConstructionDTO> constructionDTOS = new ArrayList<>();
         for (ConstructionEntity constructionEntity: constructionEntities) {
-            ConstructionDTO constructionDTO = mapper.map(constructionEntity, ConstructionDTO.class);
-            int customerId = constructionEntity.getCustomerId();
-            CustomerDTO customerDTO = customerService.get(customerId);
-            Integer userId = customerDTO.getUserId();
-            UserEntity userEntity = userRepository.getOne(userId);
-            constructionDTO.setUser(mapper.map(userEntity, UserDTO.class));
-            constructionDTOS.add(constructionDTO);
+            try {
+                ConstructionDTO constructionDTO = mapper.map(constructionEntity, ConstructionDTO.class);
+                int customerId = constructionEntity.getCustomerId();
+                CustomerDTO customerDTO = customerService.get(customerId);
+                Integer userId = customerDTO.getUserId();
+                UserEntity userEntity = userRepository.getOne(userId);
+                constructionDTO.setUser(mapper.map(userEntity, UserDTO.class));
+                constructionDTOS.add(constructionDTO);
+            }catch (Exception e) {
+
+            }
+
         }
         PageDTO<ConstructionDTO> pageData = new PageDTO<ConstructionDTO>(page, pageSize, constructionEntities.getTotalPages(), constructionDTOS);
         return pageData;
     }
 
-    public void updateStatus(int id, ConstructionStatus status) throws ConstructionExitException, JsonProcessingException {
+    public void updateStatus(int id, ConstructionStatus status, String note) throws ConstructionExitException, JsonProcessingException {
         ConstructionEntity constructionEntity = constructionRepository.getOne(id);
 
         if (constructionEntity.getStatus() != status.getStatus()) {
@@ -167,10 +172,18 @@ public class ConstructionService {
             if (status == ConstructionStatus.APPROVED) {
                 zaloService.sendTextMsg(userEntity.getFollowerZaloId(), "Công trình của bạn đã được chúng tôi xác thực! Trạng thái hóa đơn, hình ảnh của bạn upload sẽ được chúng tôi cập nhật trên trang nhà thầu chính thức của INSEE.");
             }else if(status == ConstructionStatus.REJECTED) {
-                zaloService.sendTextMsg(userEntity.getFollowerZaloId(), "Rất tiếc!!! Những thông tin công trình của bạn cung cấp không đáp ứng được yêu cầu của chúng tôi!!!");
+                String msg = "Rất tiếc!!! Công trình không được duyệt.";
+                if (note != null) {
+                    msg = msg + " " + note;
+                }
+                msg = msg + " " + "Vui lòng cập nhật lại thông qua link này: ";
+                zaloService.sendTextMsg(userEntity.getFollowerZaloId(), msg);
             }
         }
         constructionEntity.setStatus(status.getStatus());
+        if (note != null) {
+            constructionEntity.setNote(note);
+        }
         constructionRepository.saveAndFlush(constructionEntity);
     }
 

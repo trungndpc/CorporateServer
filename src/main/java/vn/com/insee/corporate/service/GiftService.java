@@ -92,8 +92,12 @@ public class GiftService {
         List<GiftEntity> giftRepositoryAll = giftRepository.findAll();
         List<HistoryGiftDTO> rs = new ArrayList<>();
         for (GiftEntity giftEntity: giftRepositoryAll) {
-            HistoryGiftDTO historyGiftDTO = convertEntityToGiftCustomerDTO(giftEntity);
-            rs.add(historyGiftDTO);
+            try {
+                HistoryGiftDTO historyGiftDTO = convertEntityToGiftCustomerDTO(giftEntity);
+                rs.add(historyGiftDTO);
+            }catch (Exception e) {
+
+            }
         }
         return rs;
     }
@@ -111,7 +115,7 @@ public class GiftService {
         if (one.getCustomerId() != customerId) throw new NotPermissionException("");
         one.setStatus(GiftStatus.RECEIVED.getStatus());
         giftRepository.saveAndFlush(one);
-        constructionService.updateStatus(one.getConstructionId(), ConstructionStatus.RECEIVED_GIFT);
+        constructionService.updateStatus(one.getConstructionId(), ConstructionStatus.RECEIVED_GIFT, null);
     }
 
     private GiftEntity convertFormToEntity(GiftForm giftForm) throws JsonProcessingException {

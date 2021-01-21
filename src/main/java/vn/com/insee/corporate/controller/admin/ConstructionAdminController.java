@@ -105,11 +105,12 @@ public class ConstructionAdminController {
         try {
             int id = Integer.parseInt(dataMap.get("id"));
             int status = Integer.parseInt(dataMap.get("status"));
+            String note = dataMap.get("note");
             ConstructionStatus enumStatus = ConstructionStatus.findByStatus(status);
             if (enumStatus == null) {
                 throw new StatusNotSupportException();
             }
-            constructionService.updateStatus(id, enumStatus);
+            constructionService.updateStatus(id, enumStatus, note);
         }catch (Exception e) {
             e.printStackTrace();
             response.setError(ErrorCode.FAILED);
