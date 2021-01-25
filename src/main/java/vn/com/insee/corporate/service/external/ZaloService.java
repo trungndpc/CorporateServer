@@ -3,11 +3,16 @@ package vn.com.insee.corporate.service.external;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import vn.com.insee.corporate.entity.CustomerEntity;
+import vn.com.insee.corporate.entity.UserEntity;
+import vn.com.insee.corporate.repository.CustomerRepository;
+import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.service.external.zalo.ListMessage;
 import vn.com.insee.corporate.service.external.zalo.Recipient;
 import vn.com.insee.corporate.service.external.zalo.TextMessage;
@@ -17,6 +22,12 @@ import java.util.List;
 
 @Service
 public class ZaloService {
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private static final long APP_ID = 191292518983577786l;
@@ -27,12 +38,36 @@ public class ZaloService {
     private static final String ACCESS_TOKEN_OA = "pGEc8ySgAbF90ASeoYWdNSO4gYdJV5edWbQWLSbxON-84ffRzL1VA88VamtiHr81lMoh3-uRJXgTEBuVdsbC3-8Ae2VWINWfwXMeBU1SVYsk39mPmcL03vmjZJJF0my2fq_B1CaBI0c088WQZ7LD5OKzjcVh2ovGdIRnTDTfALMRNwr-aZnv3TeJe3YHC6O9ucg39gaBO2NbKQ80jJakAVSIxXos90qfqaht4hCh4nNdLk0awZLd9-HUjrUo76T4naktOR4_U0xFHg4bdZjy3kb6gZdWCb4mCpL7EnkrGiKs8bW";
     private static final String SEND_MSG_TO_USER_URL = "https://openapi.zalo.me/v2.0/oa/message?access_token={1}";
 
-
     public ZaloService() {
         this.restTemplate = new RestTemplate();
         restTemplate.getMessageConverters()
                 .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         this.objectMapper = new ObjectMapper();
+    }
+
+    public void sendTxtMsg(int userId, String msg) throws JsonProcessingException {
+        UserEntity userEntity = userRepository.getOne(userId);
+        String followerZaloId = userEntity.getFollowerZaloId();
+        if (followerZaloId == null || followerZaloId.isEmpty()) {
+            System.out.println("uid: " + userId + " is not follower" );
+        }else{
+            sendTextMsg(followerZaloId, msg);
+        }
+    }
+
+    public void sendTxtMsgByCustomerId(int customerId, String msg) throws JsonProcessingException {
+        CustomerEntity customerEntity = customerRepository.getOne(customerId);
+        sendTxtMsg(customerEntity.getUserId(), msg);
+    }
+
+    public void sendActionList(int userId, String imgUrl, String url, String title, String subTitle) throws JsonProcessingException {
+        UserEntity userEntity = userRepository.getOne(userId);
+        String followerZaloId = userEntity.getFollowerZaloId();
+        if (followerZaloId == null || followerZaloId.isEmpty()) {
+            System.out.println("uid: " + userId + " is not follower" );
+        }else{
+            sendActionList(followerZaloId, imgUrl, url, title, subTitle);
+        }
     }
 
     public String getAccessToken(String oauthCode) {
@@ -72,7 +107,7 @@ public class ZaloService {
         return true;
     }
 
-    public boolean sendGiftMsg(String followerId, String imgUrl, String url, String title, String subTitle) throws JsonProcessingException {
+    public boolean sendActionList(String followerId, String imgUrl, String url, String title, String subTitle) throws JsonProcessingException {
         ListMessage.Element element = new ListMessage.Element();
         element.setImageUrl(imgUrl);
         element.setTitle(title);
@@ -91,7 +126,6 @@ public class ZaloService {
 
         String textJson = this.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(listMessage);
         ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(SEND_MSG_TO_USER_URL, textJson, String.class, ACCESS_TOKEN_OA);
-        System.out.println(zaloResponseResponseEntity.getBody());
         if (zaloResponseResponseEntity.getStatusCode() != HttpStatus.OK) {
             System.out.println(zaloResponseResponseEntity.getBody());
             return false;
@@ -102,6 +136,6 @@ public class ZaloService {
 
     public static void main(String[] args) throws JsonProcessingException {
         ZaloService zaloService = new ZaloService();
-        zaloService.sendGiftMsg("8735999925442427033", "https://developers.zalo.me/web/static/zalo.png", "https://developers.zalo.me/web/static/zalo.png", "title", "sub");
+        zaloService.sendActionList("8735999925442427033", "https://developers.zalo.me/web/static/zalo.png", "https://developers.zalo.me/web/static/zalo.png", "title", "sub");
     }
 }

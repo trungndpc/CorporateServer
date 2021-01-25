@@ -44,6 +44,7 @@ public class Mapper {
         this.mapper.addMappings(new ConstructionEntityToHistoryConstructionDTO());
         this.mapper.addMappings(new GiftEntityToHistoryGiftDTO());
         this.mapper.addMappings(new GiftEntityToHistoryGiftCustomerDTO());
+        this.mapper.addMappings(new ConstructionEntityToHistoryConstructionPromotionDTO());
     }
     public <S, D> void map(S source, D destination) {
         mapper.map(source, destination);

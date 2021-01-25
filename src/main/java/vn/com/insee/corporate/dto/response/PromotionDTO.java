@@ -1,6 +1,7 @@
 package vn.com.insee.corporate.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import vn.com.insee.corporate.dto.response.admin.report.PromotionReportDTO;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PromotionDTO {
@@ -14,6 +15,8 @@ public class PromotionDTO {
     private Long timeStart;
     private Long timeEnd;
     private Long updatedTime;
+    private Integer ruleQuantily;
+    private PromotionReportDTO report;
 
     public Integer getId() {
         return id;
@@ -93,5 +96,21 @@ public class PromotionDTO {
 
     public void setUpdatedTime(Long updatedTime) {
         this.updatedTime = updatedTime;
+    }
+
+    public PromotionReportDTO getReport() {
+        return report;
+    }
+
+    public void setReport(PromotionReportDTO report) {
+        this.report = report;
+    }
+
+    public Integer getRuleQuantily() {
+        return ruleQuantily;
+    }
+
+    public void setRuleQuantily(Integer ruleQuantily) {
+        this.ruleQuantily = ruleQuantily;
     }
 }

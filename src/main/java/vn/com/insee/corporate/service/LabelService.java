@@ -3,15 +3,13 @@ package vn.com.insee.corporate.service;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.TypeLabel;
-import vn.com.insee.corporate.dto.response.ConstructionDTO;
+import vn.com.insee.corporate.common.type.TypeLabel;
 import vn.com.insee.corporate.dto.response.LabelDTO;
 import vn.com.insee.corporate.entity.LabelEntity;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.LabelRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class LabelService {

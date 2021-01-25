@@ -2,11 +2,9 @@ package vn.com.insee.corporate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.BillStatus;
-import vn.com.insee.corporate.common.ImageStatus;
+import vn.com.insee.corporate.common.status.BillStatus;
 import vn.com.insee.corporate.dto.response.BillDTO;
 import vn.com.insee.corporate.entity.BillEntity;
-import vn.com.insee.corporate.exception.NotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.BillRepository;
 

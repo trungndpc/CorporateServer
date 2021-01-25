@@ -17,7 +17,7 @@ public class PromotionEntity extends BaseEntity{
     private Integer location;
     private Long timeStart;
     private Long timeEnd;
-
+    private Integer ruleQuantily;
 
     public Integer getId() {
         return id;
@@ -89,5 +89,13 @@ public class PromotionEntity extends BaseEntity{
 
     public void setTimeEnd(Long timeEnd) {
         this.timeEnd = timeEnd;
+    }
+
+    public Integer getRuleQuantily() {
+        return ruleQuantily;
+    }
+
+    public void setRuleQuantily(Integer ruleQuantily) {
+        this.ruleQuantily = ruleQuantily;
     }
 }

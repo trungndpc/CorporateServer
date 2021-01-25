@@ -8,20 +8,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.CustomerStatus;
+import vn.com.insee.corporate.common.MessageManager;
+import vn.com.insee.corporate.common.status.CustomerStatus;
 import vn.com.insee.corporate.common.dto.CustomerDTOStatus;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
-import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
-import vn.com.insee.corporate.dto.response.GiftDTO;
-import vn.com.insee.corporate.dto.response.PromotionDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.CustomerExitException;
 import vn.com.insee.corporate.exception.FirebaseAuthenException;
 import vn.com.insee.corporate.exception.ParamNotSupportException;
-import vn.com.insee.corporate.exception.PostNotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.UserRepository;
@@ -147,14 +144,14 @@ public class CustomerService {
         }
         Integer userId = optionalCustomerEntity.get().getUserId();
         if (userId != null) {
-            UserEntity userEntity = userRepository.getOne(userId);
             int currentStatus = optionalCustomerEntity.get().getStatus();
-            String followerZaloId = userEntity != null ? userEntity.getFollowerZaloId() : null;
-            if (followerZaloId != null && currentStatus != statusEnum.getStatus()) {
+            if (currentStatus != statusEnum.getStatus()) {
                 if (statusEnum.equals(CustomerStatus.APPROVED)) {
-                    zaloService.sendTextMsg(followerZaloId, "Chúc mừng bạn! Hồ sơ nhà thầu của bạn đã được chúng tôi phê duyệt");
+                    String msg = MessageManager.getMsgRegisterSuccessful(optionalCustomerEntity.get().getFullName());
+                    zaloService.sendTxtMsg(userId, msg);
                 }else if (statusEnum.equals(CustomerStatus.REJECTED)) {
-                    zaloService.sendTextMsg(followerZaloId, "Rất tiếc!!!, Hồ sơ nhà thầu của bạn đã không được phê duyệt. " + note);
+                    String msg = MessageManager.getMsgRegisterFailed(note);
+                    zaloService.sendTxtMsg(userId, msg);
                 }
             }
         }
@@ -228,8 +225,4 @@ public class CustomerService {
         customerRepository.saveAndFlush(customerEntity);
     }
 
-    public static void main(String[] args) throws JsonProcessingException {
-        ZaloService zaloService = new ZaloService();
-        zaloService.sendTextMsg("8917975072990610790", "Chúc mừng bạn! Hồ sơ nhà thầu của bạn đã được chúng tôi phê duyệt");
-    }
 }

@@ -1,35 +1,29 @@
 package vn.com.insee.corporate.service;
 
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.ConstructionStatus;
 import vn.com.insee.corporate.common.Permission;
-import vn.com.insee.corporate.common.PromotionStatus;
-import vn.com.insee.corporate.common.dto.PromotionUserDTOStatus;
+import vn.com.insee.corporate.common.status.PromotionStatus;
 import vn.com.insee.corporate.dto.PostForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.PromotionDTO;
+import vn.com.insee.corporate.dto.response.admin.report.PromotionReportDTO;
 import vn.com.insee.corporate.dto.response.client.PromotionCustomerDTO;
-import vn.com.insee.corporate.entity.ConstructionEntity;
-import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.PromotionEntity;
 import vn.com.insee.corporate.exception.CustomerExitException;
 import vn.com.insee.corporate.exception.FieldNullException;
 import vn.com.insee.corporate.exception.PostNotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.ConstructionRepository;
-import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.PromotionRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class PromotionService {
@@ -41,6 +35,9 @@ public class PromotionService {
     
     @Autowired
     private ConstructionService constructionService;
+    
+    @Autowired
+    private ConstructionRepository constructionRepository;
 
 
     @Autowired
@@ -48,8 +45,15 @@ public class PromotionService {
 
     public PageDTO<PromotionDTO> getListForAdmin(int page, int pageSize) {
         Page<PromotionEntity> postEntities = promotionRepository.findAll(PageRequest.of(page, pageSize));
-        List<PromotionDTO> promotionDTOList = mapper.mapToList(postEntities.toList(), new TypeToken<List<PromotionDTO>>() {
-        }.getType());
+        List<PromotionDTO> promotionDTOList = new ArrayList<>();
+        for (PromotionEntity promotionEntity: postEntities) {
+            PromotionDTO promotionDTO = mapper.map(promotionEntity, PromotionDTO.class);
+            long countByPromotionId = constructionRepository.countByPromotionId(promotionDTO.getId());
+            PromotionReportDTO promotionReportDTO = new PromotionReportDTO();
+            promotionReportDTO.setNumberOfParticipants(countByPromotionId);
+            promotionDTO.setReport(promotionReportDTO);
+            promotionDTOList.add(promotionDTO);
+        }
         PageDTO<PromotionDTO> pageData = new PageDTO<PromotionDTO>(page, pageSize, postEntities.getTotalPages(), promotionDTOList);
         return pageData;
     }

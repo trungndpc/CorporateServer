@@ -1,10 +1,7 @@
 package vn.com.insee.corporate.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.catalina.User;
-import org.json.JSONObject;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,15 +9,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.ConstructionStatus;
+import vn.com.insee.corporate.common.MessageManager;
+import vn.com.insee.corporate.common.status.ConstructionStatus;
 import vn.com.insee.corporate.dto.ConstructionForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.*;
 import vn.com.insee.corporate.dto.response.admin.HistoryConstructionDTO;
+import vn.com.insee.corporate.dto.response.admin.HistoryConstructionPromotionDTO;
 import vn.com.insee.corporate.dto.response.ext.ExtraDTO;
 import vn.com.insee.corporate.entity.*;
 import vn.com.insee.corporate.exception.ConstructionExitException;
 import vn.com.insee.corporate.exception.CustomerExitException;
+import vn.com.insee.corporate.exception.NotExitException;
 import vn.com.insee.corporate.exception.PostNotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.*;
@@ -28,7 +28,6 @@ import vn.com.insee.corporate.service.external.ZaloService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -67,6 +66,9 @@ public class ConstructionService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private PromotionRepository promotionRepository;
+
     public void create(ConstructionForm form, int customerId) throws JsonProcessingException {
         ConstructionEntity constructionEntity = mapper.map(form, ConstructionEntity.class);
         constructionEntity.setCustomerId(customerId);
@@ -87,6 +89,71 @@ public class ConstructionService {
             constructionEntity.setImageIds(imageService.initFromListUrl(images));
         }
         constructionEntity = constructionRepository.saveAndFlush(constructionEntity);
+
+        PromotionEntity promotionEntity = promotionRepository.getOne(constructionEntity.getPromotionId());
+        String msg = MessageManager.getMsgAfterRegisterPromotion(promotionEntity.getTitle());
+        zaloService.sendTxtMsg(customerId, msg);
+    }
+
+    public void update(ConstructionForm form, int customerId) throws NotExitException {
+        Optional<ConstructionEntity> optionalConstructionEntity = constructionRepository.findById(form.getId());
+        if (!optionalConstructionEntity.isPresent()) {
+            throw new NotExitException();
+        }
+
+        ConstructionEntity constructionEntity = optionalConstructionEntity.get();
+        if (form.getAddress() != null) {
+            constructionEntity.setAddress(form.getAddress());
+        }
+        if (form.getCity() != null) {
+            constructionEntity.setCity(form.getCity());
+        }
+        if (form.getDistrict() != null) {
+            constructionEntity.setDistrict(form.getDistrict());
+        }
+        if (form.getName() != null) {
+            constructionEntity.setName(form.getName());
+        }
+        if (form.getPhone() != null) {
+            constructionEntity.setPhone(form.getPhone());
+        }
+        if (form.getQuantity() != null) {
+            constructionEntity.setQuantity(form.getQuantity());
+        }
+        if (form.getEstimateTimeStart() != null) {
+            constructionEntity.setEstimateTimeStart(form.getEstimateTimeStart());
+        }
+        if (form.getTypeConstruction() != null) {
+            constructionEntity.setTypeConstruction(form.getTypeConstruction());
+        }
+
+        if (form.getBillIds() != null) {
+            List<String> billIds = form.getBillIds();
+            if (billIds != null) {
+                List<Integer> billIDs = billService.initFromListUrl(billIds);
+                List<Integer> constructionEntityBillIds = constructionEntity.getBillIds();
+                if (constructionEntityBillIds == null) {
+                    constructionEntityBillIds = new ArrayList<>();
+                }
+                constructionEntityBillIds.addAll(billIDs);
+                constructionEntity.setBillIds(constructionEntityBillIds);
+            }
+        }
+
+        if (form.getImageIds() != null) {
+            List<String> images = form.getImageIds();
+            if (images != null) {
+                List<Integer> imgIds = imageService.initFromListUrl(images);
+                List<Integer> constructionEntityImageIds = constructionEntity.getImageIds();
+                if (constructionEntityImageIds == null) {
+                    constructionEntityImageIds = new ArrayList<>();
+                }
+                constructionEntityImageIds.addAll(imgIds);
+                constructionEntity.setImageIds(constructionEntityImageIds);
+            }
+        }
+        constructionEntity.setStatus(ConstructionStatus.RE_SUBMIT.getStatus());
+        constructionRepository.saveAndFlush(constructionEntity);
     }
 
     public ConstructionDTO get(int id) throws ConstructionExitException, JsonProcessingException {
@@ -166,18 +233,13 @@ public class ConstructionService {
                     customerService.updateVolumeCiment(customerId, volumeCiment);
                 }
             }
-            int userId = customerService.get(customerId).getUserId();
-            UserEntity userEntity = userRepository.getOne(userId);
-            if (userEntity != null && userEntity.getFollowerZaloId() != null)
+            PromotionEntity promotionEntity = promotionRepository.getOne(constructionEntity.getPromotionId());
             if (status == ConstructionStatus.APPROVED) {
-                zaloService.sendTextMsg(userEntity.getFollowerZaloId(), "Công trình của bạn đã được chúng tôi xác thực! Trạng thái hóa đơn, hình ảnh của bạn upload sẽ được chúng tôi cập nhật trên trang nhà thầu chính thức của INSEE.");
+                String msg = MessageManager.getMsgApprovedPromotion(promotionEntity.getTitle());
+                zaloService.sendTxtMsgByCustomerId(customerId, msg);
             }else if(status == ConstructionStatus.REJECTED) {
-                String msg = "Rất tiếc!!! Công trình không được duyệt.";
-                if (note != null) {
-                    msg = msg + " " + note;
-                }
-                msg = msg + " " + "Vui lòng cập nhật lại thông qua link này: ";
-                zaloService.sendTextMsg(userEntity.getFollowerZaloId(), msg);
+                String msg = MessageManager.getMsgRejectedPromotion(promotionEntity.getTitle(), note);
+                zaloService.sendTxtMsgByCustomerId(customerId, msg);
             }
         }
         constructionEntity.setStatus(status.getStatus());
@@ -226,6 +288,23 @@ public class ConstructionService {
             rs.add(constructionDTO);
         }
         return rs;
+    }
+
+    public PageDTO<HistoryConstructionPromotionDTO> getHistoryByPromotionId(int promotionId, int page, int pageSize) {
+        Pageable pageable =
+                PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "updatedTime"));
+        Page<ConstructionEntity> constructionEntityPage = constructionRepository.findByPromotionId(promotionId, pageable);
+        List<HistoryConstructionPromotionDTO> hcPromotionDTOList = new ArrayList<>();
+        for (ConstructionEntity constructionEntity: constructionEntityPage) {
+            HistoryConstructionPromotionDTO historyConstructionPromotionDTO = mapper.map(constructionEntity, HistoryConstructionPromotionDTO.class);
+            CustomerDTO customerDTO = customerService.get(constructionEntity.getCustomerId());
+            UserEntity userEntity = userRepository.getOne(customerDTO.getUserId());
+            UserDTO userDTO = mapper.map(userEntity, UserDTO.class);
+            historyConstructionPromotionDTO.setCustomer(customerDTO);
+            historyConstructionPromotionDTO.setUser(userDTO);
+            hcPromotionDTOList.add(historyConstructionPromotionDTO);
+        }
+        return new PageDTO<HistoryConstructionPromotionDTO>(page, pageSize, constructionEntityPage.getTotalPages(), hcPromotionDTOList);
     }
 
 

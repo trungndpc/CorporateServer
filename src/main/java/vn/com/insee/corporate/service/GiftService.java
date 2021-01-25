@@ -5,14 +5,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.ConstructionStatus;
-import vn.com.insee.corporate.common.GiftStatus;
-import vn.com.insee.corporate.common.TypeGift;
+import vn.com.insee.corporate.common.MessageManager;
+import vn.com.insee.corporate.common.status.ConstructionStatus;
+import vn.com.insee.corporate.common.status.GiftStatus;
+import vn.com.insee.corporate.common.type.TypeGift;
 import vn.com.insee.corporate.dto.GiftForm;
 import vn.com.insee.corporate.dto.response.*;
 import vn.com.insee.corporate.dto.response.admin.HistoryGiftDTO;
 import vn.com.insee.corporate.dto.response.client.HistoryGiftCustomerDTO;
 import vn.com.insee.corporate.dto.response.ext.PhoneCard;
+import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.GiftEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.ConstructionExitException;
@@ -20,6 +22,7 @@ import vn.com.insee.corporate.exception.NotExitException;
 import vn.com.insee.corporate.exception.NotPermissionException;
 import vn.com.insee.corporate.exception.PostNotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
+import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.GiftRepository;
 import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.service.external.ZaloService;
@@ -55,27 +58,21 @@ public class GiftService {
     @Autowired
     private ZaloService zaloService;
 
+    @Autowired
+    private CustomerRepository customerRepository;
+
     public GiftDTO create(GiftForm giftForm) throws ConstructionExitException, JsonProcessingException {
         GiftEntity giftEntity = convertFormToEntity(giftForm);
         giftEntity.setStatus(GiftStatus.SEND.getStatus());
         giftEntity = giftRepository.saveAndFlush(giftEntity);
         constructionService.updateGift(giftEntity.getConstructionId(), giftEntity.getId());
 
-        CustomerDTO customerDTO = customerService.get(giftEntity.getCustomerId());
-        Optional<UserEntity> optionalUserEntity = userRepository.findById(customerDTO.getUserId());
-        if (optionalUserEntity.isPresent()) {
-            UserEntity userEntity = optionalUserEntity.get();
-            String followerZaloId = userEntity.getFollowerZaloId();
-            if (followerZaloId != null) {
-                String title = "Chúc mừng anh " + customerDTO.getFullName();
-                String subTitle = "Chúc mừng anh " + customerDTO.getFullName() + " đã nhận được " + giftEntity.getName() +
-                        ", vui lòng bấm vào tin nhắn để nhận.";
-                String imageUrl = "https://trungndpc.github.io/insee-promotion-client/images/banner.png";
-                String link = "https://insee-client.wash-up.vn/chuc-mung/" + giftEntity.getId();
-                zaloService.sendGiftMsg(followerZaloId, imageUrl, link, title, subTitle);
-            }
-        }
-
+        CustomerEntity customerEntity = customerRepository.getOne(giftEntity.getCustomerId());
+        String title = "Chúc mừng !!!";
+        String subTitle = MessageManager.getMsgSendGiftPromotion(customerEntity.getFullName(), giftEntity.getName());
+        String imageUrl = "https://trungndpc.github.io/insee-promotion-client/images/banner.png";
+        String link = "https://insee-client.wash-up.vn/chuc-mung/" + giftEntity.getId();
+        zaloService.sendActionList(customerEntity.getUserId(), imageUrl, link, title, subTitle);
         return mapper.map(giftEntity, GiftDTO.class);
     }
 
@@ -153,10 +150,8 @@ public class GiftService {
     private GiftDTO convertEntityToDTO(GiftEntity giftEntity) throws JsonProcessingException {
         GiftDTO giftDTO = mapper.map(giftEntity, GiftDTO.class);
         TypeGift typeGift = TypeGift.findByValue(giftEntity.getType());
-        System.out.println(typeGift);
         if (typeGift == TypeGift.CARD_PHONE) {
             String data = giftEntity.getData();
-            System.out.println(data);
             if (data != null) {
                 List<PhoneCard> phoneCards = objectMapper.readValue(data, new TypeReference<List<PhoneCard>>() {
                 });

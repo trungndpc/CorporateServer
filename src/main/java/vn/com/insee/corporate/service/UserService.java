@@ -1,18 +1,18 @@
 package vn.com.insee.corporate.service;
 
-import org.apache.catalina.User;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.com.insee.corporate.common.Permission;
-import vn.com.insee.corporate.common.UserStatusEnum;
+import vn.com.insee.corporate.common.status.UserStatus;
 import vn.com.insee.corporate.dto.RegisterForm;
-import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.UserDTO;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.LoginFailedException;
 import vn.com.insee.corporate.exception.NotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.UserRepository;
+import vn.com.insee.corporate.service.external.ZaloService;
 import vn.com.insee.corporate.service.external.ZaloUserEntity;
 
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class UserService {
         userEntity.setPassword("");
         userEntity.setAvatar(zaloUserEntity.getAvatar());
         userEntity.setRoleId(Permission.ANONYMOUS.getId());
-        userEntity.setStatus(UserStatusEnum.INIT_FROM_ZALO.getId());
+        userEntity.setStatus(UserStatus.INIT_FROM_ZALO.getId());
         userEntity.setEnable(true);
         userEntity = userRepository.saveAndFlush(userEntity);
         return userEntity;
@@ -82,7 +82,7 @@ public class UserService {
         UserEntity userEntity = new UserEntity();
         userEntity.setName(registerForm.getFullName());
         userEntity.setPhone(registerForm.getPhone());
-        userEntity.setStatus(UserStatusEnum.INIT_FROM_WEB.getId());
+        userEntity.setStatus(UserStatus.INIT_FROM_WEB.getId());
         userEntity.setRoleId(role.getId());
         userEntity.setEnable(true);
         userEntity = userRepository.saveAndFlush(userEntity);
@@ -160,4 +160,6 @@ public class UserService {
         }
         return null;
     }
+
+
 }

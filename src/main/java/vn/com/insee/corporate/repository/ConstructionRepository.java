@@ -10,7 +10,9 @@ import java.util.List;
 public interface ConstructionRepository extends JpaRepository<ConstructionEntity, Integer> {
     List<ConstructionEntity> findByCustomerIdAndPromotionId(int customerId, int promotionId);
     List<ConstructionEntity> findByCustomerId(int customerId);
+    Page<ConstructionEntity> findByPromotionId(int promotionId, Pageable pageable);
     Page<ConstructionEntity> findByTypeAndStatus(int type, int status, Pageable pageable);
     Page<ConstructionEntity> findByType(int type, Pageable pageable);
+    long countByPromotionId(int promotionId);
 
 }

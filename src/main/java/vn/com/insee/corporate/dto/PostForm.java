@@ -10,6 +10,8 @@ public class PostForm {
     private Long timeStart;
     private Long timeEnd;
     private Long updatedTime;
+    private Integer ruleQuantily;
+
 
     public Integer getId() {
         return id;
@@ -81,5 +83,13 @@ public class PostForm {
 
     public void setUpdatedTime(Long updatedTime) {
         this.updatedTime = updatedTime;
+    }
+
+    public Integer getRuleQuantily() {
+        return ruleQuantily;
+    }
+
+    public void setRuleQuantily(Integer ruleQuantily) {
+        this.ruleQuantily = ruleQuantily;
     }
 }
