@@ -31,6 +31,7 @@ public class ConstructionDTO {
     private Integer giftId;
     private Long createdTime;
     private Long updatedTime;
+    private Integer cement;
 
     public Integer getId() {
         return id;
@@ -198,5 +199,13 @@ public class ConstructionDTO {
 
     public void setUpdatedTime(Long updatedTime) {
         this.updatedTime = updatedTime;
+    }
+
+    public Integer getCement() {
+        return cement;
+    }
+
+    public void setCement(Integer cement) {
+        this.cement = cement;
     }
 }

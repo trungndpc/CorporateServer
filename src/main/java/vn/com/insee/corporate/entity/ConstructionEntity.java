@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "construction", schema="insee_promotion")
+@Table(name = "construction", schema="promotion")
 @TypeDef(name = "list-array",typeClass = ListArrayType.class)
 public class ConstructionEntity extends BaseEntity{
 
@@ -40,6 +40,7 @@ public class ConstructionEntity extends BaseEntity{
     private Integer labelId;
     private Integer giftId;
     private String note;
+    private Integer cement;
 
     public Integer getId() {
         return id;
@@ -191,5 +192,13 @@ public class ConstructionEntity extends BaseEntity{
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public Integer getCement() {
+        return cement;
+    }
+
+    public void setCement(Integer cement) {
+        this.cement = cement;
     }
 }

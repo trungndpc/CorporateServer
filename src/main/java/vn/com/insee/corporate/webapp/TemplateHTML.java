@@ -20,7 +20,7 @@ public class TemplateHTML {
                 InputStream inputStream = new ClassPathResource("webapp/" + path + ".html").getInputStream();
                 cache = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
                 cache = cache.replaceAll("\\{\\{domain\\}\\}", Constant.ADMIN_DOMAIN);
-                cache = cache.replaceAll("\\{\\{version\\}\\}", Constant.ADMIN_DOMAIN_VERSION);
+                cache = cache.replaceAll("\\{\\{version\\}\\}",Constant.ADMIN_DOMAIN_VERSION);
                 CACHED.put(path, cache);
             }catch (Exception e) {
                 e.printStackTrace();
@@ -35,6 +35,7 @@ public class TemplateHTML {
             try{
                 InputStream inputStream = new ClassPathResource("webapp/" + path + ".html").getInputStream();
                 cache = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
+//                cache = cache.replace("{{variable}}", "");
                 cache = cache.replaceAll("\\{\\{domain\\}\\}", Constant.CLIENT_DOMAIN);
                 cache = cache.replaceAll("\\{\\{version\\}\\}", Constant.CLIENT_DOMAIN_VERSION);
                 CACHED.put(path, cache);
@@ -43,6 +44,13 @@ public class TemplateHTML {
             }
         }
         return cache;
+    }
+
+    private static final String VARIABLE_FORMAT = "window.%s = %s";
+    public static String initVariable(String html, String name, String value) {
+        String str = String.format(VARIABLE_FORMAT, name, value);
+        html = html.replace("{{variable}}", str);
+        return html;
     }
 
 

@@ -5,20 +5,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.com.insee.corporate.common.Permission;
+import vn.com.insee.corporate.common.status.CustomerStatus;
 import vn.com.insee.corporate.common.status.PromotionStatus;
-import vn.com.insee.corporate.dto.PostForm;
+import vn.com.insee.corporate.dto.PromotionForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
-import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.PromotionDTO;
 import vn.com.insee.corporate.dto.response.admin.report.PromotionReportDTO;
 import vn.com.insee.corporate.dto.response.client.PromotionCustomerDTO;
+import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.PromotionEntity;
 import vn.com.insee.corporate.exception.CustomerExitException;
-import vn.com.insee.corporate.exception.FieldNullException;
+import vn.com.insee.corporate.exception.NeedToApprovalException;
 import vn.com.insee.corporate.exception.PostNotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.ConstructionRepository;
+import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.PromotionRepository;
 
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ public class PromotionService {
     private PromotionRepository promotionRepository;
 
     @Autowired
-    private CustomerService customerService;
+    private CustomerRepository customerRepository;
     
     @Autowired
     private ConstructionService constructionService;
@@ -66,16 +68,17 @@ public class PromotionService {
         return mapper.map(postEntity.get(), PromotionDTO.class);
     }
 
-    public List<PromotionCustomerDTO> getList(Integer customerId, Integer roleId) throws Exception {
-        CustomerDTO customerDTO = customerService.get(customerId);
-        if (customerDTO == null) {
+    public List<PromotionCustomerDTO> getList(Integer customerId, Integer roleId) throws CustomerExitException, NeedToApprovalException {
+        CustomerEntity customerEntity = customerRepository.getOne(customerId);
+        if (customerEntity == null) {
             throw new CustomerExitException();
         }
-        Integer mainAreaId = customerDTO.getMainAreaId();
-        if (mainAreaId == null) {
-            throw new FieldNullException();
+
+        if (customerEntity.getStatus() != CustomerStatus.APPROVED.getStatus()) {
+            throw new NeedToApprovalException();
         }
-        List<PromotionEntity> promotionEntities = promotionRepository.findByLocation(mainAreaId);
+
+        List<PromotionEntity> promotionEntities = promotionRepository.findByLocation(customerEntity.getMainAreaId());
         if (promotionEntities == null) {
             return new ArrayList<>();
         }
@@ -93,37 +96,50 @@ public class PromotionService {
         return rs;
     }
 
-    public int create(PostForm postForm) {
+    public int create(PromotionForm promotionForm) {
         PromotionEntity postEntity = new PromotionEntity();
-        mapper.map(postForm, postEntity);
+        mapper.map(promotionForm, postEntity);
         postEntity.setStatus(PromotionStatus.INIT.getStatus());
         postEntity = promotionRepository.saveAndFlush(postEntity);
         return postEntity.getId();
     }
 
-    public int update(int id, PostForm postForm) {
+    public int update(int id, PromotionForm promotionForm) {
         PromotionEntity promotionEntity = promotionRepository.getOne(id);
-        if (postForm.getContent() != null) {
-            promotionEntity.setContent(postForm.getContent());
+        if (promotionForm.getContent() != null) {
+            promotionEntity.setContent(promotionForm.getContent());
         }
-        if (postForm.getLocation() != null) {
-            promotionEntity.setLocation(postForm.getLocation());
+        if (promotionForm.getLocation() != null) {
+            promotionEntity.setLocation(promotionForm.getLocation());
         }
-        if (postForm.getTypePromotion() != 0) {
-            promotionEntity.setTypePromotion(postForm.getTypePromotion());
+        if (promotionForm.getTypePromotion() != 0) {
+            promotionEntity.setTypePromotion(promotionForm.getTypePromotion());
         }
-        if (postForm.getSummary() != null) {
-            promotionEntity.setSummary(postForm.getSummary());
+        if (promotionForm.getSummary() != null) {
+            promotionEntity.setSummary(promotionForm.getSummary());
         }
-        if (postForm.getTitle() != null) {
-            promotionEntity.setTitle(postForm.getTitle());
+        if (promotionForm.getTitle() != null) {
+            promotionEntity.setTitle(promotionForm.getTitle());
         }
-        if (postForm.getTimeStart() != null) {
-            promotionEntity.setTimeStart(postForm.getTimeStart());
+        if (promotionForm.getTimeStart() != null) {
+            promotionEntity.setTimeStart(promotionForm.getTimeStart());
         }
-        if (postForm.getTimeEnd() != null) {
-            promotionEntity.setTimeEnd(postForm.getTimeEnd());
+        if (promotionForm.getTimeEnd() != null) {
+            promotionEntity.setTimeEnd(promotionForm.getTimeEnd());
         }
+
+        if (promotionForm.getCover() != null) {
+            promotionEntity.setCover(promotionForm.getCover());
+        }
+
+        if (promotionForm.getRuleAcceptedCement() != null) {
+            promotionEntity.setRuleAcceptedCement(promotionForm.getRuleAcceptedCement());
+        }
+
+        if (promotionForm.getRuleQuantily() != null) {
+            promotionEntity.setRuleQuantily(promotionForm.getRuleQuantily());
+        }
+
         promotionEntity = promotionRepository.saveAndFlush(promotionEntity);
         return promotionEntity.getId();
     }

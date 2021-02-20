@@ -3,7 +3,7 @@ package vn.com.insee.corporate.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "gift", schema="insee_promotion")
+@Table(name = "gift", schema="promotion")
 public class GiftEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

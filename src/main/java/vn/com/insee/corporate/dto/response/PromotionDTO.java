@@ -3,6 +3,8 @@ package vn.com.insee.corporate.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import vn.com.insee.corporate.dto.response.admin.report.PromotionReportDTO;
 
+import java.util.List;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PromotionDTO {
     private Integer id;
@@ -16,7 +18,10 @@ public class PromotionDTO {
     private Long timeEnd;
     private Long updatedTime;
     private Integer ruleQuantily;
+    private String cover;
+    private List<Integer> ruleAcceptedCement;
     private PromotionReportDTO report;
+
 
     public Integer getId() {
         return id;
@@ -112,5 +117,21 @@ public class PromotionDTO {
 
     public void setRuleQuantily(Integer ruleQuantily) {
         this.ruleQuantily = ruleQuantily;
+    }
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
+    }
+
+    public List<Integer> getRuleAcceptedCement() {
+        return ruleAcceptedCement;
+    }
+
+    public void setRuleAcceptedCement(List<Integer> ruleAcceptedCement) {
+        this.ruleAcceptedCement = ruleAcceptedCement;
     }
 }

@@ -3,7 +3,7 @@ package vn.com.insee.corporate.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "bill", schema="insee_promotion")
+@Table(name = "bill", schema="promotion")
 public class BillEntity {
 
     @Id

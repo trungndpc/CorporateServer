@@ -1,19 +1,26 @@
 package vn.com.insee.corporate.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.postgresql.util.GT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.com.insee.corporate.common.Permission;
+import vn.com.insee.corporate.common.status.CustomerStatus;
+import vn.com.insee.corporate.common.status.StatusRegister;
 import vn.com.insee.corporate.common.status.UserStatus;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.response.UserDTO;
+import vn.com.insee.corporate.dto.response.client.UserClientDTO;
+import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.exception.LoginFailedException;
 import vn.com.insee.corporate.exception.NotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
+import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.service.external.ZaloService;
 import vn.com.insee.corporate.service.external.ZaloUserEntity;
+import vn.com.insee.corporate.util.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +34,60 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    public StatusRegister getStatusRegister(int userId) {
+        UserEntity userEntity = userRepository.getOne(userId);
+        if (userEntity == null) {
+            return StatusRegister.NOT_REGISTER;
+        }
+        String phone = userEntity.getPhone();
+        if (phone == null) {
+            return StatusRegister.NOT_REGISTER;
+        }
+        Integer customerId = userEntity.getCustomerId();
+        if (customerId == null) {
+            return StatusRegister.NOT_CUSTOMER;
+        }
+        CustomerEntity customerEntity = customerRepository.getOne(customerId);
+        Integer customerStatus = customerEntity.getStatus();
+        if (customerStatus == CustomerStatus.REVIEWING.getStatus()) {
+            return StatusRegister.WAITING_REVIEW;
+        }
+        if (customerStatus == CustomerStatus.APPROVED.getStatus()) {
+            return StatusRegister.REGISTERED;
+        }
+        if (customerStatus == CustomerStatus.REJECTED.getStatus()) {
+            return StatusRegister.NEED_SUBMIT_AGAIN;
+        }
+        return StatusRegister.REGISTERED;
+    }
+
+    public UserClientDTO getByClient(Integer userId) {
+        UserEntity userEntity = userRepository.getOne(userId);
+        UserClientDTO userClientDTO = mapper.map(userEntity, UserClientDTO.class);
+        if (userEntity.getFollowerZaloId() != null) {
+            userClientDTO.setFollower(true);
+        }else {
+            userClientDTO.setFollower(false);
+        }
+
+        Integer customerId = userEntity.getCustomerId();
+        String phone = userEntity.getPhone();
+        CustomerEntity customerEntity = null;
+        if (customerId != null) {
+            customerEntity = customerRepository.getOne(customerId);
+        }else if (phone != null) {
+            customerEntity = customerRepository.findByPhone(phone);
+        }
+        if (customerEntity != null) {
+            UserClientDTO.CustomerUserClientDTO customerUserClientDTO = mapper.map(customerEntity, UserClientDTO.CustomerUserClientDTO.class);
+            userClientDTO.setCustomer(customerUserClientDTO);
+        }
+        return userClientDTO;
+    }
 
     public UserDTO loginWithPassword(String phone, String pass, Permission permission) throws LoginFailedException {
         UserEntity userEntity = userRepository.findByPhone(phone);
@@ -59,21 +120,27 @@ public class UserService {
     }
 
     public UserEntity initUserFromZalo(ZaloUserEntity zaloUserEntity) {
+        System.out.println("initUserFromZalo");
         UserEntity userEntity = userRepository.findByZaloId(zaloUserEntity.getId());
-        if (userEntity == null) {
-            userEntity = new UserEntity();
-            userEntity.setId(0);
+        if (userEntity == null || userEntity.getRoleId() == null) {
+            System.out.println("............");
+            if(userEntity == null) {
+                userEntity = new UserEntity();
+                userEntity.setId(0);
+            }
+            userEntity.setRoleId(Permission.ANONYMOUS.getId());
+            userEntity.setName(zaloUserEntity.getName());
+            userEntity.setZaloId(zaloUserEntity.getId());
+            userEntity.setPassword("");
+            userEntity.setAvatar(zaloUserEntity.getAvatar());
+            userEntity.setStatus(UserStatus.INIT_FROM_ZALO.getId());
+            userEntity.setEnable(true);
+            if (zaloUserEntity.getBirthday() != null) {
+                int time = TimeUtil.getTime(zaloUserEntity.getBirthday());
+                userEntity.setBirthday(time);
+            }
+            userEntity = userRepository.saveAndFlush(userEntity);
         }
-        System.out.println("Zalo ID");
-        System.out.println(zaloUserEntity.getId());
-        userEntity.setName(zaloUserEntity.getName());
-        userEntity.setZaloId(zaloUserEntity.getId());
-        userEntity.setPassword("");
-        userEntity.setAvatar(zaloUserEntity.getAvatar());
-        userEntity.setRoleId(Permission.ANONYMOUS.getId());
-        userEntity.setStatus(UserStatus.INIT_FROM_ZALO.getId());
-        userEntity.setEnable(true);
-        userEntity = userRepository.saveAndFlush(userEntity);
         return userEntity;
     }
 

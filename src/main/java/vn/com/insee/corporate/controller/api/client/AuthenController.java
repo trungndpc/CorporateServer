@@ -1,4 +1,4 @@
-package vn.com.insee.corporate.controller;
+package vn.com.insee.corporate.controller.api.client;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+import vn.com.insee.corporate.common.Constant;
 import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.RegisterForm;
@@ -65,7 +66,8 @@ public class AuthenController {
     public RedirectView zalo(@RequestParam(required = false)
                                      String redirectUrl, HttpServletRequest request) throws UnsupportedEncodingException {
         String hookUrl = HttpUtil.getFullDomain(request) + "/authen/hook?c=" + URLEncoder.encode(redirectUrl, String.valueOf(StandardCharsets.UTF_8));
-        String urlZaloAuthen = ZaloService.REDIRECT_AUTHEN_ZALO + "&redirect_uri=" + URLEncoder.encode(hookUrl, String.valueOf(StandardCharsets.UTF_8));
+        String urlZaloAuthen = Constant.ZALO_OA_REDIRECT_AUTHEN_ZALO + "&redirect_uri=" + URLEncoder.encode(hookUrl, String.valueOf(StandardCharsets.UTF_8));
+        System.out.println(urlZaloAuthen);
         return new RedirectView(urlZaloAuthen);
     }
 
@@ -188,23 +190,6 @@ public class AuthenController {
         }
         return ResponseEntity.ok(response);
     }
-
-    @PostMapping(value = "/login-pass", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<BaseResponse> loginWithPassword(@RequestBody Map<String, String> dataMap, Authentication authentication, HttpServletResponse resp)  {
-        BaseResponse response = new BaseResponse(ErrorCode.FAILED);
-        try {
-            String phone = dataMap.get("phone").replace("+", "");
-            String pass = dataMap.getOrDefault("pass", null);
-            UserDTO userDTO = userService.loginWithPassword(phone, pass, null);
-            String session = genAndSetSession(userDTO.getId(), userDTO.getPhone(), resp);
-            userService.updateSession(userDTO.getId(), session);
-            response.setError(ErrorCode.SUCCESS);
-        }catch (Exception e) {
-            response.setError(ErrorCode.FAILED);
-        }
-        return ResponseEntity.ok(response);
-    }
-
 
     public static String genAndSetSession(int id, String phone, HttpServletResponse resp) throws NotExitException {
         String session = TokenUtil.generate(id, phone, TokenUtil.MAX_AGE);

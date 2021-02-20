@@ -50,7 +50,6 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal(@NonNull HttpServletRequest req, @NonNull HttpServletResponse resp, @NonNull FilterChain chain) throws IOException, ServletException {
         try {
-            System.out.println("CookieAuthenticationFilter");
             String _inseeSS = HttpUtil.getCookie(COOKIE_NAME, req);
             if (_inseeSS != null && TokenUtil.isValid(_inseeSS)) {
                 Claims claims = TokenUtil.parse(_inseeSS);

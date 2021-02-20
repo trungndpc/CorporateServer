@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.com.insee.corporate.constant.ErrorCode;
-import vn.com.insee.corporate.dto.PostForm;
+import vn.com.insee.corporate.dto.PromotionForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.PromotionDTO;
 import vn.com.insee.corporate.response.BaseResponse;
@@ -64,7 +64,7 @@ public class PostAdminController {
 
 
     @PostMapping(path = "/create", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<BaseResponse> create(@RequestBody PostForm form) {
+    public ResponseEntity<BaseResponse> create(@RequestBody PromotionForm form) {
         BaseResponse response = new BaseResponse();
         try{
             int id = 0;

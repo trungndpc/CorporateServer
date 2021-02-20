@@ -7,4 +7,5 @@ public class ErrorCode {
     public static int VERIFY_FAILED = -2;
     public static int NOT_EXITS = -9;
     public static int USER_NOT_IS_CUSTOMER = -10;
+    public static int NEED_TO_APPROVED = -11;
 }

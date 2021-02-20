@@ -30,9 +30,6 @@ public class CustomerController {
     private UserService userService;
 
 
-
-
-
     @PostMapping(path = "/update", consumes = "application/json", produces = "application/json")
     public ResponseEntity<BaseResponse> post(@RequestBody RegisterForm form, Authentication authentication) {
         BaseResponse response = new BaseResponse();

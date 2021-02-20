@@ -43,6 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthenticatedEntryPoint)
                 .and()
                 .authorizeRequests()
+                .antMatchers("/ping/**").permitAll()
                 .antMatchers("/api/admin/authen/**").permitAll()
                 .antMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()

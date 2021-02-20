@@ -1,6 +1,8 @@
 package vn.com.insee.corporate.dto;
 
-public class PostForm {
+import java.util.List;
+
+public class PromotionForm {
     private Integer id;
     private String title;
     private String content;
@@ -11,6 +13,8 @@ public class PostForm {
     private Long timeEnd;
     private Long updatedTime;
     private Integer ruleQuantily;
+    private String cover;
+    private List<Integer> ruleAcceptedCement;
 
 
     public Integer getId() {
@@ -91,5 +95,21 @@ public class PostForm {
 
     public void setRuleQuantily(Integer ruleQuantily) {
         this.ruleQuantily = ruleQuantily;
+    }
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
+    }
+
+    public List<Integer> getRuleAcceptedCement() {
+        return ruleAcceptedCement;
+    }
+
+    public void setRuleAcceptedCement(List<Integer> ruleAcceptedCement) {
+        this.ruleAcceptedCement = ruleAcceptedCement;
     }
 }

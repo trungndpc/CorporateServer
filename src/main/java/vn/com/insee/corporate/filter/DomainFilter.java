@@ -17,19 +17,17 @@ public class DomainFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        System.out.println("DomainFilter");
         if (isNeed2Filter(request)) {
-            System.out.println("DomainFilter");
             String domain =  request.getServerName();
-            System.out.println(domain);
-            System.out.println(Constant.ADMIN_DOMAIN);
-            if (Constant.ADMIN_DOMAIN.equals(domain)) {
-                System.out.println("DomainFilter ADMIN_DOMAIN");
+            if (Constant.ADMIN_DOMAIN_WITHOUT_PROTOCOL.equals(domain)) {
+                System.out.println("DOMAIN ADMIN......");
+                System.out.println(Constant.PREFIX_ADMIN_CONTROLLER);
                 request.getRequestDispatcher("/" + Constant.PREFIX_ADMIN_CONTROLLER + request.getRequestURI()).forward(request, response);
                 return;
             }
 
-            if (Constant.CLIENT_DOMAIN.equals(domain)) {
-                System.out.println("DomainFilter CLIENT_DOMAIN");
+            if (Constant.CLIENT_DOMAIN_WITHOUT_PROTOCOL.equals(domain)) {
                 request.getRequestDispatcher("/" + Constant.PREFIX_CLIENT_CONTROLLER + request.getRequestURI()).forward(request, response);
                 return;
             }
@@ -44,6 +42,10 @@ public class DomainFilter extends OncePerRequestFilter {
             return false;
         }
         if (requestURI.startsWith("/authen")) {
+            return false;
+        }
+
+        if (requestURI.startsWith("/ping")) {
             return false;
         }
         return true;

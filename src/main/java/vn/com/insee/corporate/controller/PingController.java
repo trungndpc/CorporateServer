@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.common.status.CustomerStatus;
 import vn.com.insee.corporate.common.Permission;
+import vn.com.insee.corporate.common.status.StatusRegister;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
+import vn.com.insee.corporate.entity.PromotionEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.PromotionRepository;
@@ -18,11 +20,12 @@ import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.service.ConstructionService;
 import vn.com.insee.corporate.service.CustomerService;
 import vn.com.insee.corporate.service.GiftService;
+import vn.com.insee.corporate.service.UserService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/ping")
 public class PingController {
 
 
@@ -40,6 +43,9 @@ public class PingController {
 
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ConstructionService constructionService;
@@ -62,8 +68,14 @@ public class PingController {
 
     @GetMapping("/ping")
     String all(Authentication authentication) throws Exception {
-        PageDTO<ConstructionDTO> list = constructionService.getList(2, null, 0, 100);
-        System.out.println(list);
+        List<PromotionEntity> all = promotionRepository.findAll();
+        System.out.println(all);
+//        PageDTO<ConstructionDTO> list = constructionService.getList(2, null, 0, 100);
+//        System.out.println(list);
+
+//        StatusRegister statusRegister = userService.getStatusRegister(117);
+//        System.out.println(statusRegister);
+
 //        promotionRepository.deleteById(1000);
 //        promotionRepository.deleteById(1001);
 //        promotionRepository.deleteById(1002);

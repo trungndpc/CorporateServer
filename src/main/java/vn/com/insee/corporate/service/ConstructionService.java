@@ -9,8 +9,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import vn.com.insee.corporate.common.Constant;
 import vn.com.insee.corporate.common.MessageManager;
 import vn.com.insee.corporate.common.status.ConstructionStatus;
+import vn.com.insee.corporate.common.type.TypeConstruction;
 import vn.com.insee.corporate.dto.ConstructionForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.*;
@@ -92,7 +94,7 @@ public class ConstructionService {
 
         PromotionEntity promotionEntity = promotionRepository.getOne(constructionEntity.getPromotionId());
         String msg = MessageManager.getMsgAfterRegisterPromotion(promotionEntity.getTitle());
-        zaloService.sendTxtMsg(customerId, msg);
+        zaloService.sendTxtMsgByCustomerId(customerId, msg);
     }
 
     public void update(ConstructionForm form, int customerId) throws NotExitException {
@@ -151,6 +153,10 @@ public class ConstructionService {
                 constructionEntityImageIds.addAll(imgIds);
                 constructionEntity.setImageIds(constructionEntityImageIds);
             }
+        }
+
+        if (form.getCement() != null && form.getCement() != 0) {
+            constructionEntity.setCement(form.getCement());
         }
         constructionEntity.setStatus(ConstructionStatus.RE_SUBMIT.getStatus());
         constructionRepository.saveAndFlush(constructionEntity);
@@ -238,7 +244,9 @@ public class ConstructionService {
                 String msg = MessageManager.getMsgApprovedPromotion(promotionEntity.getTitle());
                 zaloService.sendTxtMsgByCustomerId(customerId, msg);
             }else if(status == ConstructionStatus.REJECTED) {
-                String msg = MessageManager.getMsgRejectedPromotion(promotionEntity.getTitle(), note);
+                String link = MessageManager.getLink2UpdateConstruction(promotionEntity.getId(), constructionEntity.getId(),
+                        TypeConstruction.findByType(constructionEntity.getType()));
+                String msg = MessageManager.getMsgRejectedPromotion(promotionEntity.getTitle(), note, link);
                 zaloService.sendTxtMsgByCustomerId(customerId, msg);
             }
         }

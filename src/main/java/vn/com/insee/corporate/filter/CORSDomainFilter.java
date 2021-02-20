@@ -28,7 +28,6 @@ public class CORSDomainFilter extends CorsFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("CORSDomainFilter");
         String referer = request.getHeader(REFERER_HEADER);
         String clientDomain = "*";
         try {

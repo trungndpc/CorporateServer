@@ -25,6 +25,7 @@ public class ConstructionForm {
     private String address;
     private int promotionId;
     private ExtraDTO extra;
+    private Integer cement;
 
     public Integer getId() {
         return id;
@@ -144,5 +145,13 @@ public class ConstructionForm {
 
     public void setExtra(ExtraDTO extra) {
         this.extra = extra;
+    }
+
+    public Integer getCement() {
+        return cement;
+    }
+
+    public void setCement(Integer cement) {
+        this.cement = cement;
     }
 }

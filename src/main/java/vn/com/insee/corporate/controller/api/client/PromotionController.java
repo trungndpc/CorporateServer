@@ -12,6 +12,8 @@ import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.response.PromotionDTO;
 import vn.com.insee.corporate.dto.response.client.PromotionCustomerDTO;
 import vn.com.insee.corporate.entity.UserEntity;
+import vn.com.insee.corporate.exception.CustomerExitException;
+import vn.com.insee.corporate.exception.NeedToApprovalException;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.PromotionService;
 import vn.com.insee.corporate.util.AuthenUtil;
@@ -34,8 +36,11 @@ public class PromotionController {
             Integer roleId = authUser != null ? authUser.getRoleId() : Permission.ANONYMOUS.getId();
             List<PromotionCustomerDTO> list = postService.getList(customerId, roleId);
             response.setData(list);
+        }catch (NeedToApprovalException e) {
+            response.setError(ErrorCode.NEED_TO_APPROVED);
+        }catch (CustomerExitException e) {
+            response.setError(ErrorCode.USER_NOT_IS_CUSTOMER);
         }catch (Exception e) {
-            e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);

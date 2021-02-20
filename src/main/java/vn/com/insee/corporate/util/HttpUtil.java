@@ -4,6 +4,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class HttpUtil {
 
@@ -27,11 +29,20 @@ public class HttpUtil {
             String scheme = url.getProtocol();
             int port = url.getPort();
             URI uri = new URI("https",null,host,port,null,null,null);
-            System.out.println(uri.toString());
             return uri.toString().replace("https://localhost:8080", "https://b32835fb13d9.ngrok.io");
         }catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    public static String encodeUrl(String url) {
+        try {
+            return URLEncoder.encode(url, StandardCharsets.UTF_8.toString());
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

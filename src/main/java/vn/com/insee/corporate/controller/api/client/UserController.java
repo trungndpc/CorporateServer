@@ -1,4 +1,4 @@
-package vn.com.insee.corporate.controller;
+package vn.com.insee.corporate.controller.api.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.response.UserDTO;
+import vn.com.insee.corporate.dto.response.client.UserClientDTO;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.UserService;
@@ -30,8 +31,13 @@ public class UserController {
         if (authUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        UserDTO userDTO = userService.get(authUser.getId());
-        response.setData(userDTO);
+        try{
+            UserClientDTO userClientDTO = userService.getByClient(authUser.getId());
+            response.setData(userClientDTO);
+        }catch (Exception e) {
+            e.printStackTrace();
+            response.setError(ErrorCode.FAILED);
+        }
         return ResponseEntity.ok(response);
     }
 }

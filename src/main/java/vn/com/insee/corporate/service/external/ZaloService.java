@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import vn.com.insee.corporate.common.Constant;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.repository.CustomerRepository;
@@ -30,12 +31,8 @@ public class ZaloService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    private static final long APP_ID = 191292518983577786l;
-    private static final String SECRET_APP = "yspZ48H6T8LKh68ReMIz";
     private static final String GET_ACCESS_TOKEN_URL = "https://oauth.zaloapp.com/v3/access_token?app_id={1}&app_secret={2}&code={3}";
     private static final String GET_USER_INFO = "https://graph.zalo.me/v2.0/me?fields=id,name,picture,birthday,gender&access_token=";
-    public static final String REDIRECT_AUTHEN_ZALO = "https://oauth.zaloapp.com/v3/auth?app_id=" + APP_ID + "&state=insee";
-    private static final String ACCESS_TOKEN_OA = "pGEc8ySgAbF90ASeoYWdNSO4gYdJV5edWbQWLSbxON-84ffRzL1VA88VamtiHr81lMoh3-uRJXgTEBuVdsbC3-8Ae2VWINWfwXMeBU1SVYsk39mPmcL03vmjZJJF0my2fq_B1CaBI0c088WQZ7LD5OKzjcVh2ovGdIRnTDTfALMRNwr-aZnv3TeJe3YHC6O9ucg39gaBO2NbKQ80jJakAVSIxXos90qfqaht4hCh4nNdLk0awZLd9-HUjrUo76T4naktOR4_U0xFHg4bdZjy3kb6gZdWCb4mCpL7EnkrGiKs8bW";
     private static final String SEND_MSG_TO_USER_URL = "https://openapi.zalo.me/v2.0/oa/message?access_token={1}";
 
     public ZaloService() {
@@ -71,7 +68,7 @@ public class ZaloService {
     }
 
     public String getAccessToken(String oauthCode) {
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(GET_ACCESS_TOKEN_URL, String.class, APP_ID, SECRET_APP, oauthCode);
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(GET_ACCESS_TOKEN_URL, String.class, Constant.ZALO_APP_ID, Constant.ZALO_SECRET_APP, oauthCode);
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             JSONObject json = new JSONObject(responseEntity.getBody());
             return  json.getString("access_token");
@@ -98,8 +95,8 @@ public class ZaloService {
     public boolean sendTextMsg(String followerId, String text) throws JsonProcessingException {
         TextMessage textMessage = new TextMessage(followerId, text);
         String textJson = this.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(textMessage);
-        ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(SEND_MSG_TO_USER_URL, textJson, String.class, ACCESS_TOKEN_OA);
-        System.out.println(zaloResponseResponseEntity.getBody());
+        ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(SEND_MSG_TO_USER_URL, textJson, String.class, Constant.ZALO_OA_ACCESS_TOKEN);
+        System.out.println(zaloResponseResponseEntity);
         if (zaloResponseResponseEntity.getStatusCode() != HttpStatus.OK) {
             System.out.println(zaloResponseResponseEntity.getBody());
             return false;
@@ -125,7 +122,7 @@ public class ZaloService {
         listMessage.setMessage(message);
 
         String textJson = this.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(listMessage);
-        ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(SEND_MSG_TO_USER_URL, textJson, String.class, ACCESS_TOKEN_OA);
+        ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(SEND_MSG_TO_USER_URL, textJson, String.class, Constant.ZALO_OA_ACCESS_TOKEN);
         if (zaloResponseResponseEntity.getStatusCode() != HttpStatus.OK) {
             System.out.println(zaloResponseResponseEntity.getBody());
             return false;
@@ -135,7 +132,9 @@ public class ZaloService {
     }
 
     public static void main(String[] args) throws JsonProcessingException {
-        ZaloService zaloService = new ZaloService();
-        zaloService.sendActionList("8735999925442427033", "https://developers.zalo.me/web/static/zalo.png", "https://developers.zalo.me/web/static/zalo.png", "title", "sub");
+//        Constant.ZALO_OA_ACCESS_TOKEN = "bmDgElzhiY-M1siy_sk-APe7OpxmTzjztaPI7V5w-d6K75yGc7RZLQngHJgRSyvb_dHiSvf5qs6MBaWeiI3cOBWiM0Q9GUTjkdjZ485SwKEGTaq9u63g6lT_JKtOJ-qxtMDACTXLv6NDSrClsq3QHj9q3XFaHDjy-qLwQjzGsYMtR09eibRP5urnLLEcMjivWa5yA9PAtLkuHNqVaKwXJQPo4pwuNBTTb7Ct6OToh0YyRYyUXcFoLO9MLqAyJOmEiLaEQAXbjIc3JZOyZ5JiRkHWCGU1JOrDNLxj9_bpj2a";
+//        ZaloService zaloService = new ZaloService();
+//        zaloService.sendTextMsg("6093726558823912784", "OK");
+//        zaloService.sendActionList("8735999925442427033", "https://developers.zalo.me/web/static/zalo.png", "https://developers.zalo.me/web/static/zalo.png", "title", "sub");
     }
 }
