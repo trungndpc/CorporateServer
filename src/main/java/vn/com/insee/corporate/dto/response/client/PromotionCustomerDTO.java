@@ -16,6 +16,7 @@ public class PromotionCustomerDTO {
     private Long timeEnd;
     private int status;
     private long count;
+    private String cover;
 
     public Integer getId() {
         return id;
@@ -87,5 +88,13 @@ public class PromotionCustomerDTO {
 
     public void setCount(long count) {
         this.count = count;
+    }
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
     }
 }

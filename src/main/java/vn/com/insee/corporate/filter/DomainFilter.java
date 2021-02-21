@@ -17,12 +17,9 @@ public class DomainFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("DomainFilter");
         if (isNeed2Filter(request)) {
             String domain =  request.getServerName();
             if (Constant.ADMIN_DOMAIN_WITHOUT_PROTOCOL.equals(domain)) {
-                System.out.println("DOMAIN ADMIN......");
-                System.out.println(Constant.PREFIX_ADMIN_CONTROLLER);
                 request.getRequestDispatcher("/" + Constant.PREFIX_ADMIN_CONTROLLER + request.getRequestURI()).forward(request, response);
                 return;
             }

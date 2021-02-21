@@ -23,7 +23,7 @@ public class Constant {
     @Value("${domain.admin}")
     public void setAdminDomain(String adminDomain) {
         ADMIN_DOMAIN = adminDomain;
-        ADMIN_DOMAIN_WITHOUT_PROTOCOL = adminDomain.replace("https://", "").replace("https://", "");
+        ADMIN_DOMAIN_WITHOUT_PROTOCOL = adminDomain.replace("https://", "").replace("http://", "");
     }
 
     @Value("${domain.client}")

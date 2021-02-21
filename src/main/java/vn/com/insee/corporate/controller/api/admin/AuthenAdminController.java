@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-import static vn.com.insee.corporate.filter.CookieAuthenticationFilter.COOKIE_NAME;
+import static vn.com.insee.corporate.filter.CookieAuthenticationFilter.ADMIN_COOKIE_NAME;
 
 @RestController
 @RequestMapping("/api/admin/authen")
@@ -59,7 +59,7 @@ public class AuthenAdminController {
 
     public static String genAndSetSession(int id, String phone, HttpServletResponse resp) throws NotExitException {
         String session = TokenUtil.generate(id, phone, TokenUtil.MAX_AGE);
-        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(COOKIE_NAME, session)
+        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(ADMIN_COOKIE_NAME, session)
                 .path("/")
                 .httpOnly(Boolean.TRUE)
                 .secure(Boolean.FALSE)
