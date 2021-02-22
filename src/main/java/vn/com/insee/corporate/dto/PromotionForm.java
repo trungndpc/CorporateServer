@@ -8,7 +8,7 @@ public class PromotionForm {
     private String content;
     private int typePromotion;
     private String summary;
-    private Integer location;
+    private List<Integer> location;
     private Long timeStart;
     private Long timeEnd;
     private Long updatedTime;
@@ -57,11 +57,11 @@ public class PromotionForm {
         this.summary = summary;
     }
 
-    public Integer getLocation() {
+    public List<Integer> getLocation() {
         return location;
     }
 
-    public void setLocation(Integer location) {
+    public void setLocation(List<Integer> location) {
         this.location = location;
     }
 

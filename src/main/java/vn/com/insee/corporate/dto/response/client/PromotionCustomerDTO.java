@@ -11,7 +11,7 @@ public class PromotionCustomerDTO {
     private String title;
     private int typePromotion;
     private String summary;
-    private Integer location;
+    private List<Integer> location;
     private Long timeStart;
     private Long timeEnd;
     private int status;
@@ -58,11 +58,11 @@ public class PromotionCustomerDTO {
         this.status = status;
     }
 
-    public Integer getLocation() {
+    public List<Integer> getLocation() {
         return location;
     }
 
-    public void setLocation(Integer location) {
+    public void setLocation(List<Integer> location) {
         this.location = location;
     }
 

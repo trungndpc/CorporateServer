@@ -21,7 +21,6 @@ public class PromotionEntity extends BaseEntity{
     private int typePromotion;
     private String summary;
     private Integer status;
-    private Integer location;
     private Long timeStart;
     private Long timeEnd;
     private Integer ruleQuantily;
@@ -29,6 +28,11 @@ public class PromotionEntity extends BaseEntity{
     @Type(type = "list-array")
     @Column(name = "rule_accepted_cement",columnDefinition = "integer[]")
     private List<Integer> ruleAcceptedCement;
+
+    @Type(type = "list-array")
+    @Column(name = "location",columnDefinition = "integer[]")
+    private List<Integer> location;
+
 
     public Integer getId() {
         return id;
@@ -78,11 +82,11 @@ public class PromotionEntity extends BaseEntity{
         this.status = status;
     }
 
-    public Integer getLocation() {
+    public List<Integer> getLocation() {
         return location;
     }
 
-    public void setLocation(Integer location) {
+    public void setLocation(List<Integer> location) {
         this.location = location;
     }
 

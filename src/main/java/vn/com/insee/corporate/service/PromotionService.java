@@ -3,6 +3,7 @@ package vn.com.insee.corporate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.common.status.CustomerStatus;
@@ -26,6 +27,7 @@ import vn.com.insee.corporate.repository.PromotionRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PromotionService {
@@ -78,10 +80,11 @@ public class PromotionService {
             throw new NeedToApprovalException();
         }
 
-        List<PromotionEntity> promotionEntities = promotionRepository.findByLocation(customerEntity.getMainAreaId());
+        List<PromotionEntity> promotionEntities = promotionRepository.findAll(Sort.by(Sort.Direction.DESC, "createdTime"));
         if (promotionEntities == null) {
             return new ArrayList<>();
         }
+        promotionEntities = promotionEntities.stream().filter(e -> e.getLocation().contains(customerEntity.getMainAreaId())).collect(Collectors.toList());
         List<PromotionCustomerDTO> rs = new ArrayList<>();
         for (PromotionEntity promotionEntity: promotionEntities) {
             PromotionCustomerDTO promotionCustomerDTO = convertEntityToPromotionCustomer(promotionEntity, customerId);
