@@ -6,5 +6,5 @@ import vn.com.insee.corporate.entity.PromotionEntity;
 import java.util.List;
 
 public interface PromotionRepository extends JpaRepository<PromotionEntity, Integer> {
-    List<PromotionEntity> findByLocationIn(Integer location);
+    List<PromotionEntity> findByLocation(Integer location);
 }
