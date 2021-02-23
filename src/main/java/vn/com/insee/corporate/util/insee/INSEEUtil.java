@@ -4,7 +4,7 @@ public class INSEEUtil {
 
     public static INSEEMessage getMessageFromBuyingINSEECement(int productId, int bag) throws INSEEProductNotExitException {
         int weigh = weigh(bag, productId);
-        int saving = reduceEmissions(productId, weigh);
+        int saving = reduceEmissions(productId, weigh / 1000);
         int numOfTree = numberOfTree(saving);
         return new INSEEMessage(numOfTree, saving);
     }
@@ -22,7 +22,7 @@ public class INSEEUtil {
     }
 
     public static int reduceEmissions(Product product, int ton) {
-        int saving = product.getCommonVolumeExhaust() - product.getCommonVolumeExhaust();
+        int saving = product.getCommonVolumeExhaust() - product.getInseeVolumeExhaust();
         return ton * saving;
     }
 

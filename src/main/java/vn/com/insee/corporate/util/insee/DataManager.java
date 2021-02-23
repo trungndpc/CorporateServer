@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class DataManager {
     private static List<Product> DATA;
-    public static int EVERY_TREE_HELP_TO_REDUCE_CO2 = 10;
+    public static int EVERY_TREE_HELP_TO_REDUCE_CO2 = 22;
     static  {
         DATA = new ArrayList<>();
         DATA.add(new Product(1,"INSEE Power-S", 612, 750, 50, Segment.HOUSING_SOLUTION));
