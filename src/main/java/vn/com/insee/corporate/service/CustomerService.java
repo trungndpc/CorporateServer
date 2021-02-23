@@ -8,7 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.CustomerStatus;
+import vn.com.insee.corporate.common.MessageManager;
+import vn.com.insee.corporate.common.status.CustomerStatus;
 import vn.com.insee.corporate.common.dto.CustomerDTOStatus;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.page.PageDTO;
@@ -23,7 +24,6 @@ import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.service.external.ZaloService;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +39,15 @@ public class CustomerService {
 
     @Autowired
     private ZaloService zaloService;
+
+    @Autowired
+    private ConstructionService constructionService;
+
+    @Autowired
+    private PromotionService promotionService;
+
+    @Autowired
+    private GiftService giftService;
     
     @Autowired
     private Mapper mapper;
@@ -135,14 +144,14 @@ public class CustomerService {
         }
         Integer userId = optionalCustomerEntity.get().getUserId();
         if (userId != null) {
-            UserEntity userEntity = userRepository.getOne(userId);
             int currentStatus = optionalCustomerEntity.get().getStatus();
-            String followerZaloId = userEntity != null ? userEntity.getFollowerZaloId() : null;
-            if (followerZaloId != null && currentStatus != statusEnum.getStatus()) {
+            if (currentStatus != statusEnum.getStatus()) {
                 if (statusEnum.equals(CustomerStatus.APPROVED)) {
-                    zaloService.sendTextMsg(followerZaloId, "Chúc mừng bạn! Hồ sơ nhà thầu của bạn đã được chúng tôi phê duyệt");
+                    String msg = MessageManager.getMsgRegisterSuccessful(optionalCustomerEntity.get().getFullName());
+                    zaloService.sendTxtMsg(userId, msg);
                 }else if (statusEnum.equals(CustomerStatus.REJECTED)) {
-                    zaloService.sendTextMsg(followerZaloId, "Rất tiếc!!!, Hồ sơ nhà thầu của bạn đã không được phê duyệt. " + note);
+                    String msg = MessageManager.getMsgRegisterFailed(note);
+                    zaloService.sendTxtMsg(userId, msg);
                 }
             }
         }
@@ -163,18 +172,20 @@ public class CustomerService {
         return customerDTOPage;
     }
 
-    public PageDTO<CustomerDTO> findBy(CustomerDTOStatus dtoStatus, int page, int size) throws ParamNotSupportException {
+    public PageDTO<CustomerDTO> findBy(CustomerDTOStatus dtoStatus , Integer location, int page, int size) throws ParamNotSupportException {
         Pageable pageable =
                 PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedTime"));
         Page<CustomerEntity> customerEntityPage = null;
-        if (dtoStatus.equals(CustomerDTOStatus.DO_NOT_HAVE_ACCOUNT)) {
-            customerEntityPage = customerRepository.findByIsLinkedUser(false, pageable);
+        if (dtoStatus == null) {
+            customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(null,  location, true, pageable);
+        }else if (dtoStatus.equals(CustomerDTOStatus.DO_NOT_HAVE_ACCOUNT)) {
+            customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(null,  location, false, pageable);
         }else if (dtoStatus.equals(CustomerDTOStatus.NEED_REVIEW)) {
-            customerEntityPage = customerRepository.findByStatusAndIsLinkedUser(CustomerStatus.REVIEWING.getStatus(), true, pageable);
+            customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(CustomerStatus.REVIEWING.getStatus(), location,true, pageable);
         }else if (dtoStatus.equals(CustomerDTOStatus.APPROVED)) {
-            customerEntityPage = customerRepository.findByStatusAndIsLinkedUser(CustomerStatus.APPROVED.getStatus(), true, pageable);
+            customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(CustomerStatus.APPROVED.getStatus(), location, true, pageable);
         }else if (dtoStatus.equals(CustomerDTOStatus.REJECTED)) {
-            customerEntityPage = customerRepository.findByStatusAndIsLinkedUser(CustomerStatus.REJECTED.getStatus(), true, pageable);
+            customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(CustomerStatus.REJECTED.getStatus(), location, true, pageable);
         }
         if (customerEntityPage == null) {
             throw new ParamNotSupportException();
@@ -204,8 +215,14 @@ public class CustomerService {
         customerRepository.deleteById(id);
     }
 
-    public static void main(String[] args) throws JsonProcessingException {
-        ZaloService zaloService = new ZaloService();
-        zaloService.sendTextMsg("8917975072990610790", "Chúc mừng bạn! Hồ sơ nhà thầu của bạn đã được chúng tôi phê duyệt");
+    public void updateVolumeCiment(int customerId, int volume) {
+        CustomerEntity customerEntity = customerRepository.getOne(customerId);
+        Integer volumeCiment = customerEntity.getVolumeCiment();
+        if (volumeCiment == null) {
+            volumeCiment = 0;
+        }
+        customerEntity.setVolumeCiment(volumeCiment + volume);
+        customerRepository.saveAndFlush(customerEntity);
     }
+
 }

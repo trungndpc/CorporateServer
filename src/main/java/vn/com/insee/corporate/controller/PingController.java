@@ -6,20 +6,26 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import vn.com.insee.corporate.common.CustomerStatus;
+import vn.com.insee.corporate.common.status.CustomerStatus;
 import vn.com.insee.corporate.common.Permission;
+import vn.com.insee.corporate.common.status.StatusRegister;
+import vn.com.insee.corporate.dto.page.PageDTO;
+import vn.com.insee.corporate.dto.response.ConstructionDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
+import vn.com.insee.corporate.entity.PromotionEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.repository.CustomerRepository;
+import vn.com.insee.corporate.repository.PromotionRepository;
 import vn.com.insee.corporate.repository.UserRepository;
-import vn.com.insee.corporate.security.InseeUserDetail;
+import vn.com.insee.corporate.service.ConstructionService;
 import vn.com.insee.corporate.service.CustomerService;
+import vn.com.insee.corporate.service.GiftService;
+import vn.com.insee.corporate.service.UserService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/ping")
 public class PingController {
 
 
@@ -29,6 +35,20 @@ public class PingController {
     @Autowired
     private UserRepository repository;
 
+    @Autowired
+    private GiftService giftService;
+
+    @Autowired
+    private PromotionRepository promotionRepository;
+
+    @Autowired
+    private CustomerService customerService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ConstructionService constructionService;
 //    @GetMapping("/reset")
 //    String reset(Authentication authentication) {
 //        customerRepository.deleteAll();
@@ -47,18 +67,27 @@ public class PingController {
 //    }
 
     @GetMapping("/ping")
-    String all(Authentication authentication) {
-        List<UserEntity> all = repository.findAll();
-//        for (UserEntity e:
-//
-//        all) {
-//            System.out.println(e.getPhone());
-//            if ("84972797200".equals(e.getPhone())) {
-//                e.setAvatar("https://insee-promotion-vn.s3.us-east-2.amazonaws.com/static/images/log-admin.png");
-//                repository.saveAndFlush(e);
-//            }
-//            System.out.println(e.getPhone() + " " + e.getFollowerZaloId());
-//        }
+    String all(Authentication authentication) throws Exception {
+        List<PromotionEntity> all = promotionRepository.findAll();
+        System.out.println(all);
+//        PageDTO<ConstructionDTO> list = constructionService.getList(2, null, 0, 100);
+//        System.out.println(list);
+
+//        StatusRegister statusRegister = userService.getStatusRegister(117);
+//        System.out.println(statusRegister);
+
+//        promotionRepository.deleteById(1000);
+//        promotionRepository.deleteById(1001);
+//        promotionRepository.deleteById(1002);
+//        PromotionEntity one = promotionRepository.getOne(1004);
+//        one.setLocation(7);
+//        promotionRepository.saveAndFlush(one);
+
+//        List<PromotionEntity> all = promotionRepository.findAll();
+//        System.out.println(all);ory.getOne(1004);
+//        one.setLocation(7);
+//        promotionRepository.saveAndFlush(one);
+//        List<HistoryGiftCustomerDTO> listByUid = giftService.getHistoryByCustomerId(25);
         return "OK";
     }
 
@@ -89,19 +118,19 @@ public class PingController {
 //        return "OK";
 //    }
 //
-//    @GetMapping("/add-admin")
-//    String addAdmin(Authentication authentication) {
-//        UserEntity userEntity = new UserEntity();
-//        userEntity.setName("Nguyễn Công Phượng");
-//        userEntity.setAvatar("https://static2.yan.vn/YanNews/202006/202006030349344511-2fc01591-f2a8-45f8-a210-79f517c9297b.png");
-//        userEntity.setPassword("1");
-//        userEntity.setPhone("84972797200");
-//        userEntity.setEnable(true);
-//        userEntity.setStatus(1);
-//        userEntity.setRoleId(Permission.ADMIN.getId());
-//        repository.saveAndFlush(userEntity);
-//        return "OK";
-//    }
+    @GetMapping("/add-admin")
+    String addAdmin(Authentication authentication) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setName("INSEE Admin");
+        userEntity.setAvatar("https://insee-promotion-vn.s3.us-east-2.amazonaws.com/static/images/log-admin.png");
+        userEntity.setPassword("123");
+        userEntity.setPhone("84972797200");
+        userEntity.setEnable(true);
+        userEntity.setStatus(1);
+        userEntity.setRoleId(Permission.ADMIN.getId());
+        repository.saveAndFlush(userEntity);
+        return "OK";
+    }
 //
     @GetMapping("/auto-gen")
     String autoGen(Authentication authentication) {

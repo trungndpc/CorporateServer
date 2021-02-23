@@ -1,20 +1,27 @@
 package vn.com.insee.corporate.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import vn.com.insee.corporate.dto.response.admin.report.PromotionReportDTO;
+
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PromotionDTO {
     private Integer id;
     private String title;
-    private String subTitle;
     private String content;
-    private Long time;
     private int typePromotion;
     private String summary;
     private Integer status;
-    private Integer location;
+    private List<Integer> location;
     private Long timeStart;
     private Long timeEnd;
+    private Long updatedTime;
+    private Integer ruleQuantily;
+    private String cover;
+    private List<Integer> ruleAcceptedCement;
+    private PromotionReportDTO report;
+
 
     public Integer getId() {
         return id;
@@ -32,28 +39,12 @@ public class PromotionDTO {
         this.title = title;
     }
 
-    public String getSubTitle() {
-        return subTitle;
-    }
-
-    public void setSubTitle(String subTitle) {
-        this.subTitle = subTitle;
-    }
-
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public Long getTime() {
-        return time;
-    }
-
-    public void setTime(Long time) {
-        this.time = time;
     }
 
     public int getTypePromotion() {
@@ -80,11 +71,11 @@ public class PromotionDTO {
         this.status = status;
     }
 
-    public Integer getLocation() {
+    public List<Integer> getLocation() {
         return location;
     }
 
-    public void setLocation(Integer location) {
+    public void setLocation(List<Integer> location) {
         this.location = location;
     }
 
@@ -102,5 +93,45 @@ public class PromotionDTO {
 
     public void setTimeEnd(Long timeEnd) {
         this.timeEnd = timeEnd;
+    }
+
+    public Long getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(Long updatedTime) {
+        this.updatedTime = updatedTime;
+    }
+
+    public PromotionReportDTO getReport() {
+        return report;
+    }
+
+    public void setReport(PromotionReportDTO report) {
+        this.report = report;
+    }
+
+    public Integer getRuleQuantily() {
+        return ruleQuantily;
+    }
+
+    public void setRuleQuantily(Integer ruleQuantily) {
+        this.ruleQuantily = ruleQuantily;
+    }
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
+    }
+
+    public List<Integer> getRuleAcceptedCement() {
+        return ruleAcceptedCement;
+    }
+
+    public void setRuleAcceptedCement(List<Integer> ruleAcceptedCement) {
+        this.ruleAcceptedCement = ruleAcceptedCement;
     }
 }

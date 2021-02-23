@@ -2,6 +2,8 @@ package vn.com.insee.corporate.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.Type;
+import org.json.JSONObject;
+import vn.com.insee.corporate.dto.response.ext.ExtraDTO;
 
 import javax.persistence.Column;
 import java.util.List;
@@ -11,6 +13,7 @@ public class ConstructionDTO {
     private Integer id;
     private int city;
     private String district;
+    private String address;
     private String name;
     private String phone;
     private int quantity;
@@ -21,8 +24,14 @@ public class ConstructionDTO {
     private int type;
     private int userId;
     private int status;
-    private String address;
     private UserDTO user;
+    private ExtraDTO extra;
+    private LabelDTO label;
+    private Integer promotionId;
+    private Integer giftId;
+    private Long createdTime;
+    private Long updatedTime;
+    private Integer cement;
 
     public Integer getId() {
         return id;
@@ -46,6 +55,14 @@ public class ConstructionDTO {
 
     public void setDistrict(String district) {
         this.district = district;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getName() {
@@ -128,19 +145,67 @@ public class ConstructionDTO {
         this.status = status;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public UserDTO getUser() {
         return user;
     }
 
     public void setUser(UserDTO user) {
         this.user = user;
+    }
+
+    public ExtraDTO getExtra() {
+        return extra;
+    }
+
+    public void setExtra(ExtraDTO extra) {
+        this.extra = extra;
+    }
+
+    public LabelDTO getLabel() {
+        return label;
+    }
+
+    public void setLabel(LabelDTO label) {
+        this.label = label;
+    }
+
+    public Integer getPromotionId() {
+        return promotionId;
+    }
+
+    public void setPromotionId(Integer promotionId) {
+        this.promotionId = promotionId;
+    }
+
+    public Integer getGiftId() {
+        return giftId;
+    }
+
+    public void setGiftId(Integer giftId) {
+        this.giftId = giftId;
+    }
+
+    public Long getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Long createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public Long getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(Long updatedTime) {
+        this.updatedTime = updatedTime;
+    }
+
+    public Integer getCement() {
+        return cement;
+    }
+
+    public void setCement(Integer cement) {
+        this.cement = cement;
     }
 }

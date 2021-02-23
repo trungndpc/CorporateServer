@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import vn.com.insee.corporate.common.Constant;
 import vn.com.insee.corporate.exception.InseeException;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.security.InseeUserDetail;
@@ -42,6 +43,7 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
     private ZaloService zaloService;
 
     public static final String COOKIE_NAME = "_insee_ss";
+    public static final String ADMIN_COOKIE_NAME = "_ad_insee_ss";
 
 
     @Autowired
@@ -50,8 +52,7 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal(@NonNull HttpServletRequest req, @NonNull HttpServletResponse resp, @NonNull FilterChain chain) throws IOException, ServletException {
         try {
-            System.out.println("CookieAuthenticationFilter");
-            String _inseeSS = HttpUtil.getCookie(COOKIE_NAME, req);
+            String _inseeSS = getSession(req);
             if (_inseeSS != null && TokenUtil.isValid(_inseeSS)) {
                 Claims claims = TokenUtil.parse(_inseeSS);
                 int userId = Integer.parseInt(claims.getAudience());
@@ -103,5 +104,12 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
         return false;
     }
 
+    private String getSession(HttpServletRequest req) {
+        String domain =  req.getServerName();
+        if (Constant.ADMIN_DOMAIN_WITHOUT_PROTOCOL.equals(domain)) {
+            return HttpUtil.getCookie(ADMIN_COOKIE_NAME, req);
+        }
+        return HttpUtil.getCookie(COOKIE_NAME, req);
+    }
 
 }

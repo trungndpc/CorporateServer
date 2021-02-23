@@ -1,8 +1,6 @@
 package vn.com.insee.corporate.mapper.entity2dto;
 
 import org.modelmapper.PropertyMap;
-import vn.com.insee.corporate.common.CustomerStatus;
-import vn.com.insee.corporate.common.dto.CustomerDTOStatus;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.entity.CustomerEntity;
 

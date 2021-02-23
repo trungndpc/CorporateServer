@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "user", schema="insee_promotion")
+@Table(name = "user", schema="promotion")
 @TypeDef(name = "list-array",typeClass = ListArrayType.class)
 public class UserEntity extends BaseEntity{
     @Id
@@ -27,6 +27,7 @@ public class UserEntity extends BaseEntity{
     private String name;
     private boolean isEnable;
     private String note;
+    private Integer birthday;
 
     @Type(type = "list-array")
     @Column(name = "lst_session",columnDefinition = "character varying[]")
@@ -135,5 +136,13 @@ public class UserEntity extends BaseEntity{
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public Integer getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Integer birthday) {
+        this.birthday = birthday;
     }
 }

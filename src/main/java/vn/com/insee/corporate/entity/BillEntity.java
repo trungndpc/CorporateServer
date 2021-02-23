@@ -3,7 +3,7 @@ package vn.com.insee.corporate.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "bill", schema="insee_promotion")
+@Table(name = "bill", schema="promotion")
 public class BillEntity {
 
     @Id
@@ -12,6 +12,8 @@ public class BillEntity {
     private String link;
     private int status;
     private int constructionId;
+    private Integer volumeCiment;
+    private String labelId;
 
     public int getId() {
         return id;
@@ -43,5 +45,21 @@ public class BillEntity {
 
     public void setConstructionId(int constructionId) {
         this.constructionId = constructionId;
+    }
+
+    public Integer getVolumeCiment() {
+        return volumeCiment;
+    }
+
+    public void setVolumeCiment(Integer volumeCiment) {
+        this.volumeCiment = volumeCiment;
+    }
+
+    public String getLabelId() {
+        return labelId;
+    }
+
+    public void setLabelId(String labelId) {
+        this.labelId = labelId;
     }
 }

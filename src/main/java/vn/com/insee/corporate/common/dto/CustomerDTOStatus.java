@@ -1,6 +1,6 @@
 package vn.com.insee.corporate.common.dto;
 
-import vn.com.insee.corporate.common.CustomerStatus;
+import vn.com.insee.corporate.common.status.CustomerStatus;
 
 public enum  CustomerDTOStatus {
     DO_NOT_HAVE_ACCOUNT(1), NEED_REVIEW(2), REJECTED(3), APPROVED(4) ;

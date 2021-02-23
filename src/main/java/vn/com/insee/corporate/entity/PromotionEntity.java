@@ -1,24 +1,37 @@
 package vn.com.insee.corporate.entity;
 
+import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
-@Table(name = "promotion", schema="insee_promotion")
-public class PromotionEntity {
+@Table(name = "promotion", schema="promotion")
+@TypeDef(name = "list-array",typeClass = ListArrayType.class)
+public class PromotionEntity extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String title;
-    private String subTitle;
+    private String cover;
     private String content;
-    private Long time;
     private int typePromotion;
     private String summary;
     private Integer status;
-    private Integer location;
     private Long timeStart;
     private Long timeEnd;
+    private Integer ruleQuantily;
+
+    @Type(type = "list-array")
+    @Column(name = "rule_accepted_cement",columnDefinition = "integer[]")
+    private List<Integer> ruleAcceptedCement;
+
+    @Type(type = "list-array")
+    @Column(name = "location",columnDefinition = "integer[]")
+    private List<Integer> location;
 
 
     public Integer getId() {
@@ -37,28 +50,12 @@ public class PromotionEntity {
         this.title = title;
     }
 
-    public String getSubTitle() {
-        return subTitle;
-    }
-
-    public void setSubTitle(String subTitle) {
-        this.subTitle = subTitle;
-    }
-
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public Long getTime() {
-        return time;
-    }
-
-    public void setTime(Long time) {
-        this.time = time;
     }
 
     public int getTypePromotion() {
@@ -85,11 +82,11 @@ public class PromotionEntity {
         this.status = status;
     }
 
-    public Integer getLocation() {
+    public List<Integer> getLocation() {
         return location;
     }
 
-    public void setLocation(Integer location) {
+    public void setLocation(List<Integer> location) {
         this.location = location;
     }
 
@@ -107,5 +104,29 @@ public class PromotionEntity {
 
     public void setTimeEnd(Long timeEnd) {
         this.timeEnd = timeEnd;
+    }
+
+    public Integer getRuleQuantily() {
+        return ruleQuantily;
+    }
+
+    public void setRuleQuantily(Integer ruleQuantily) {
+        this.ruleQuantily = ruleQuantily;
+    }
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
+    }
+
+    public List<Integer> getRuleAcceptedCement() {
+        return ruleAcceptedCement;
+    }
+
+    public void setRuleAcceptedCement(List<Integer> ruleAcceptedCement) {
+        this.ruleAcceptedCement = ruleAcceptedCement;
     }
 }

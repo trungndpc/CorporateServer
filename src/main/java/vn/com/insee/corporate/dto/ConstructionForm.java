@@ -2,6 +2,8 @@ package vn.com.insee.corporate.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.Type;
+import org.json.JSONObject;
+import vn.com.insee.corporate.dto.response.ext.ExtraDTO;
 
 import javax.persistence.Column;
 import java.util.List;
@@ -19,9 +21,11 @@ public class ConstructionForm {
     private Integer estimateTimeStart;
     private Integer typeConstruction;
     private Integer type;
-    private Integer userId;
     private Integer status;
     private String address;
+    private int promotionId;
+    private ExtraDTO extra;
+    private Integer cement;
 
     public Integer getId() {
         return id;
@@ -111,14 +115,6 @@ public class ConstructionForm {
         this.type = type;
     }
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
     public Integer getStatus() {
         return status;
     }
@@ -133,5 +129,29 @@ public class ConstructionForm {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public int getPromotionId() {
+        return promotionId;
+    }
+
+    public void setPromotionId(int promotionId) {
+        this.promotionId = promotionId;
+    }
+
+    public ExtraDTO getExtra() {
+        return extra;
+    }
+
+    public void setExtra(ExtraDTO extra) {
+        this.extra = extra;
+    }
+
+    public Integer getCement() {
+        return cement;
+    }
+
+    public void setCement(Integer cement) {
+        this.cement = cement;
     }
 }

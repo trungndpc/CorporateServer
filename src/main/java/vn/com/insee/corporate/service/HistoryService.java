@@ -2,15 +2,10 @@ package vn.com.insee.corporate.service;
 
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import vn.com.insee.corporate.common.HistoryGiftStatus;
+import vn.com.insee.corporate.common.status.HistoryGiftStatus;
 import vn.com.insee.corporate.dto.HistoryForm;
-import vn.com.insee.corporate.dto.page.PageDTO;
-import vn.com.insee.corporate.dto.response.CustomerDTO;
 import vn.com.insee.corporate.dto.response.HistoryDTO;
-import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.HistoryEntity;
 import vn.com.insee.corporate.exception.HistoryEmptyException;
 import vn.com.insee.corporate.mapper.Mapper;
