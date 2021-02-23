@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.com.insee.corporate.common.Constant;
 import vn.com.insee.corporate.common.MessageManager;
 import vn.com.insee.corporate.common.status.ConstructionStatus;
 import vn.com.insee.corporate.common.status.GiftStatus;
@@ -14,17 +15,13 @@ import vn.com.insee.corporate.dto.response.*;
 import vn.com.insee.corporate.dto.response.admin.HistoryGiftDTO;
 import vn.com.insee.corporate.dto.response.client.HistoryGiftCustomerDTO;
 import vn.com.insee.corporate.dto.response.ext.PhoneCard;
-import vn.com.insee.corporate.entity.CustomerEntity;
-import vn.com.insee.corporate.entity.GiftEntity;
-import vn.com.insee.corporate.entity.UserEntity;
+import vn.com.insee.corporate.entity.*;
 import vn.com.insee.corporate.exception.ConstructionExitException;
 import vn.com.insee.corporate.exception.NotExitException;
 import vn.com.insee.corporate.exception.NotPermissionException;
 import vn.com.insee.corporate.exception.PostNotExitException;
 import vn.com.insee.corporate.mapper.Mapper;
-import vn.com.insee.corporate.repository.CustomerRepository;
-import vn.com.insee.corporate.repository.GiftRepository;
-import vn.com.insee.corporate.repository.UserRepository;
+import vn.com.insee.corporate.repository.*;
 import vn.com.insee.corporate.service.external.ZaloService;
 
 import java.util.ArrayList;
@@ -61,17 +58,25 @@ public class GiftService {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private ConstructionRepository constructionRepository;
+
+    @Autowired
+    private PromotionRepository promotionRepository;
+
     public GiftDTO create(GiftForm giftForm) throws ConstructionExitException, JsonProcessingException {
         GiftEntity giftEntity = convertFormToEntity(giftForm);
         giftEntity.setStatus(GiftStatus.SEND.getStatus());
         giftEntity = giftRepository.saveAndFlush(giftEntity);
         constructionService.updateGift(giftEntity.getConstructionId(), giftEntity.getId());
 
+        ConstructionEntity constructionEntity = constructionRepository.getOne(giftEntity.getConstructionId());
+        PromotionEntity promotionEntity = promotionRepository.getOne(constructionEntity.getPromotionId());
         CustomerEntity customerEntity = customerRepository.getOne(giftEntity.getCustomerId());
         String title = "Chúc mừng !!!";
         String subTitle = MessageManager.getMsgSendGiftPromotion(customerEntity.getFullName(), giftEntity.getName());
-        String imageUrl = "https://trungndpc.github.io/insee-promotion-client/images/banner.png";
-        String link = "https://insee-client.wash-up.vn/chuc-mung/" + giftEntity.getId();
+        String imageUrl = promotionEntity.getCover();
+        String link = Constant.CLIENT_DOMAIN + "/chuc-mung/" + giftEntity.getId();
         zaloService.sendActionList(customerEntity.getUserId(), imageUrl, link, title, subTitle);
         return mapper.map(giftEntity, GiftDTO.class);
     }
