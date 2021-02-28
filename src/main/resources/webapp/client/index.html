@@ -12,26 +12,13 @@
     <meta name="description" content="Insee" />
     <meta name="author" content="G-SID" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <link href="https://ktl6lowkv2obj.vcdn.cloud/static/main-{{version}}.css" rel="stylesheet">
+    <link href="{{domain}}/static/main-{{version}}.css" rel="stylesheet">
 </head>
 <body>
 <script>
     {{variable}}
 </script>
 <div id="insee-promotion-client"></div>
-<script type="text/javascript" src="https://ktl6lowkv2obj.vcdn.cloud/static/main-{{version}}.js"></script>
-<script>
-        function load(doc, tag, link) {
-            var el = doc.getElementsByTagName(tag)[0];
-            var script = doc.createElement(tag);
-            script.async = 1;
-            script.src = link;
-            el.parentNode.insertBefore(script, el)
-        }
-        load(document, 'script', '//gstatic.com/firebasejs/8.1.2/firebase-app.js');
-        load(document, 'script', '//gstatic.com/firebasejs/8.1.2/firebase-auth.js');
-        load(document, 'script', '//sdk.amazonaws.com/js/aws-sdk-2.821.0.min.js');
-</script>
-<!--<script src="https://sp.zalo.me/plugins/sdk.js"></script>-->
+<script type="text/javascript" src="{{domain}}/static/main-{{version}}.js"></script>
 </body>
 </html>
