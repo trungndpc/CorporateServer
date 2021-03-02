@@ -15,6 +15,8 @@ import vn.com.insee.corporate.exception.NotSupportTypeConstruction;
 import vn.com.insee.corporate.response.BaseResponse;
 import vn.com.insee.corporate.service.ConstructionService;
 import vn.com.insee.corporate.util.AuthenUtil;
+import vn.com.insee.corporate.util.insee.INSEEMessage;
+import vn.com.insee.corporate.util.insee.INSEEUtil;
 
 @RestController
 @RequestMapping("/api/construction")
@@ -58,11 +60,33 @@ public class ConstructionController {
             if (constructionDTO.getUser().getId() != authUser.getId()) {
                 throw new InvalidSessionException();
             }
-            response.setData(constructionDTO);
         }catch (Exception e) {
             e.printStackTrace();
             response.setError(ErrorCode.FAILED);
         }
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(path = "/summary", produces = {"application/json"})
+    public ResponseEntity<BaseResponse> getStatus(@RequestParam(required = true) int id, Authentication authentication)  {
+        UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+        BaseResponse response = new BaseResponse(ErrorCode.SUCCESS);
+        if (authUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        try{
+            ConstructionDTO constructionDTO = constructionService.get(id);
+            if (constructionDTO.getUser().getId() != authUser.getId()) {
+                throw new InvalidSessionException();
+            }
+            INSEEMessage inseeMessage = INSEEUtil.getMessageFromBuyingINSEECement(constructionDTO.getCement(), constructionDTO.getQuantity());
+            response.setData(inseeMessage);
+        }catch (Exception e) {
+            e.printStackTrace();
+            response.setError(ErrorCode.FAILED);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+
 }
