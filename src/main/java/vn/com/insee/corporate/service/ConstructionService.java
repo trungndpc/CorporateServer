@@ -71,7 +71,7 @@ public class ConstructionService {
     @Autowired
     private PromotionRepository promotionRepository;
 
-    public void create(ConstructionForm form, int customerId) throws JsonProcessingException {
+    public ConstructionDTO create(ConstructionForm form, int customerId) throws JsonProcessingException {
         ConstructionEntity constructionEntity = mapper.map(form, ConstructionEntity.class);
         constructionEntity.setCustomerId(customerId);
         constructionEntity.setStatus(ConstructionStatus.WAITING_APPROVAL.getStatus());
@@ -95,9 +95,10 @@ public class ConstructionService {
         PromotionEntity promotionEntity = promotionRepository.getOne(constructionEntity.getPromotionId());
         String msg = MessageManager.getMsgAfterRegisterPromotion(promotionEntity.getTitle());
         zaloService.sendTxtMsgByCustomerId(customerId, msg);
+        return mapper.map(constructionEntity, ConstructionDTO.class);
     }
 
-    public void update(ConstructionForm form, int customerId) throws NotExitException {
+    public ConstructionDTO update(ConstructionForm form, int customerId) throws NotExitException {
         Optional<ConstructionEntity> optionalConstructionEntity = constructionRepository.findById(form.getId());
         if (!optionalConstructionEntity.isPresent()) {
             throw new NotExitException();
@@ -159,7 +160,8 @@ public class ConstructionService {
             constructionEntity.setCement(form.getCement());
         }
         constructionEntity.setStatus(ConstructionStatus.RE_SUBMIT.getStatus());
-        constructionRepository.saveAndFlush(constructionEntity);
+        constructionEntity = constructionRepository.saveAndFlush(constructionEntity);
+        return mapper.map(constructionEntity, ConstructionDTO.class);
     }
 
     public ConstructionDTO get(int id) throws ConstructionExitException, JsonProcessingException {

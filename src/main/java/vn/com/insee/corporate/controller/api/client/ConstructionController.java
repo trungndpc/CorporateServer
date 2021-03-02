@@ -30,15 +30,17 @@ public class ConstructionController {
         BaseResponse response = new BaseResponse();
         try{
             UserEntity authUser = AuthenUtil.getAuthUser(authentication);
+            ConstructionDTO constructionDTO;
             if (form.getId() == null) {
                 Integer type = form.getType();
                 if (type == null || TypeConstruction.findByType(type) == null) {
                     throw new NotSupportTypeConstruction();
                 }
-                constructionService.create(form, authUser.getCustomerId());
+                constructionDTO = constructionService.create(form, authUser.getCustomerId());
             }else {
-                constructionService.update(form, authUser.getCustomerId());
+                constructionDTO = constructionService.update(form, authUser.getCustomerId());
             }
+            response.setData(constructionDTO);
             response.setError(ErrorCode.SUCCESS);
         }catch (Exception e) {
             e.printStackTrace();
