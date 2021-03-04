@@ -1,6 +1,5 @@
 package vn.com.insee.corporate.controller;
 
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -12,11 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import vn.com.insee.corporate.common.Constant;
 import vn.com.insee.corporate.common.Permission;
-import vn.com.insee.corporate.common.status.CustomerStatus;
 import vn.com.insee.corporate.common.status.StatusRegister;
-import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
-import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.service.UserService;
 import vn.com.insee.corporate.util.AuthenUtil;
 import vn.com.insee.corporate.util.HttpUtil;
@@ -84,7 +80,7 @@ public class ClientController {
     public String index(Authentication authentication, HttpServletResponse response) throws IOException {
         UserEntity authUser = AuthenUtil.getAuthUser(authentication);
         if (authUser == null) {
-            response.sendRedirect("/dang-nhap");
+            response.sendRedirect("/dang-ky");
             return Constant.CONTENT_RESPONSE_TO_REDIRECT;
         }else if (authUser.getRoleId()  == null || authUser.getRoleId() == Permission.ANONYMOUS.getId()){
             response.sendRedirect("/dang-ky");
@@ -92,6 +88,4 @@ public class ClientController {
         }
         return TemplateHTML.client_load(PATH_INDEX_HTML_FILE);
     }
-
-
 }

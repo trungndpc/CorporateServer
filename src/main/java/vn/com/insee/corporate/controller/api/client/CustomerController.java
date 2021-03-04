@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import vn.com.insee.corporate.common.status.CustomerStatus;
 import vn.com.insee.corporate.constant.ErrorCode;
 import vn.com.insee.corporate.dto.RegisterForm;
 import vn.com.insee.corporate.dto.response.CustomerDTO;
@@ -29,6 +30,9 @@ public class CustomerController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private CustomerService customerService;
+
 
     @PostMapping(path = "/update", consumes = "application/json", produces = "application/json")
     public ResponseEntity<BaseResponse> post(@RequestBody RegisterForm form, Authentication authentication) {
@@ -37,10 +41,11 @@ public class CustomerController {
             UserEntity authUser = AuthenUtil.getAuthUser(authentication);
             CustomerDTO customerDTO = service.createOrUpdate(form, authUser.getId());
             if (customerDTO != null) {
-//                if (form.getPass() != null) {
-                    userService.linkCustomerIdToUser(authUser.getId(), customerDTO.getId());
-                    userService.updatePassword(authUser.getId(), form.getPass());
-//                }
+                userService.linkCustomerIdToUser(authUser.getId(), customerDTO.getId());
+                userService.updatePassword(authUser.getId(), form.getPass());
+
+                //AUTO APPROVED
+                customerService.updateStatus(customerDTO.getId(), CustomerStatus.APPROVED, null);
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(customerDTO);
             }else{

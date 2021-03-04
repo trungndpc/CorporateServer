@@ -80,7 +80,7 @@ public class PromotionService {
             throw new NeedToApprovalException();
         }
 
-        List<PromotionEntity> promotionEntities = promotionRepository.findAll(Sort.by(Sort.Direction.DESC, "createdTime"));
+        List<PromotionEntity> promotionEntities = promotionRepository.findAll(Sort.by(Sort.Direction.ASC, "createdTime"));
         if (promotionEntities == null) {
             return new ArrayList<>();
         }

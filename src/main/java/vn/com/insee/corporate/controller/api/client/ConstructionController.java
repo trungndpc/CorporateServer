@@ -62,6 +62,7 @@ public class ConstructionController {
             if (constructionDTO.getUser().getId() != authUser.getId()) {
                 throw new InvalidSessionException();
             }
+            response.setData(constructionDTO);
         }catch (Exception e) {
             e.printStackTrace();
             response.setError(ErrorCode.FAILED);

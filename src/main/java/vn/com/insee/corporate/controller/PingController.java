@@ -11,12 +11,8 @@ import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.common.status.StatusRegister;
 import vn.com.insee.corporate.dto.page.PageDTO;
 import vn.com.insee.corporate.dto.response.ConstructionDTO;
-import vn.com.insee.corporate.entity.CustomerEntity;
-import vn.com.insee.corporate.entity.PromotionEntity;
-import vn.com.insee.corporate.entity.UserEntity;
-import vn.com.insee.corporate.repository.CustomerRepository;
-import vn.com.insee.corporate.repository.PromotionRepository;
-import vn.com.insee.corporate.repository.UserRepository;
+import vn.com.insee.corporate.entity.*;
+import vn.com.insee.corporate.repository.*;
 import vn.com.insee.corporate.service.ConstructionService;
 import vn.com.insee.corporate.service.CustomerService;
 import vn.com.insee.corporate.service.GiftService;
@@ -46,6 +42,12 @@ public class PingController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ConstructionRepository constructionRepository;
+
+    @Autowired
+    private HistoryRepository historyRepository;
 
     @Autowired
     private ConstructionService constructionService;
@@ -92,22 +94,21 @@ public class PingController {
     }
 
     @GetMapping("/delete")
-    String delete(@RequestParam(required = false) String phone, @RequestParam(required = false) int idc) {
-        List<UserEntity> all = repository.findAll();
-        for (UserEntity e:all) {
-            if ((e.getPhone() != null  && e.getPhone().equals(phone)) || e.getId() == idc) {
-                int id = e.getId();
-                int customerId = e.getCustomerId();
-                String zaloId = e.getZaloId();
-                String followerid = e.getFollowerZaloId();
-                e = new UserEntity();
-                e.setId(id);
-                e.setFollowerZaloId(followerid);
-                e.setZaloId(zaloId);
-                repository.saveAndFlush(e);
-                customerRepository.deleteById(customerId);
-            }
+    String delete(@RequestParam(required = false) String phone, @RequestParam(required = false) int id) {
+        UserEntity byPhone = repository.getOne(id);
+        int uid = byPhone.getId();
+        int customerID = byPhone.getCustomerId();
+        List<ConstructionEntity> byCustomerId = constructionRepository.findByCustomerId(customerID);
+        if (byCustomerId != null) {
+            constructionRepository.deleteAll(byCustomerId);
         }
+        List<HistoryEntity> byUserId = historyRepository.findByUserId(uid);
+        if (byUserId != null) {
+            historyRepository.deleteAll(byUserId);
+        }
+        repository.deleteById(id);
+
+        customerRepository.deleteById(byPhone.getCustomerId());
         return "OK";
     }
 
@@ -137,7 +138,7 @@ public class PingController {
         genCustomer("Contractor B", "https://f33-zpg.zdn.vn/4246271967914451302/c139cb61f461043f5d70.jpg"
         ,"84972699592", 6);
         genCustomer("Contractor C", "https://f36-zpg.zdn.vn/1730508780768327302/74cb19982698d6c68f89.jpg"
-                ,"84972659592", 7);
+                , "84972659592", 7);
         genCustomer("Contractor D", "https://f22-zpg.zdn.vn/7089438183322163729/beac9448aa485a160359.jpg"
                 ,"84972691592", 8);
         genCustomer("Contractor E", "https://f32-zpg.zdn.vn/5292562318383030202/21444b5a735a8304da4b.jpg"
