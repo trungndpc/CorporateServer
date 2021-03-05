@@ -6,7 +6,9 @@ import java.util.List;
 
 public class UserSendMessageEvent extends ZEvent{
 
-    private static class Message {
+    public Message message;
+
+    public static class Message {
         public String text;
 
         @JsonProperty("msg_id")
@@ -16,11 +18,11 @@ public class UserSendMessageEvent extends ZEvent{
         public List<Attachment> attachments;
 
     }
-    private static class Attachment {
+    public static class Attachment {
         public String type;
         public Payload payload;
 
-        private static class Payload {
+        public static class Payload {
             public String thumbnail;
             public String url;
             public String description;
@@ -28,7 +30,7 @@ public class UserSendMessageEvent extends ZEvent{
             public String type;
             public String checksum;
 
-            private static class  Coordinates {
+            public static class  Coordinates {
                 public String latitude;
                 public String longitude;
             }

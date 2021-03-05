@@ -120,10 +120,8 @@ public class UserService {
     }
 
     public UserEntity initUserFromZalo(ZaloUserEntity zaloUserEntity) {
-        System.out.println("initUserFromZalo");
         UserEntity userEntity = userRepository.findByZaloId(zaloUserEntity.getId());
         if (userEntity == null || userEntity.getRoleId() == null) {
-            System.out.println("............");
             if(userEntity == null) {
                 userEntity = new UserEntity();
                 userEntity.setId(0);

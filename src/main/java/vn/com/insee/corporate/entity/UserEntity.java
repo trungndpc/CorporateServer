@@ -33,6 +33,10 @@ public class UserEntity extends BaseEntity{
     @Column(name = "lst_session",columnDefinition = "character varying[]")
     private List<String> lstSession;
 
+    public boolean isValid() {
+        //TODO
+        return false;
+    }
 
     public Integer getId() {
         return id;

@@ -24,11 +24,11 @@ public abstract class ZEvent {
     @JsonProperty("recipient")
     public Recipient recipient;
 
-    private static class Sender {
+    public static class Sender {
         public String id;
     }
 
-    private static class Recipient {
+    public static class Recipient {
         public String id;
     }
 

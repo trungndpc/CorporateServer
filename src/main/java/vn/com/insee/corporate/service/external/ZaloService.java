@@ -17,6 +17,8 @@ import vn.com.insee.corporate.repository.UserRepository;
 import vn.com.insee.corporate.service.external.zalo.ListMessage;
 import vn.com.insee.corporate.service.external.zalo.Recipient;
 import vn.com.insee.corporate.service.external.zalo.TextMessage;
+import vn.com.insee.corporate.service.external.zalo.api.Message;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,7 @@ public class ZaloService {
     private final ObjectMapper objectMapper;
     private static final String GET_ACCESS_TOKEN_URL = "https://oauth.zaloapp.com/v3/access_token?app_id={1}&app_secret={2}&code={3}";
     private static final String GET_USER_INFO = "https://graph.zalo.me/v2.0/me?fields=id,name,picture,birthday,gender&access_token=";
-    private static final String SEND_MSG_TO_USER_URL = "https://openapi.zalo.me/v2.0/oa/message?access_token={1}";
+    private static final String END_POINT = "https://openapi.zalo.me/v2.0/oa/message?access_token={1}";
 
     public ZaloService() {
         this.restTemplate = new RestTemplate();
@@ -42,11 +44,17 @@ public class ZaloService {
         this.objectMapper = new ObjectMapper();
     }
 
+    public boolean sendMessage(String followerId, Message message) throws JsonProcessingException {
+        String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(message);
+        ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(END_POINT, json, String.class,
+                Constant.ZALO_OA_ACCESS_TOKEN);
+        return zaloResponseResponseEntity.getStatusCode() == HttpStatus.OK;
+    }
+
     public void sendTxtMsg(int userId, String msg) throws JsonProcessingException {
         UserEntity userEntity = userRepository.getOne(userId);
         String followerZaloId = userEntity.getFollowerZaloId();
         if (followerZaloId == null || followerZaloId.isEmpty()) {
-            System.out.println("uid: " + userId + " is not follower" );
         }else{
             sendTextMsg(followerZaloId, msg);
         }
@@ -61,7 +69,6 @@ public class ZaloService {
         UserEntity userEntity = userRepository.getOne(userId);
         String followerZaloId = userEntity.getFollowerZaloId();
         if (followerZaloId == null || followerZaloId.isEmpty()) {
-            System.out.println("uid: " + userId + " is not follower" );
         }else{
             sendActionList(followerZaloId, imgUrl, url, title, subTitle);
         }
@@ -95,10 +102,8 @@ public class ZaloService {
     public boolean sendTextMsg(String followerId, String text) throws JsonProcessingException {
         TextMessage textMessage = new TextMessage(followerId, text);
         String textJson = this.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(textMessage);
-        ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(SEND_MSG_TO_USER_URL, textJson, String.class, Constant.ZALO_OA_ACCESS_TOKEN);
-        System.out.println(zaloResponseResponseEntity);
+        ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(END_POINT, textJson, String.class, Constant.ZALO_OA_ACCESS_TOKEN);
         if (zaloResponseResponseEntity.getStatusCode() != HttpStatus.OK) {
-            System.out.println(zaloResponseResponseEntity.getBody());
             return false;
         }
         return true;
@@ -122,12 +127,10 @@ public class ZaloService {
         listMessage.setMessage(message);
 
         String textJson = this.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(listMessage);
-        ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(SEND_MSG_TO_USER_URL, textJson, String.class, Constant.ZALO_OA_ACCESS_TOKEN);
+        ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(END_POINT, textJson, String.class, Constant.ZALO_OA_ACCESS_TOKEN);
         if (zaloResponseResponseEntity.getStatusCode() != HttpStatus.OK) {
-            System.out.println(zaloResponseResponseEntity.getBody());
             return false;
         }
-        System.out.println(textJson);
         return true;
     }
 
