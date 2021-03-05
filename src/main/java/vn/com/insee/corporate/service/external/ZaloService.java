@@ -10,6 +10,7 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import vn.com.insee.corporate.common.Constant;
+import vn.com.insee.corporate.common.MessageManager;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.repository.CustomerRepository;
@@ -106,6 +107,7 @@ public class ZaloService {
 
     public boolean sendActionList(String followerId, String imgUrl, String url, String title, String subTitle) throws JsonProcessingException {
         ListMessage.Element element = new ListMessage.Element();
+        imgUrl = imgUrl.replace("https://ktl6lowkv2obj.vcdn.cloud", "https://insee-promotion-vn.s3.us-east-2.amazonaws.com");
         element.setImageUrl(imgUrl);
         element.setTitle(title);
         element.setSubtitle(subTitle);
@@ -124,17 +126,9 @@ public class ZaloService {
         String textJson = this.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(listMessage);
         ResponseEntity<String> zaloResponseResponseEntity = restTemplate.postForEntity(SEND_MSG_TO_USER_URL, textJson, String.class, Constant.ZALO_OA_ACCESS_TOKEN);
         if (zaloResponseResponseEntity.getStatusCode() != HttpStatus.OK) {
-            System.out.println(zaloResponseResponseEntity.getBody());
             return false;
         }
-        System.out.println(textJson);
+        System.out.println(zaloResponseResponseEntity.getBody());
         return true;
-    }
-
-    public static void main(String[] args) throws JsonProcessingException {
-//        Constant.ZALO_OA_ACCESS_TOKEN = "bmDgElzhiY-M1siy_sk-APe7OpxmTzjztaPI7V5w-d6K75yGc7RZLQngHJgRSyvb_dHiSvf5qs6MBaWeiI3cOBWiM0Q9GUTjkdjZ485SwKEGTaq9u63g6lT_JKtOJ-qxtMDACTXLv6NDSrClsq3QHj9q3XFaHDjy-qLwQjzGsYMtR09eibRP5urnLLEcMjivWa5yA9PAtLkuHNqVaKwXJQPo4pwuNBTTb7Ct6OToh0YyRYyUXcFoLO9MLqAyJOmEiLaEQAXbjIc3JZOyZ5JiRkHWCGU1JOrDNLxj9_bpj2a";
-//        ZaloService zaloService = new ZaloService();
-//        zaloService.sendTextMsg("6093726558823912784", "OK");
-//        zaloService.sendActionList("8735999925442427033", "https://developers.zalo.me/web/static/zalo.png", "https://developers.zalo.me/web/static/zalo.png", "title", "sub");
     }
 }

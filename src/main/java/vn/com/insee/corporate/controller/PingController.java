@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import vn.com.insee.corporate.common.status.ConstructionStatus;
 import vn.com.insee.corporate.common.status.CustomerStatus;
 import vn.com.insee.corporate.common.Permission;
 import vn.com.insee.corporate.common.status.StatusRegister;
@@ -51,6 +52,11 @@ public class PingController {
 
     @Autowired
     private ConstructionService constructionService;
+
+    @Autowired
+    private GiftRepository giftRepository;
+
+
 //    @GetMapping("/reset")
 //    String reset(Authentication authentication) {
 //        customerRepository.deleteAll();
@@ -90,6 +96,19 @@ public class PingController {
 //        one.setLocation(7);
 //        promotionRepository.saveAndFlush(one);
 //        List<HistoryGiftCustomerDTO> listByUid = giftService.getHistoryByCustomerId(25);
+        return "OK";
+    }
+
+    @GetMapping("/delete-gift")
+    String deleteGift(@RequestParam(required = false) int id) {
+        GiftEntity giftEntity = giftRepository.getOne(id);
+
+        ConstructionEntity constructionEntity = constructionRepository.getOne(giftEntity.getConstructionId());
+        constructionEntity.setGiftId(null);
+        constructionEntity.setStatus(ConstructionStatus.APPROVED.getStatus());
+        constructionRepository.saveAndFlush(constructionEntity);
+
+        giftRepository.deleteById(id);
         return "OK";
     }
 
