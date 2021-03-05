@@ -45,7 +45,7 @@ public class CustomerController {
                 userService.updatePassword(authUser.getId(), form.getPass());
 
                 //AUTO APPROVED
-                customerService.updateStatus(customerDTO.getId(), CustomerStatus.APPROVED, null);
+//                customerService.updateStatus(customerDTO.getId(), CustomerStatus.APPROVED, null);
                 response.setError(ErrorCode.SUCCESS);
                 response.setData(customerDTO);
             }else{
