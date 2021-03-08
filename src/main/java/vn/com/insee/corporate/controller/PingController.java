@@ -74,6 +74,10 @@ public class PingController {
 //        return "OK";
 //    }
 
+    @GetMapping("/dashboard")
+    String dashboard(Authentication authentication) throws Exception {
+        return "OK";
+    }
     @GetMapping("/ping")
     String all(Authentication authentication) throws Exception {
         List<PromotionEntity> all = promotionRepository.findAll();

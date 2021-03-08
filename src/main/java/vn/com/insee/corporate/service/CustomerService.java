@@ -22,11 +22,13 @@ import vn.com.insee.corporate.exception.ParamNotSupportException;
 import vn.com.insee.corporate.mapper.Mapper;
 import vn.com.insee.corporate.repository.CustomerRepository;
 import vn.com.insee.corporate.repository.UserRepository;
+import vn.com.insee.corporate.repository.custom.metrics.CustomerLocationMetric;
 import vn.com.insee.corporate.service.external.ZaloService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
@@ -174,7 +176,7 @@ public class CustomerService {
 
     public PageDTO<CustomerDTO> findBy(CustomerDTOStatus dtoStatus , Integer location, int page, int size) throws ParamNotSupportException {
         Pageable pageable =
-                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedTime"));
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         Page<CustomerEntity> customerEntityPage = null;
         if (dtoStatus == null) {
             customerEntityPage = customerRepository.getListByStatusAndLocationAndLinkedUser(null,  location, true, pageable);

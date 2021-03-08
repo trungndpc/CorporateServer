@@ -11,5 +11,5 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Intege
     Page<CustomerEntity> findByStatusAndIsLinkedUser(int status, boolean isLinkedUser, Pageable pageable);
     Page<CustomerEntity> findByIsLinkedUser(boolean isLinkedUser, Pageable pageable);
     CustomerEntity findByUserId(Integer userId);
-
+    long countByStatus(int status);
 }

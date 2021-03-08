@@ -1,13 +1,13 @@
-package vn.com.insee.corporate.repository.custom.entries;
+package vn.com.insee.corporate.repository.custom.metrics;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CustomerLocationEntry {
+public class CustomerLocationMetric {
     private int total;
     @JsonProperty(value = "location_id")
     private int locationId;
 
-    public CustomerLocationEntry(int total, int locationId) {
+    public CustomerLocationMetric(int locationId, int total) {
         this.total = total;
         this.locationId = locationId;
     }

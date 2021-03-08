@@ -1,4 +1,4 @@
-package vn.com.insee.corporate.dto.response.admin.report;
+package vn.com.insee.corporate.dto.response.admin.report.metric;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

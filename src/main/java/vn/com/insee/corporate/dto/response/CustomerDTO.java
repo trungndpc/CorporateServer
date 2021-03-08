@@ -16,6 +16,8 @@ public class CustomerDTO {
     private Integer finalStatus;
     private String note;
     private Integer volumeCiment;
+    private Long createdTime;
+    private Long updatedTime;
 
     public Integer getId() {
         return id;
@@ -42,7 +44,7 @@ public class CustomerDTO {
     }
 
     public String getPhone() {
-        if(phone != null) {
+        if (phone != null) {
             phone = phone.replace("+", "");
         }
         return phone;
@@ -106,6 +108,22 @@ public class CustomerDTO {
 
     public void setVolumeCiment(Integer volumeCiment) {
         this.volumeCiment = volumeCiment;
+    }
+
+    public Long getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Long createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public Long getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(Long updatedTime) {
+        this.updatedTime = updatedTime;
     }
 }
 

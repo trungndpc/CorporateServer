@@ -1,4 +1,9 @@
 package vn.com.insee.corporate.repository.custom;
 
-public class ConstructionRepositoryCustom {
+import vn.com.insee.corporate.repository.custom.metrics.ConstructionLocationMetric;
+
+import java.util.List;
+
+public interface ConstructionRepositoryCustom {
+    List<ConstructionLocationMetric> statisticConstructionByLocation();
 }
