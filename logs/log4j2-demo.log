@@ -1,0 +1,2 @@
+2021-03-10 00:04:14.595  INFO trungnd2-System-Product-Name --- [extShutdownHook] o.s.s.c.ThreadPoolTaskExecutor           : Shutting down ExecutorService 'applicationTaskExecutor'
+2021-03-10 00:04:14.602  INFO trungnd2-System-Product-Name --- [extShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'

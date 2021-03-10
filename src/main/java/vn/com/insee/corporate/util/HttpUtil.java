@@ -29,7 +29,7 @@ public class HttpUtil {
             String scheme = url.getProtocol();
             int port = url.getPort();
             URI uri = new URI("https",null,host,port,null,null,null);
-            return uri.toString().replace("https://localhost:8080", "https://b32835fb13d9.ngrok.io");
+            return uri.toString();
         }catch (Exception e) {
             e.printStackTrace();
         }

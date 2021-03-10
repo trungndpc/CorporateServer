@@ -1,6 +1,7 @@
 package vn.com.insee.corporate.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.StringUtils;
 import org.postgresql.util.GT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -120,10 +121,8 @@ public class UserService {
     }
 
     public UserEntity initUserFromZalo(ZaloUserEntity zaloUserEntity) {
-        System.out.println("initUserFromZalo");
         UserEntity userEntity = userRepository.findByZaloId(zaloUserEntity.getId());
         if (userEntity == null || userEntity.getRoleId() == null) {
-            System.out.println("............");
             if(userEntity == null) {
                 userEntity = new UserEntity();
                 userEntity.setId(0);
@@ -135,7 +134,7 @@ public class UserService {
             userEntity.setAvatar(zaloUserEntity.getAvatar());
             userEntity.setStatus(UserStatus.INIT_FROM_ZALO.getId());
             userEntity.setEnable(true);
-            if (zaloUserEntity.getBirthday() != null) {
+            if (!StringUtils.isEmpty(zaloUserEntity.getBirthday())) {
                 int time = TimeUtil.getTime(zaloUserEntity.getBirthday());
                 userEntity.setBirthday(time);
             }

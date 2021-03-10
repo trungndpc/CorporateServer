@@ -2,6 +2,8 @@ package vn.com.insee.corporate.service.external;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import vn.com.insee.corporate.common.Constant;
 import vn.com.insee.corporate.common.MessageManager;
+import vn.com.insee.corporate.controller.ClientController;
 import vn.com.insee.corporate.entity.CustomerEntity;
 import vn.com.insee.corporate.entity.UserEntity;
 import vn.com.insee.corporate.repository.CustomerRepository;
@@ -26,6 +29,9 @@ import java.util.List;
 public class ZaloService {
     @Autowired
     private UserRepository userRepository;
+
+    private static final Logger LOGGER = LogManager.getLogger(ZaloService.class);
+
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -69,10 +75,18 @@ public class ZaloService {
     }
 
     public String getAccessToken(String oauthCode) {
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(GET_ACCESS_TOKEN_URL, String.class, Constant.ZALO_APP_ID, Constant.ZALO_SECRET_APP, oauthCode);
-        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(GET_ACCESS_TOKEN_URL, String.class, Constant.ZALO_APP_ID,
+                Constant.ZALO_SECRET_APP, oauthCode);
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            LOGGER.error("getAccessToken failed error: " + responseEntity.getStatusCode());
+            return null;
+        }
+        try{
             JSONObject json = new JSONObject(responseEntity.getBody());
             return  json.getString("access_token");
+        }catch (Exception e ) {
+            LOGGER.error("getAccessToken exception: " + e.getMessage()
+                    + ", oauthCode: " + oauthCode + ", response: " + responseEntity);
         }
         return null;
     }
@@ -80,7 +94,11 @@ public class ZaloService {
     public ZaloUserEntity getUserInfo(String accessToken) {
         String url = GET_USER_INFO + accessToken;
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
-        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            LOGGER.error("getUserInfo failed error: " + responseEntity.getStatusCode());
+            return null;
+        }
+        try{
             JSONObject json = new JSONObject(responseEntity.getBody());
             ZaloUserEntity entity = new ZaloUserEntity();
             entity.setId(json.getString("id"));
@@ -89,6 +107,8 @@ public class ZaloService {
             entity.setBirthday(json.getString("birthday"));
             entity.setAvatar(json.getJSONObject("picture").getJSONObject("data").getString("url"));
             return entity;
+        }catch (Exception e) {
+            LOGGER.error("getUserInfo failed error: " + e.getMessage() + ", accessToken: " + accessToken + ", response: " + responseEntity);
         }
         return null;
     }
